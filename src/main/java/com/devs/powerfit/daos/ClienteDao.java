@@ -11,8 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ClienteDao extends JpaRepository<ClienteBean, ClienteDto> {
     Optional<ClienteBean> findByIdAndActiveTrue(Long id);
-    Page<ClienteBean> findByNombreIgnoreCaseContaining(String nombre, Pageable pageable);
-    Page<ClienteBean> findByRucContaining(String nombre, Pageable pag);
-    Boolean existsByIdAndActiveTrue(Long id);
+    Page<ClienteBean> findByNombreAndActiveIsTrue(Pageable pageable, String nombre);
+    Page<ClienteBean>findByCedulaAndActiveIsTrue(Pageable pageable, String cedula);
+
     Page<ClienteBean> findAllByActiveTrue(Pageable pageable);
 }
