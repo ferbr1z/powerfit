@@ -6,21 +6,22 @@ import com.devs.powerfit.dtos.ClienteDto;
 import com.devs.powerfit.dtos.PageResponse;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.IClienteService;
-import com.devs.powerfit.interfaces.IMapper;
 import com.devs.powerfit.utils.Setting;
+import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class ClienteService implements IClienteService {
 
     private ClienteDao clienteDao;
-    private final IMapper<ClienteBean,ClienteDto> mapper;
+    private ClienteMapper mapper;
     @Autowired
-    public ClienteService(ClienteDao clienteDao, IMapper<ClienteBean, ClienteDto> mapper) {
+    public ClienteService(ClienteDao clienteDao, ClienteMapper mapper) {
         this.clienteDao = clienteDao;
         this.mapper = mapper;
     }
@@ -28,17 +29,30 @@ public class ClienteService implements IClienteService {
 
     @Override
     public ClienteDto create(ClienteDto clienteDto) {
-        var cliente = mapper.toBean(clienteDto, ClienteBean.class);
-        cliente.setActive(true);
-        clienteDao.save(cliente);
-        return mapper.toDto(cliente, ClienteDto.class);
+        // Verificar si ya existe un cliente con los mismos campos únicos (activo o inactivo)
+        Optional<ClienteBean> existingClient = clienteDao.findByRucAndCedula(clienteDto.getRuc(), clienteDto.getCedula());
+
+        if (existingClient.isPresent()) {
+            // Si el cliente ya existe, actualizar el estado activo a true y guardarlo
+            ClienteBean clienteExistente = existingClient.get();
+            clienteExistente.setActive(true);
+            clienteDao.save(clienteExistente);
+            return mapper.toDto(clienteExistente);
+        } else {
+            // Si el cliente no existe, crear un nuevo cliente
+            var cliente = mapper.toBean(clienteDto);
+            cliente.setActive(true);
+            cliente.setFechaRegistro(LocalDate.now());
+            clienteDao.save(cliente);
+            return mapper.toDto(cliente);
+        }
     }
 
     @Override
     public ClienteDto getById(Long id) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
         if (cliente.isPresent()) {
-            return mapper.toDto(cliente.get(), ClienteDto.class);
+            return mapper.toDto(cliente.get());
         }
         throw new NotFoundException("Cliente no encontrado");
 
@@ -53,7 +67,7 @@ public class ClienteService implements IClienteService {
             throw new NotFoundException("No hay clientes en la lista");
         }
 
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente, ClienteDto.class));
+        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
         var pageResponse = new PageResponse<ClienteDto>(clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
@@ -76,7 +90,7 @@ public class ClienteService implements IClienteService {
 
             clienteDao.save(clienteBean);
 
-            return mapper.toDto(clienteBean, ClienteDto.class);
+            return mapper.toDto(clienteBean);
         }
         throw new NotFoundException("Cliente no encontrado");
     }
@@ -101,7 +115,7 @@ public class ClienteService implements IClienteService {
             throw new NotFoundException("No hay clientes en la lista");
         }
 
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente, ClienteDto.class));
+        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
         var pageResponse = new PageResponse<ClienteDto>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),
@@ -120,7 +134,7 @@ public class ClienteService implements IClienteService {
             throw new NotFoundException("No hay clientes con esa cedula");
         }
 
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente, ClienteDto.class));
+        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
         var pageResponse = new PageResponse<ClienteDto>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),

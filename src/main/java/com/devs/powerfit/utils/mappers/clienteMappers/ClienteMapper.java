@@ -3,7 +3,9 @@ package com.devs.powerfit.utils.mappers.clienteMappers;
 import com.devs.powerfit.beans.ClienteBean;
 import com.devs.powerfit.dtos.ClienteDto;
 import com.devs.powerfit.utils.mappers.AbstractMapper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class ClienteMapper extends AbstractMapper<ClienteBean, ClienteDto> {
     @Override
     public ClienteBean toBean(ClienteDto dto) {
