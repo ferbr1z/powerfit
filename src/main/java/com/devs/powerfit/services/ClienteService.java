@@ -110,6 +110,7 @@ public class ClienteService implements IClienteService {
         return pageResponse;
     }
 
+
     @Override
     public PageResponse<ClienteDto> searchByCi(String ci, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
