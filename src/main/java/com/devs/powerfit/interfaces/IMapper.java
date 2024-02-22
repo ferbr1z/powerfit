@@ -1,8 +1,11 @@
 package com.devs.powerfit.interfaces;
 
-public interface IMapper<Bean extends IBean, Dto extends IDto> {
+import com.devs.powerfit.abstracts.AbstractBean;
+import com.devs.powerfit.abstracts.AbstractDto;
+import org.springframework.stereotype.Component;
 
-    public Bean toBean(Dto dto);
-    public Dto toDto(Bean bean);
-
+@Component
+public interface IMapper<B extends AbstractBean,D extends AbstractDto> {
+    public B toBean(D dto, Class<B> beanClass);
+    public D toDto(B bean, Class<D> dtoClass);
 }

@@ -2,9 +2,11 @@ package com.devs.powerfit.abstracts;
 
 import com.devs.powerfit.interfaces.IBean;
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.ColumnDefault;
 
 @MappedSuperclass
+@Data
 public abstract class AbstractBean implements IBean {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,6 +18,11 @@ public abstract class AbstractBean implements IBean {
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public boolean isActive() {
