@@ -11,8 +11,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
+    private final IClienteService clienteService;
     @Autowired
-    private IClienteService clienteService;
+    public ClienteController(IClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
+
     @PostMapping
     public ResponseEntity<ClienteDto> create(@RequestBody ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.create(clienteDto), HttpStatus.CREATED);
