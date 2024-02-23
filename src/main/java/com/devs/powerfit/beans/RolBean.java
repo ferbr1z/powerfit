@@ -15,7 +15,5 @@ public class RolBean extends AbstractBean {
     @Column
     private String nombre;
 
-    @OneToMany(mappedBy = "rol")
-    private List<UsuarioBean> usuarios;
 
 }

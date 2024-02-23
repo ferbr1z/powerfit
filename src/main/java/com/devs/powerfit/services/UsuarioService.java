@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-
+public class UsuarioService {
     @Autowired
-    private UsuarioDao userRepository;
+    private UsuarioDao userDao;
 
     public UserDetailsService userDetailsService() {
-        return userEmail -> userRepository.findByEmailAndActiveIsTrue(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return userEmail -> userDao.findByEmailAndActiveIsTrue(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
+
 }

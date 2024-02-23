@@ -11,11 +11,7 @@ public class AuthRequest {
     private String email;
 
     @NotNull
-    private String nombre;
-
-    @NotNull
     private String password;
 
-    @NotNull
-    private Long rol_id;
+
 }
