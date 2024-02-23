@@ -20,7 +20,7 @@ public class UsuarioBean extends AbstractBean implements UserDetails {
     @Column
     private String email;
     @Column
-    private String contraseña;
+    private String password;
 
     @ManyToOne
     @JoinColumn(name = "rol_id")
@@ -33,7 +33,7 @@ public class UsuarioBean extends AbstractBean implements UserDetails {
 
     @Override
     public String getPassword() {
-        return contraseña;
+        return password;
     }
 
     @Override

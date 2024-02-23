@@ -1,4 +1,4 @@
-package com.devs.powerfit.security;
+package com.devs.powerfit.security.jwt;
 
 import com.devs.powerfit.beans.UsuarioBean;
 import io.jsonwebtoken.*;

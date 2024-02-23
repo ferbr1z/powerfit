@@ -12,8 +12,8 @@
             <pattern>%date [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="WARN">
-        <!--        <appender-ref ref="CONSOLE" />-->
+    <root level="TRACE">
+        <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
 </configuration>
