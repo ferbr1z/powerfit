@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.ClienteBean;
 import com.devs.powerfit.daos.ClienteDao;
 import com.devs.powerfit.dtos.ClienteDto;
 import com.devs.powerfit.dtos.PageResponse;
+import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.IClienteService;
 import com.devs.powerfit.utils.Setting;
@@ -29,24 +30,36 @@ public class ClienteService implements IClienteService {
 
     @Override
     public ClienteDto create(ClienteDto clienteDto) {
-        // Verificar si ya existe un cliente con los mismos campos únicos (activo o inactivo)
-        Optional<ClienteBean> existingClient = clienteDao.findByRucAndCedula(clienteDto.getRuc(), clienteDto.getCedula());
+        // Verificar si los campos obligatorios no están incompletos
+        if (clienteDto.getNombre() == null || clienteDto.getCedula() == null) {
+            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente");
+        }
+
+        // Verificar si ya existe un cliente con la misma cédula
+        Optional<ClienteBean> existingClient = clienteDao.findByCedula(clienteDto.getCedula());
 
         if (existingClient.isPresent()) {
-            // Si el cliente ya existe, actualizar el estado activo a true y guardarlo
-            ClienteBean clienteExistente = existingClient.get();
-            clienteExistente.setActive(true);
-            clienteDao.save(clienteExistente);
-            return mapper.toDto(clienteExistente);
+            ClienteBean cliente = existingClient.get();
+            if (cliente.isActive()) {
+                throw new BadRequestException("Ya existe un cliente activo con la misma cédula");
+            } else {
+                // Si el cliente existe pero está inactivo, activarlo
+                cliente.setActive(true);
+                clienteDao.save(cliente);
+                return mapper.toDto(cliente);
+            }
         } else {
-            // Si el cliente no existe, crear un nuevo cliente
-            var cliente = mapper.toBean(clienteDto);
+            // Si no existe un cliente activo con la misma cédula, crear un nuevo cliente
+            ClienteBean cliente = mapper.toBean(clienteDto);
             cliente.setActive(true);
             cliente.setFechaRegistro(LocalDate.now());
             clienteDao.save(cliente);
             return mapper.toDto(cliente);
         }
     }
+
+
+
 
     @Override
     public ClienteDto getById(Long id) {
