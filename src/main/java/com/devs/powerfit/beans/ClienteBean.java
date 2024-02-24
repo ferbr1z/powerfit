@@ -15,7 +15,6 @@ public class ClienteBean extends AbstractBean {
 
     @Column
     private String nombre;
-    @Column(unique = true)
     private String ruc;
     @Column(unique = true)
     private String cedula;
