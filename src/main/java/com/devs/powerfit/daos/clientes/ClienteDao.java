@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 @Repository
-public interface ClienteDao extends JpaRepository<ClienteBean, ClienteDto> {
+public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Optional<ClienteBean> findByIdAndActiveTrue(Long id);
     Optional<ClienteBean> findByRucAndCedula(String ruc, String cedula);
     Optional<ClienteBean> findByRucOrCedula(String ruc, String cedula);
