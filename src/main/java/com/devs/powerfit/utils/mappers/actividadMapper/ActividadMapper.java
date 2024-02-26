@@ -1,10 +1,8 @@
 package com.devs.powerfit.utils.mappers.actividadMapper;
 
-import com.devs.powerfit.beans.ActividadBean;
-import com.devs.powerfit.beans.ActividadBean;
-import com.devs.powerfit.dtos.ActividadDto;
-import com.devs.powerfit.dtos.ActividadDto;
-import com.devs.powerfit.utils.mappers.AbstractMapper;
+import com.devs.powerfit.beans.actividades.ActividadBean;
+import com.devs.powerfit.dtos.actividades.ActividadDto;
+import com.devs.powerfit.abstracts.AbstractMapper;
 import org.springframework.stereotype.Component;
 
 @Component
