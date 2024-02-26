@@ -1,8 +1,8 @@
 package com.devs.powerfit.utils.mappers.clienteMappers;
 
-import com.devs.powerfit.beans.ClienteBean;
-import com.devs.powerfit.dtos.ClienteDto;
-import com.devs.powerfit.utils.mappers.AbstractMapper;
+import com.devs.powerfit.beans.clientes.ClienteBean;
+import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.abstracts.AbstractMapper;
 import org.springframework.stereotype.Component;
 
 @Component
