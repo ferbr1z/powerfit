@@ -10,9 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 @MappedSuperclass
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+
 public abstract class AbstractBean implements IBean {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

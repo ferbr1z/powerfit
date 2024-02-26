@@ -6,9 +6,17 @@ import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-
+@Entity
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SuscripcionDetalleBean extends AbstractBean {
     @ManyToOne
     @JoinColumn(name = "id_suscripcion")
