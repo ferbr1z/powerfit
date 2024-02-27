@@ -1,6 +1,6 @@
-package com.devs.powerfit.services;
+package com.devs.powerfit.services.auth;
 
-import com.devs.powerfit.daos.UsuarioDao;
+import com.devs.powerfit.daos.auth.UsuarioDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;

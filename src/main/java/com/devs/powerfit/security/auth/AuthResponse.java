@@ -1,4 +1,4 @@
-package com.devs.powerfit.security;
+package com.devs.powerfit.security.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 public class AuthResponse {
     private String email;
     private String accessToken;
-    private Long rol_id;
+    private String rol;
     private String nombre;
 
 }

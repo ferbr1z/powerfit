@@ -1,6 +1,7 @@
-package com.devs.powerfit.beans;
+package com.devs.powerfit.beans.auth;
 
 import com.devs.powerfit.abstracts.AbstractBean;
+import com.devs.powerfit.beans.auth.RolBean;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class UsuarioBean extends AbstractBean implements UserDetails {
     @JoinColumn(name = "rol_id")
     private RolBean rol;
 
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -50,11 +52,13 @@ public class UsuarioBean extends AbstractBean implements UserDetails {
         return email;
     }
 
+
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
+
 
     @JsonIgnore
     @Override
@@ -62,11 +66,13 @@ public class UsuarioBean extends AbstractBean implements UserDetails {
         return true;
     }
 
+
     @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
 
     @JsonIgnore
     @Override

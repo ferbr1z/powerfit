@@ -1,7 +1,7 @@
 package com.devs.powerfit.security;
 
 import com.devs.powerfit.security.jwt.JwtAuthenticationFilter;
-import com.devs.powerfit.services.UsuarioService;
+import com.devs.powerfit.services.auth.UsuarioService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;

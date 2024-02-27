@@ -1,4 +1,4 @@
-package com.devs.powerfit.dtos;
+package com.devs.powerfit.dtos.auth;
 
 import lombok.Data;
 

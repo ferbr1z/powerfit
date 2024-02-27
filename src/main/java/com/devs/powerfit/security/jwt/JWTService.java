@@ -1,6 +1,6 @@
 package com.devs.powerfit.security.jwt;
 
-import com.devs.powerfit.interfaces.IJWTService;
+import com.devs.powerfit.interfaces.auth.IJWTService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
