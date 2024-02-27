@@ -426,3 +426,165 @@ Using generated security password: 8842aa04-c9d9-4ea6-9acf-297156052132
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
+2024-02-27 08:29:54,458 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-02-27 08:29:54,504 [main] INFO  c.d.p.PowerFitApplicationTests - Starting PowerFitApplicationTests using Java 21.0.1 with PID 10564 (started by marce in C:\Users\marce\OneDrive\Escritorio\PowerFit\powerfit)
+2024-02-27 08:29:54,506 [main] INFO  c.d.p.PowerFitApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2024-02-27 08:29:57,286 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-27 08:29:57,428 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 129 ms. Found 6 JPA repository interfaces.
+2024-02-27 08:29:58,971 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-27 08:29:59,093 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-27 08:29:59,163 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-02-27 08:29:59,779 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-27 08:29:59,832 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-02-27 08:30:00,554 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@4f2b1e9f
+2024-02-27 08:30:00,559 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-02-27 08:30:02,657 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-27 08:30:02,905 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 08:30:05,287 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-27 08:30:05,404 [main] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@fbc1de9, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@295e9aef, org.springframework.security.web.context.SecurityContextHolderFilter@5f745970, org.springframework.security.web.header.HeaderWriterFilter@2787abe4, org.springframework.web.filter.CorsFilter@3f1b4a14, org.springframework.security.web.authentication.logout.LogoutFilter@62065d12, com.devs.powerfit.security.jwt.JwtAuthenticationFilter@f0deba2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1633962a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5784f6b9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@452e0a94, org.springframework.security.web.session.SessionManagementFilter@11034fdb, org.springframework.security.web.access.ExceptionTranslationFilter@4b391e45, org.springframework.security.web.access.intercept.AuthorizationFilter@6f8b1902]
+2024-02-27 08:30:06,584 [main] INFO  c.d.p.PowerFitApplicationTests - Started PowerFitApplicationTests in 12.76 seconds (process running for 15.84)
+2024-02-27 08:30:07,956 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 08:30:07,962 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-02-27 08:30:07,988 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-02-27 08:36:20,679 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-02-27 08:36:20,747 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Starting PowerFitApplication using Java 21.0.1 with PID 13296 (C:\Users\marce\OneDrive\Escritorio\PowerFit\powerfit\target\classes started by marce in C:\Users\marce\OneDrive\Escritorio\PowerFit\PowerFit)
+2024-02-27 08:36:20,749 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - No active profile set, falling back to 1 default profile: "default"
+2024-02-27 08:36:20,825 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-02-27 08:36:20,825 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-02-27 08:36:22,869 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-27 08:36:22,961 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 83 ms. Found 6 JPA repository interfaces.
+2024-02-27 08:36:26,324 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-02-27 08:36:26,363 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-02-27 08:36:26,369 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-02-27 08:36:26,369 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
+2024-02-27 08:36:26,505 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-02-27 08:36:26,505 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 5678 ms
+2024-02-27 08:36:27,188 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-27 08:36:27,335 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-27 08:36:27,420 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-02-27 08:36:28,107 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-27 08:36:28,177 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-02-27 08:36:29,048 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@77373ed4
+2024-02-27 08:36:29,053 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-02-27 08:36:32,048 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-27 08:36:32,238 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 08:36:37,572 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-27 08:36:37,818 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@9fae0a3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4138eb3e, org.springframework.security.web.context.SecurityContextHolderFilter@1e651f10, org.springframework.security.web.header.HeaderWriterFilter@2810ac73, org.springframework.web.filter.CorsFilter@54ca4c9c, org.springframework.security.web.authentication.logout.LogoutFilter@6829ef7e, com.devs.powerfit.security.jwt.JwtAuthenticationFilter@39609b2f, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@13e44691, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7a843d0, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5646867d, org.springframework.security.web.session.SessionManagementFilter@6833d3ce, org.springframework.security.web.access.ExceptionTranslationFilter@64c3501a, org.springframework.security.web.access.intercept.AuthorizationFilter@49f7a0ca]
+2024-02-27 08:36:39,167 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-02-27 08:36:39,290 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-02-27 08:36:39,331 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-02-27 08:36:39,352 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Started PowerFitApplication in 19.438 seconds (process running for 21.29)
+2024-02-27 08:36:39,893 [RMI TCP Connection(2)-192.168.56.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-02-27 08:36:39,894 [RMI TCP Connection(2)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-02-27 08:36:39,898 [RMI TCP Connection(2)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2024-02-27 08:38:40,913 [http-nio-8080-exec-2] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=null, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 08:40:22,332 [http-nio-8080-exec-4] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=null, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 08:40:30,087 [http-nio-8080-exec-6] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=null, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 08:48:06,899 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 08:48:06,906 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-02-27 08:48:06,921 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-02-27 09:30:51,123 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-02-27 09:30:51,190 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Starting PowerFitApplication using Java 21.0.1 with PID 8876 (C:\Users\marce\OneDrive\Escritorio\PowerFit\powerfit\target\classes started by marce in C:\Users\marce\OneDrive\Escritorio\PowerFit\PowerFit)
+2024-02-27 09:30:51,192 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - No active profile set, falling back to 1 default profile: "default"
+2024-02-27 09:30:51,293 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-02-27 09:30:51,294 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-02-27 09:30:53,105 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-27 09:30:53,210 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 95 ms. Found 6 JPA repository interfaces.
+2024-02-27 09:30:54,279 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-02-27 09:30:54,293 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-02-27 09:30:54,295 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-02-27 09:30:54,295 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
+2024-02-27 09:30:54,357 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-02-27 09:30:54,358 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3063 ms
+2024-02-27 09:30:54,756 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-27 09:30:54,833 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-27 09:30:54,876 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-02-27 09:30:55,179 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-27 09:30:55,224 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-02-27 09:30:55,704 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@18e4f101
+2024-02-27 09:30:55,707 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-02-27 09:30:57,113 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-27 09:30:57,220 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 09:30:58,921 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-27 09:30:59,017 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@68197e80, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1455552d, org.springframework.security.web.context.SecurityContextHolderFilter@5ab53400, org.springframework.security.web.header.HeaderWriterFilter@3adb9c8a, org.springframework.web.filter.CorsFilter@4792c897, org.springframework.security.web.authentication.logout.LogoutFilter@2515c42e, com.devs.powerfit.security.jwt.JwtAuthenticationFilter@7ccb3ad4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@6fd8acd3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5a7b761f, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@12db024a, org.springframework.security.web.session.SessionManagementFilter@2ab90e48, org.springframework.security.web.access.ExceptionTranslationFilter@16f1428e, org.springframework.security.web.access.intercept.AuthorizationFilter@5eb3a8dc]
+2024-02-27 09:30:59,646 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-02-27 09:30:59,730 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-02-27 09:30:59,751 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-02-27 09:30:59,765 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Started PowerFitApplication in 9.418 seconds (process running for 11.22)
+2024-02-27 09:31:00,335 [RMI TCP Connection(2)-192.168.56.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-02-27 09:31:00,335 [RMI TCP Connection(2)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-02-27 09:31:00,338 [RMI TCP Connection(2)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2024-02-27 09:31:20,879 [http-nio-8080-exec-2] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=null, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 09:32:17,883 [http-nio-8080-exec-3] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=Marcelo, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 09:32:25,941 [http-nio-8080-exec-6] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=Marcelo, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=null)
+2024-02-27 09:32:49,340 [http-nio-8080-exec-7] ERROR c.devs.powerfit.services.AuthService - UsuarioDto(nombre=Marcelo, email=marceferreira033@gmail.com, password=adminAdmin, rol_id=1)
+2024-02-27 09:36:29,093 [http-nio-8080-exec-2] WARN  o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 1062, SQLState: 23000
+2024-02-27 09:36:29,093 [http-nio-8080-exec-2] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - Duplicate entry '5051201-1' for key 'clientes.UK_rmhnmla9eqbpurqdiexnp41uj'
+2024-02-27 09:36:29,111 [http-nio-8080-exec-2] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.dao.DataIntegrityViolationException: could not execute statement [Duplicate entry '5051201-1' for key 'clientes.UK_rmhnmla9eqbpurqdiexnp41uj'] [insert into clientes (active,cedula,direccion,email,fecha_registro,nombre,ruc,telefono) values (?,?,?,?,?,?,?,?)]; SQL [insert into clientes (active,cedula,direccion,email,fecha_registro,nombre,ruc,telefono) values (?,?,?,?,?,?,?,?)]; constraint [clientes.UK_rmhnmla9eqbpurqdiexnp41uj]]
+2024-02-27 09:43:15,229 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 09:43:15,233 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-02-27 09:43:15,249 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-02-27 10:19:41,583 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-02-27 10:19:41,653 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Starting PowerFitApplication using Java 21.0.1 with PID 10056 (C:\Users\marce\OneDrive\Escritorio\PowerFit\powerfit\target\classes started by marce in C:\Users\marce\OneDrive\Escritorio\PowerFit\PowerFit)
+2024-02-27 10:19:41,654 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - No active profile set, falling back to 1 default profile: "default"
+2024-02-27 10:19:41,739 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-02-27 10:19:41,740 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-02-27 10:19:43,644 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-27 10:19:43,745 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 91 ms. Found 6 JPA repository interfaces.
+2024-02-27 10:19:44,844 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-02-27 10:19:44,857 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-02-27 10:19:44,859 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-02-27 10:19:44,860 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
+2024-02-27 10:19:44,924 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-02-27 10:19:44,926 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3184 ms
+2024-02-27 10:19:45,317 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-27 10:19:45,399 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-27 10:19:45,444 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-02-27 10:19:45,778 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-27 10:19:45,819 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-02-27 10:19:46,581 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6b191c31
+2024-02-27 10:19:46,584 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-02-27 10:19:48,018 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-27 10:19:48,138 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 10:19:49,737 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-27 10:19:49,852 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2d71a74a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@6ba6c374, org.springframework.security.web.context.SecurityContextHolderFilter@231c8c49, org.springframework.security.web.header.HeaderWriterFilter@6b0fa36e, org.springframework.web.filter.CorsFilter@f453e74, org.springframework.security.web.authentication.logout.LogoutFilter@253a314a, com.devs.powerfit.security.jwt.JwtAuthenticationFilter@36128376, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@618240dd, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@277d18a9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@abdcf37, org.springframework.security.web.session.SessionManagementFilter@3c80dc45, org.springframework.security.web.access.ExceptionTranslationFilter@30ddd53e, org.springframework.security.web.access.intercept.AuthorizationFilter@457d1638]
+2024-02-27 10:19:50,524 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-02-27 10:19:50,618 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-02-27 10:19:50,636 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Started PowerFitApplication in 9.842 seconds (process running for 12.917)
+2024-02-27 10:19:50,654 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 10:19:50,658 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-02-27 10:19:50,670 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2024-02-27 10:27:12,103 [background-preinit] INFO  o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+2024-02-27 10:27:12,160 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Starting PowerFitApplication using Java 21.0.1 with PID 16728 (C:\Users\marce\OneDrive\Escritorio\PowerFit\powerfit\target\classes started by marce in C:\Users\marce\OneDrive\Escritorio\PowerFit\PowerFit)
+2024-02-27 10:27:12,161 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - No active profile set, falling back to 1 default profile: "default"
+2024-02-27 10:27:12,235 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2024-02-27 10:27:12,235 [restartedMain] INFO  o.s.b.d.e.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2024-02-27 10:27:13,850 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-27 10:27:13,933 [restartedMain] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 75 ms. Found 6 JPA repository interfaces.
+2024-02-27 10:27:14,865 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2024-02-27 10:27:14,877 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2024-02-27 10:27:14,879 [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2024-02-27 10:27:14,879 [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
+2024-02-27 10:27:14,936 [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2024-02-27 10:27:14,936 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2700 ms
+2024-02-27 10:27:15,293 [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-27 10:27:15,349 [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-27 10:27:15,383 [restartedMain] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2024-02-27 10:27:15,619 [restartedMain] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-27 10:27:15,645 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2024-02-27 10:27:16,031 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5e8c5c13
+2024-02-27 10:27:16,035 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2024-02-27 10:27:17,518 [restartedMain] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-27 10:27:17,715 [restartedMain] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 10:27:20,288 [restartedMain] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-02-27 10:27:20,387 [restartedMain] INFO  o.s.s.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@460efb88, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@20ca117d, org.springframework.security.web.context.SecurityContextHolderFilter@76bc1652, org.springframework.security.web.header.HeaderWriterFilter@2791895b, org.springframework.web.filter.CorsFilter@2db34348, org.springframework.security.web.authentication.logout.LogoutFilter@3a70f4f2, com.devs.powerfit.security.jwt.JwtAuthenticationFilter@797cb4f9, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@68e51577, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@30024536, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@49954746, org.springframework.security.web.session.SessionManagementFilter@6c7a8405, org.springframework.security.web.access.ExceptionTranslationFilter@43052f20, org.springframework.security.web.access.intercept.AuthorizationFilter@351ff8d8]
+2024-02-27 10:27:20,993 [restartedMain] INFO  o.s.b.d.a.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2024-02-27 10:27:21,066 [restartedMain] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2024-02-27 10:27:21,088 [restartedMain] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path ''
+2024-02-27 10:27:21,103 [restartedMain] INFO  c.devs.powerfit.PowerFitApplication - Started PowerFitApplication in 9.652 seconds (process running for 10.906)
+2024-02-27 10:27:21,682 [RMI TCP Connection(5)-192.168.56.1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2024-02-27 10:27:21,682 [RMI TCP Connection(5)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2024-02-27 10:27:21,685 [RMI TCP Connection(5)-192.168.56.1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2024-02-27 10:29:42,131 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2024-02-27 10:29:42,135 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2024-02-27 10:29:42,146 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
