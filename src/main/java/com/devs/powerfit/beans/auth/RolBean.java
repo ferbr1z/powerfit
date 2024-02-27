@@ -1,4 +1,4 @@
-package com.devs.powerfit.beans;
+package com.devs.powerfit.beans.auth;
 import com.devs.powerfit.abstracts.AbstractBean;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.devs.powerfit.dtos;
+package com.devs.powerfit.dtos.auth;
 
 import com.devs.powerfit.abstracts.AbstractDto;
 

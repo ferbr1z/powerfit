@@ -1,7 +1,7 @@
-package com.devs.powerfit.daos;
+package com.devs.powerfit.daos.auth;
 
-import com.devs.powerfit.beans.UsuarioBean;
-import com.devs.powerfit.dtos.UsuarioDto;
+import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.dtos.auth.UsuarioDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

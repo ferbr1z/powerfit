@@ -1,4 +1,4 @@
-package com.devs.powerfit.interfaces;
+package com.devs.powerfit.interfaces.auth;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,7 +1,7 @@
-package com.devs.powerfit.interfaces;
+package com.devs.powerfit.interfaces.auth;
 
-import com.devs.powerfit.dtos.UsuarioDto;
-import com.devs.powerfit.security.AuthRequest;
+import com.devs.powerfit.dtos.auth.UsuarioDto;
+import com.devs.powerfit.security.auth.AuthRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface IAuthService {

@@ -1,13 +1,13 @@
-package com.devs.powerfit.services;
+package com.devs.powerfit.services.auth;
 
-import com.devs.powerfit.beans.RolBean;
-import com.devs.powerfit.beans.UsuarioBean;
-import com.devs.powerfit.daos.RolDao;
-import com.devs.powerfit.daos.UsuarioDao;
-import com.devs.powerfit.dtos.UsuarioDto;
-import com.devs.powerfit.interfaces.IAuthService;
-import com.devs.powerfit.security.AuthRequest;
-import com.devs.powerfit.security.AuthResponse;
+import com.devs.powerfit.beans.auth.RolBean;
+import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.daos.auth.RolDao;
+import com.devs.powerfit.daos.auth.UsuarioDao;
+import com.devs.powerfit.dtos.auth.UsuarioDto;
+import com.devs.powerfit.interfaces.auth.IAuthService;
+import com.devs.powerfit.security.auth.AuthRequest;
+import com.devs.powerfit.security.auth.AuthResponse;
 import com.devs.powerfit.security.jwt.JWTService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +72,9 @@ public class AuthService implements IAuthService {
             );
             final UsuarioBean user = (UsuarioBean) authentication.getPrincipal();
             final String accessToken = jwtService.generateToken(user);
+            Optional<RolBean> rolName = rolDao.findByIdAndActiveTrue(user.getRol().getId());
 
-            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre());
+            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre());
             return ResponseEntity.ok().body(response);
 
         } catch (BadCredentialsException ex) {
