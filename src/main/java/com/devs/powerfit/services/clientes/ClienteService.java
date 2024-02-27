@@ -122,7 +122,7 @@ public class ClienteService implements IClienteService {
     @Override
     public PageResponse<ClienteDto> searchByNombre(String nombre, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var clientes = clienteDao.findByNombreAndActiveIsTrue(pag, nombre);
+        var clientes = clienteDao.findByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
 
         if (clientes.isEmpty()) {
             throw new NotFoundException("No hay clientes en la lista");

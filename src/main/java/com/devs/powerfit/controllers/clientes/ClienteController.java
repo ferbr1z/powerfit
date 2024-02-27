@@ -18,29 +18,39 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     public ResponseEntity<ClienteDto> create(@RequestBody ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.create(clienteDto), HttpStatus.CREATED);
     }
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(clienteService.getById(id), HttpStatus.OK);
     }
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/page/{page}")
     public ResponseEntity<PageResponse<ClienteDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(clienteService.getAll(page), HttpStatus.OK);
     }
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")
     public ResponseEntity<ClienteDto> update(@PathVariable Long id, @RequestBody ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.update(id, clienteDto), HttpStatus.OK);
     }
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return new ResponseEntity<>(clienteService.delete(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<ClienteDto>> searchByName(@PathVariable int page,@PathVariable String nombre) {
+        return new ResponseEntity<>(clienteService.searchByNombre(nombre,page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{ci}/page/{page}")
+    public ResponseEntity<PageResponse<ClienteDto>> searchByCi(@PathVariable int page,@PathVariable String ci) {
+        return new ResponseEntity<>(clienteService.searchByCi(ci,page), HttpStatus.OK);
     }
 
 }

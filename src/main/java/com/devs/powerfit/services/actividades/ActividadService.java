@@ -86,7 +86,7 @@ public class ActividadService implements IActividadService  {
     @Override
     public PageResponse<ActividadDto> searchByNombre(String nombre, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var actividades = actividadDao.findByNombreAndActiveIsTrue(pag, nombre);
+        var actividades = actividadDao.findByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
 
         if (actividades.isEmpty()) {
             throw new NotFoundException("No hay actividades en la lista");

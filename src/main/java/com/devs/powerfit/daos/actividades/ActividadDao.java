@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 @Repository
 public interface ActividadDao extends JpaRepository<ActividadBean, Long> {
-    Page<ActividadBean> findByNombreAndActiveIsTrue(Pageable pageable, String nombre);
+    Page<ActividadBean> findByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
     Optional<ActividadBean> findByIdAndActiveTrue(Long id);
     Page<ActividadBean> findAllByActiveTrue(Pageable pageable);
 }
