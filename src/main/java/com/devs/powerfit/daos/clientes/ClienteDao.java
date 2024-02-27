@@ -1,7 +1,6 @@
 package com.devs.powerfit.daos.clientes;
 
 import com.devs.powerfit.beans.clientes.ClienteBean;
-import com.devs.powerfit.dtos.clientes.ClienteDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

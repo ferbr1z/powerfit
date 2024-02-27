@@ -17,8 +17,8 @@ public class ClienteController {
     public ClienteController(IClienteService clienteService) {
         this.clienteService = clienteService;
     }
-
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ClienteDto> create(@RequestBody ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.create(clienteDto), HttpStatus.CREATED);
     }

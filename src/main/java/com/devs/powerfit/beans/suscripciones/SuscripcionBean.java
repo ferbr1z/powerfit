@@ -23,7 +23,4 @@ public class SuscripcionBean extends AbstractBean {
     @Column
     private Double Total;
 
-
-
-
 }
