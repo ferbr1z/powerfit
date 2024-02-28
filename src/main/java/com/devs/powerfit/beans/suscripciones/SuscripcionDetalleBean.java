@@ -2,7 +2,6 @@ package com.devs.powerfit.beans.suscripciones;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.actividades.ActividadBean;
-import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
 import jakarta.persistence.*;

@@ -1,7 +1,8 @@
 package com.devs.powerfit.controllers.suscripciones;
 
-import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionDetalleDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
+import com.devs.powerfit.interfaces.suscripciones.ISuscripcionDetalleService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.suscripciones.ISuscripcionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/suscripciones")
 public class SuscripcionController {
     private final ISuscripcionService suscripcionService;
+    private final ISuscripcionDetalleService suscripcionDetalleService;
 
     @Autowired
-    public SuscripcionController(ISuscripcionService suscripcionService) {
+    public SuscripcionController(ISuscripcionService suscripcionService, ISuscripcionDetalleService suscripcionDetalleService) {
         this.suscripcionService = suscripcionService;
+        this.suscripcionDetalleService = suscripcionDetalleService;
     }
-
+    //Suscripciones
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     public ResponseEntity<SuscripcionDto> create(@RequestBody SuscripcionDto suscripcionDto) {
@@ -53,5 +56,35 @@ public class SuscripcionController {
     @GetMapping("/search/{nombre}/page/{page}")
     public ResponseEntity<PageResponse<SuscripcionDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(suscripcionService.searchByNombreCliente(nombre,page), HttpStatus.OK);
+    }
+    //Detalles
+    @PostMapping("/detalle")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    public ResponseEntity<SuscripcionDetalleDto> create(@RequestBody SuscripcionDetalleDto suscripcionDetalleDto) {
+        return new ResponseEntity<>(suscripcionDetalleService.create(suscripcionDetalleDto), HttpStatus.CREATED);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/detalle/{id}")
+    public ResponseEntity<SuscripcionDetalleDto> getDetalleById(@PathVariable Long id) {
+        SuscripcionDetalleDto suscripcionDetalleDto = suscripcionDetalleService.getById(id);
+        return new ResponseEntity<>(suscripcionDetalleDto, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/detalle/page/{page}")
+    public ResponseEntity<PageResponse<SuscripcionDetalleDto>> getAllDetalles(@PathVariable int page) {
+        PageResponse<SuscripcionDetalleDto> suscripcionesPage = suscripcionDetalleService.getAll(page);
+        return new ResponseEntity<>(suscripcionesPage, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PutMapping("/detalle/{id}")
+    public ResponseEntity<SuscripcionDetalleDto> update(@PathVariable Long id, @RequestBody SuscripcionDetalleDto suscripcionDetalleDto) {
+        SuscripcionDetalleDto updatedSuscripcion = suscripcionDetalleService.update(id, suscripcionDetalleDto);
+        return new ResponseEntity<>(updatedSuscripcion, HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @DeleteMapping("/detalle/{id}")
+    public ResponseEntity<Boolean> deleteDetalle(@PathVariable Long id) {
+        boolean deleted = suscripcionDetalleService.delete(id);
+        return new ResponseEntity<>(deleted, HttpStatus.OK);
     }
 }
