@@ -17,6 +17,11 @@ import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionDetalleMapper;
 import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -29,14 +34,16 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
     private SuscripcionDetalleMapper mapper;
     private SuscripcionMapper suscripcionMapper;
     private SuscripcionService suscripcionService;
+    private CacheManager cacheManager;
     @Autowired
-    public SuscripcionDetalleService(SuscripcionDetalleDao suscripcionDetalleDao, IActividadService actividadService, ActividadMapper actividadMapper, SuscripcionDetalleMapper mapper, SuscripcionMapper suscripcionMapper, SuscripcionService suscripcionService) {
+    public SuscripcionDetalleService(SuscripcionDetalleDao suscripcionDetalleDao, IActividadService actividadService, ActividadMapper actividadMapper, SuscripcionDetalleMapper mapper, SuscripcionMapper suscripcionMapper, SuscripcionService suscripcionService, CacheManager cacheManager) {
         this.suscripcionDetalleDao = suscripcionDetalleDao;
         this.actividadService = actividadService;
         this.actividadMapper = actividadMapper;
         this.mapper = mapper;
         this.suscripcionMapper = suscripcionMapper;
         this.suscripcionService = suscripcionService;
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -72,7 +79,7 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
         // Retornar el suscripcionDetalleDto creado
         return mapper.toDto(savedSuscripcion);
     }
-
+    @Cacheable(cacheNames = "IS::api_suscripcion_detalles", key = "'suscripcion_detalle_'+#id")
     @Override
     public SuscripcionDetalleDto getById(Long id) {
         var suscripcionDetalleOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);
@@ -93,6 +100,20 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
         }
 
         var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        // Cachear manualmente cada suscripcion en Redis
+        for (SuscripcionDetalleDto suscripcionDto : suscripcionesDto) {
+            String cacheName = "sd::api_suscripcion_detalles";
+            String key = "suscripcion_detalle_" + suscripcionDto.getId();
+            Cache cache = cacheManager.getCache(cacheName);
+
+            // Verificar si la actividad ya está en la caché
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+
+            if (valueWrapper == null) {
+                // Si no está en la caché, cachearla
+                cache.put(key, suscripcionDto);
+            }
+        }
         var pageResponse = new PageResponse<SuscripcionDetalleDto>(
                 suscripcionesDto.getContent(),
                 suscripcionesDto.getTotalPages(),
@@ -101,7 +122,7 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
 
         return pageResponse;
     }
-
+    @CachePut(cacheNames = "IS::api_suscripcion_detalles", key = "'suscripcion_detalle_'+#id")
     @Override
     public SuscripcionDetalleDto update(Long id, SuscripcionDetalleDto suscripcionDetalleDto) {
         var suscripcionDetalleOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);
@@ -148,7 +169,7 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
         throw new NotFoundException("Detalle de suscripción no encontrado");
     }
 
-
+    @CacheEvict(cacheNames = "IS::api_suscripcion_detalles", key = "'suscripcion_detalle_'+#id")
     @Override
     public boolean delete(Long id) {
         var suscripcionDetalleOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);

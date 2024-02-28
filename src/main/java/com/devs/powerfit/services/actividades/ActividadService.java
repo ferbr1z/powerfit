@@ -8,6 +8,11 @@ import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +20,12 @@ import org.springframework.stereotype.Service;
 public class ActividadService implements IActividadService  {
     private final ActividadDao actividadDao;
     private final ActividadMapper mapper;
+    private CacheManager cacheManager;
     @Autowired
-    public ActividadService(ActividadDao actividadDao, ActividadMapper mapper) {
+    public ActividadService(ActividadDao actividadDao, ActividadMapper mapper, CacheManager cacheManager) {
         this.actividadDao = actividadDao;
         this.mapper = mapper;
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -28,7 +35,7 @@ public class ActividadService implements IActividadService  {
         actividadDao.save(actividad);
         return mapper.toDto(actividad);
     }
-
+    @Cacheable(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto getById(Long id) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);
@@ -49,12 +56,26 @@ public class ActividadService implements IActividadService  {
         }
 
         var actividadesDto = actividades.map(mapper::toDto);
+        // Cachear manualmente cada actividad en Redis
+        for (ActividadDto actividadDto : actividadesDto) {
+            String cacheName = "sd::api_actividades";
+            String key = "actividad_" + actividadDto.getId();
+            Cache cache = cacheManager.getCache(cacheName);
+
+            // Verificar si la actividad ya está en la caché
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+
+            if (valueWrapper == null) {
+                // Si no está en la caché, cachearla
+                cache.put(key, actividadDto);
+            }
+        }
         return new PageResponse<>(actividadesDto.getContent(),
                 actividadesDto.getTotalPages(),
                 actividadesDto.getTotalElements(),
                 actividadesDto.getNumber() + 1);
     }
-
+    @CachePut(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto update(Long id, ActividadDto actividadDto) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);
@@ -71,7 +92,7 @@ public class ActividadService implements IActividadService  {
         }
         throw new NotFoundException("actividad no encontrada");
     }
-
+    @CacheEvict(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public boolean delete(Long id) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);
