@@ -24,9 +24,12 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 
 @Service
+@Transactional
 public class SuscripcionDetalleService implements ISuscripcionDetalleService {
     private SuscripcionDetalleDao suscripcionDetalleDao;
     private IActividadService actividadService;
