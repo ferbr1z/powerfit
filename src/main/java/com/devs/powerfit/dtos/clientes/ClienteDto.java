@@ -3,7 +3,7 @@ package com.devs.powerfit.dtos.clientes;
 import com.devs.powerfit.abstracts.AbstractDto;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 public class ClienteDto extends AbstractDto {
@@ -13,5 +13,5 @@ public class ClienteDto extends AbstractDto {
     private String telefono;
     private String email;
     private String direccion;
-    private LocalDate fechaRegistro;
+    private Date fechaRegistro;
 }

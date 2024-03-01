@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.time.LocalDate;
 @Entity
 @Data
@@ -28,7 +29,8 @@ public class SuscripcionDetalleBean extends AbstractBean {
     @Enumerated(EnumType.STRING)
     private EModalidad modalidad;
     @Column
-    private LocalDate fechaInicio;
-    @Column LocalDate fechaFin;
+    private Date fechaInicio;
+    @Column
+    Date fechaFin;
 
 }

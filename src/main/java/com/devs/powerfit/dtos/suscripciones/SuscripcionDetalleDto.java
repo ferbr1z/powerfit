@@ -7,7 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.util.Date;
+
 @Component
 @Builder
 @AllArgsConstructor
@@ -17,7 +18,7 @@ public class SuscripcionDetalleDto extends AbstractDto {
     private Long subscripcionId;
     private Long actividadId;
     private String estado;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+    private Date fechaInicio;
+    private Date fechaFin;
     private String modalidad;
 }

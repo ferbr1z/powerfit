@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 
 @Service
 @Transactional
@@ -66,14 +68,22 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
         suscripcion.setSuscripcion(suscripcionMapper.toBean(suscripcionDto));
         suscripcion.setEstado(EEstado.valueOf(suscripcionDetalleDto.getEstado()));
         suscripcion.setModalidad(modalidad);
-        suscripcion.setFechaInicio(LocalDate.now());
-        // Verificar si la modalidad es MENSUAL
+        suscripcion.setFechaInicio(new Date()); // Utilizamos el constructor sin argumentos para obtener la fecha actual
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(suscripcion.getFechaInicio());
+
+// Verificar si la modalidad es MENSUAL
         if (modalidad == EModalidad.MENSUAL) {
-            suscripcion.setFechaFin(suscripcion.getFechaInicio().plusMonths(1));
+            calendar.add(Calendar.MONTH, 1);
         } else {
             // Si no es MENSUAL, entonces es SEMANAL
-            suscripcion.setFechaFin(suscripcion.getFechaInicio().plusWeeks(1));
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
         }
+
+        Date fechaFin = calendar.getTime();
+
+        suscripcion.setFechaFin(fechaFin);
         suscripcion.setActive(true);
 
         // Guardar la suscripción en la base de datos
@@ -136,11 +146,24 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
             if (suscripcionDetalleDto.getModalidad() != null) {
                 EModalidad modalidad = EModalidad.valueOf(suscripcionDetalleDto.getModalidad());
                 suscripcionDetalleBean.setModalidad(modalidad);
-                // Recalcular la fecha de fin si la modalidad cambió
-                if (modalidad == EModalidad.MENSUAL) {
-                    suscripcionDetalleBean.setFechaFin(suscripcionDetalleBean.getFechaInicio().plusMonths(1));
-                } else {
-                    suscripcionDetalleBean.setFechaFin(suscripcionDetalleBean.getFechaInicio().plusWeeks(1));
+
+                // Actualizar la fecha de inicio si se proporciona en el DTO
+                if (suscripcionDetalleDto.getFechaInicio() != null) {
+                    suscripcionDetalleBean.setFechaInicio(suscripcionDetalleDto.getFechaInicio());
+
+                    // Recalcular la fecha de fin basada en la nueva fecha de inicio y la modalidad
+                    Date fechaInicio = suscripcionDetalleDto.getFechaInicio();
+                    if (modalidad == EModalidad.MENSUAL) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(fechaInicio);
+                        calendar.add(Calendar.MONTH, 1);
+                        suscripcionDetalleBean.setFechaFin(calendar.getTime());
+                    } else {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(fechaInicio);
+                        calendar.add(Calendar.WEEK_OF_YEAR, 1);
+                        suscripcionDetalleBean.setFechaFin(calendar.getTime());
+                    }
                 }
             }
             if (suscripcionDetalleDto.getEstado() != null) {
@@ -171,6 +194,7 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
         }
         throw new NotFoundException("Detalle de suscripción no encontrado");
     }
+
 
     @CacheEvict(cacheNames = "IS::api_suscripcion_detalles", key = "'suscripcion_detalle_'+#id")
     @Override
