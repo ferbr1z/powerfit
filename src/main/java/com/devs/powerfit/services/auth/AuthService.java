@@ -42,7 +42,7 @@ public class AuthService implements IAuthService {
     public ResponseEntity<?> register(UsuarioDto request){
         LOGGER.error(request.toString());
         try {
-            if(userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent()){
+            if(userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent() || userDao.findByNombreAndActiveIsTrue(request.getNombre()).isPresent()){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario ya existe");
             }
             Optional<RolBean> rol = rolDao.findByIdAndActiveTrue(request.getRol_id());
