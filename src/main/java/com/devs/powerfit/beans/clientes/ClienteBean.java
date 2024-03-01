@@ -27,7 +27,7 @@ public class ClienteBean extends AbstractBean {
     private String cedula;
     @Column
     private String telefono;
-    @Column
+    @Column(unique = true)
     private String email;
     @Column
     private String direccion;

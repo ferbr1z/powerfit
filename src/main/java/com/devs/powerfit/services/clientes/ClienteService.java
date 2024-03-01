@@ -48,27 +48,51 @@ public class ClienteService implements IClienteService {
         }
 
         // Verificar si ya existe un cliente con la misma cédula
-        Optional<ClienteBean> existingClient = clienteDao.findByCedula(clienteDto.getCedula());
-
-        if (existingClient.isPresent()) {
-            ClienteBean cliente = existingClient.get();
-            if (cliente.isActive()) {
+        Optional<ClienteBean> existingClientByCedula = clienteDao.findByCedula(clienteDto.getCedula());
+        if (existingClientByCedula.isPresent()) {
+            ClienteBean clienteByCedula = existingClientByCedula.get();
+            if (clienteByCedula.isActive()) {
                 throw new BadRequestException("Ya existe un cliente activo con la misma cédula");
             } else {
                 // Si el cliente existe pero está inactivo, activarlo
-                cliente.setActive(true);
-                clienteDao.save(cliente);
-                return mapper.toDto(cliente);
+                clienteByCedula.setActive(true);
+                clienteDao.save(clienteByCedula);
+                return mapper.toDto(clienteByCedula);
             }
-        } else {
-            // Si no existe un cliente activo con la misma cédula, crear un nuevo cliente
-            ClienteBean cliente = mapper.toBean(clienteDto);
-            cliente.setActive(true);
-            cliente.setFechaRegistro(Date.from(Instant.now()));
-            clienteDao.save(cliente);
-            return mapper.toDto(cliente);
         }
+
+        // Verificar si se proporciona un correo electrónico
+        if (clienteDto.getEmail() != null) {
+            // Verificar si ya existe un cliente con el mismo email
+            Optional<ClienteBean> existingClientByEmail = clienteDao.findByEmail(clienteDto.getEmail());
+            if (existingClientByEmail.isPresent()) {
+                ClienteBean clienteByEmail = existingClientByEmail.get();
+                if (clienteByEmail.isActive()) {
+                    throw new BadRequestException("Ya existe un cliente activo con el mismo email");
+                } else if (!clienteByEmail.getCedula().equals(clienteDto.getCedula())) {
+                    // Si el cliente existe pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
+                    ClienteBean nuevoCliente = mapper.toBean(clienteDto);
+                    nuevoCliente.setActive(true);
+                    nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
+                    clienteDao.save(nuevoCliente);
+                    return mapper.toDto(nuevoCliente);
+                }
+                // Si el cliente existe pero está inactivo y tiene la misma cédula, se comporta como si fuera activo
+                clienteByEmail.setActive(true);
+                clienteByEmail.setNombre(clienteDto.getNombre()); // Actualizar otros campos si es necesario
+                clienteDao.save(clienteByEmail);
+                return mapper.toDto(clienteByEmail);
+            }
+        }
+
+        // Si no existe un cliente activo con la misma cédula o email, crear un nuevo cliente
+        ClienteBean nuevoCliente = mapper.toBean(clienteDto);
+        nuevoCliente.setActive(true);
+        nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
+        clienteDao.save(nuevoCliente);
+        return mapper.toDto(nuevoCliente);
     }
+
 
 
 
