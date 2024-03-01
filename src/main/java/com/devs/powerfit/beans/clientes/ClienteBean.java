@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.time.LocalDate;
 
 @Entity
@@ -31,5 +32,5 @@ public class ClienteBean extends AbstractBean {
     @Column
     private String direccion;
     @Column
-    private LocalDate fechaRegistro;
+    private Date fechaRegistro;
 }

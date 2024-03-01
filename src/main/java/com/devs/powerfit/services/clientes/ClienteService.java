@@ -20,7 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -62,7 +64,7 @@ public class ClienteService implements IClienteService {
             // Si no existe un cliente activo con la misma cédula, crear un nuevo cliente
             ClienteBean cliente = mapper.toBean(clienteDto);
             cliente.setActive(true);
-            cliente.setFechaRegistro(LocalDate.now());
+            cliente.setFechaRegistro(Date.from(Instant.now()));
             clienteDao.save(cliente);
             return mapper.toDto(cliente);
         }
