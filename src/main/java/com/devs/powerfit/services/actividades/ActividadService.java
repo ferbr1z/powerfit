@@ -2,6 +2,7 @@ package com.devs.powerfit.services.actividades;
 
 import com.devs.powerfit.daos.actividades.ActividadDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
+import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
@@ -32,11 +33,29 @@ public class ActividadService implements IActividadService  {
 
     @Override
     public ActividadDto create(ActividadDto actividadDto) {
+        // Verificar si el nombre de la actividad está presente
+        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty()) {
+            throw new BadRequestException("El nombre de la actividad no puede estar vacío.");
+        }
+
+        // Verificar si el costo mensual es válido (mayor o igual a 0)
+        if (actividadDto.getCostoMensual() < 0) {
+            throw new BadRequestException("El costo mensual de la actividad no puede ser negativo.");
+        }
+
+        // Verificar si el costo semanal es válido (mayor o igual a 0)
+        if (actividadDto.getCostoSemanal() < 0)  {
+            throw new BadRequestException("El costo semanal de la actividad no puede ser negativo.");
+        }
+
+        // Crear la actividad
         var actividad = mapper.toBean(actividadDto);
         actividad.setActive(true);
         actividadDao.save(actividad);
+
         return mapper.toDto(actividad);
     }
+
     @Cacheable(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto getById(Long id) {
