@@ -11,6 +11,8 @@ import com.devs.powerfit.services.clientes.ClienteService;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.medicionMappers.MedicionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
+import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
@@ -34,7 +36,7 @@ public class MedicionService implements IMedicionService {
     public MedicionDto create(MedicionDto medicionDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (medicionDto.getClienteID() == null || medicionDto.getFecha() == null) {
-            throw new BadRequestException("El campo clienteID fecha son obligatorios para crear una nueva medición");
+            throw new BadRequestException("El campo clienteID y fecha son obligatorios para crear una nueva medición");
         }
 
         // Verificar si el cliente existe
@@ -62,7 +64,12 @@ public class MedicionService implements IMedicionService {
 
     @Override
     public MedicionDto getById(Long id) {
-        return null;
+        var medicionOptional = medicionDao.findById(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
+            return mapper.toDto(medicionBean);
+        }
+        throw new NotFoundException("Medición no encontrada");
     }
 
     @Override
