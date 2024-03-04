@@ -32,7 +32,32 @@ public class MedicionService implements IMedicionService {
     }
     @Override
     public MedicionDto create(MedicionDto medicionDto) {
-        return null;
+        // Verificar si los campos obligatorios no están incompletos
+        if (medicionDto.getClienteID() == null || medicionDto.getFecha() == null) {
+            throw new BadRequestException("El campo clienteID fecha son obligatorios para crear una nueva medición");
+        }
+
+        // Verificar si el cliente existe
+        ClienteDto clienteDto = clienteService.getById(medicionDto.getClienteID());
+
+        // Crear una instancia de Medicion desde MedicionDto
+        MedicionBean medicion = new MedicionBean();
+        medicion.setCliente(clienteMapper.toBean(clienteDto));
+        medicion.setFecha(medicionDto.getFecha());
+        medicion.setPeso((medicionDto.getPeso()));
+        medicion.setAltura(medicionDto.getAltura());
+        medicion.setImc(medicionDto.getImc());
+        medicion.setCirBrazo(medicionDto.getCirBrazo());
+        medicion.setCirPiernas(medicionDto.getCirPiernas());
+        medicion.setCirCintura(medicionDto.getCirCintura());
+        medicion.setCirPecho(medicionDto.getCirPecho());
+        medicion.setActive(true);
+
+        // Guardar la medicion en la base de datos
+        MedicionBean savedMedicion = medicionDao.save(medicion);
+
+        // Retornar el MedicionDao creado
+        return mapper.toDto(savedMedicion);
     }
 
     @Override
