@@ -17,6 +17,7 @@ import com.devs.powerfit.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -114,11 +115,54 @@ public class MedicionService implements IMedicionService {
         );
         return pageResponse;
     }
-    @Cacheable(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
+    @CachePut(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public MedicionDto update(Long id, MedicionDto medicionDto) {
+        var medicionOptional = medicionDao.findByClienteIdAndActiveTrue(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
 
-        return null;
+            // Actualizar los campos de la medicion con los valores del DTO
+            if(medicionDto.getFecha() != null){
+                medicionBean.setFecha(medicionDto.getFecha());
+            }
+
+            if (medicionDto.getPeso() != null) {
+                medicionBean.setPeso(medicionDto.getPeso());
+            }
+            if (medicionDto.getAltura() != null) {
+                medicionBean.setAltura(medicionDto.getAltura());
+            }
+            if (medicionDto.getImc() != null) {
+                medicionBean.setImc(medicionDto.getImc());
+            }
+            if (medicionDto.getCirBrazo() != null) {
+                medicionBean.setCirBrazo(medicionDto.getCirBrazo());
+            }
+            if (medicionDto.getCirPiernas() != null) {
+                medicionBean.setCirPiernas(medicionDto.getCirPiernas());
+            }
+            if (medicionDto.getCirCintura() != null) {
+                medicionBean.setCirCintura(medicionDto.getCirCintura());
+            }
+            if (medicionDto.getCirPecho() != null) {
+                medicionBean.setCirPecho(medicionDto.getCirPecho());
+            }
+
+            // Verificar si se proporciona el ID del cliente para actualizar el cliente asociado
+            if(medicionDto.getClienteID() != null){
+                // Obtener el cliente asociado a la suscripción
+                ClienteDto clienteDto = clienteService.getById(medicionDto.getClienteID());
+
+                // Asignar el cliente actualizado a la suscripción
+                medicionBean.setCliente(clienteMapper.toBean(clienteDto));
+            }
+
+            medicionDao.save(medicionBean);
+
+            return  mapper.toDto(medicionBean);
+        }
+        throw new NotFoundException("Medición no encontrada");
     }
 
     @Override
