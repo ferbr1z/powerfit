@@ -8,13 +8,17 @@ import com.devs.powerfit.dtos.mediciones.MedicionDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.interfaces.mediciones.IMedicionService;
 import com.devs.powerfit.services.clientes.ClienteService;
+import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.medicionMappers.MedicionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +31,14 @@ public class MedicionService implements IMedicionService {
     private ClienteMapper clienteMapper;
     private CacheManager cacheManager;
     @Autowired
-    public MedicionService(MedicionDao medicionDao, MedicionMapper mapper, CacheManager cacheManager){
+    public MedicionService(MedicionDao medicionDao, ClienteService clienteService,
+                           MedicionMapper mapper, ClienteMapper clienteMapper,
+                           CacheManager cacheManager){
         this.medicionDao = medicionDao;
+        this.clienteService = clienteService;
         this.mapper = mapper;
         this.cacheManager = cacheManager;
+        this.clienteMapper = clienteMapper;
     }
     @Override
     public MedicionDto create(MedicionDto medicionDto) {
@@ -62,6 +70,7 @@ public class MedicionService implements IMedicionService {
         return mapper.toDto(savedMedicion);
     }
 
+    @Cacheable(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public MedicionDto getById(Long id) {
         var medicionOptional = medicionDao.findById(id);
@@ -74,11 +83,41 @@ public class MedicionService implements IMedicionService {
 
     @Override
     public PageResponse<MedicionDto> getAll(int page) {
-        return null;
-    }
+        var pag = PageRequest.of(page -1, Setting.PAGE_SIZE);
+        var mediciones = medicionDao.findAllByActiveTrue(pag);
 
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No hay mediciones en la lista");
+        }
+
+        var medicionesDto = mediciones.map(medicion -> mapper.toDto(medicion));
+
+        // Cachear manualmente cada medicion en Redis
+        for(MedicionDto medicionDto : medicionesDto){
+            String cacheName = "IS::api_mediciones";
+            String key = "medicion_" + medicionDto.getId();
+            Cache cache = cacheManager.getCache(cacheName);
+
+            // Verificar si la actividad ya está en la caché
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+
+            if (valueWrapper == null){
+                // Si no está en la caché, cachearla
+                cache.put(key, medicionDto);
+            }
+        }
+        var pageResponse = new PageResponse<MedicionDto>(
+                medicionesDto.getContent(),
+                medicionesDto.getTotalPages(),
+                medicionesDto.getTotalElements(),
+                medicionesDto.getNumber() + 1
+        );
+        return pageResponse;
+    }
+    @Cacheable(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public MedicionDto update(Long id, MedicionDto medicionDto) {
+
         return null;
     }
 
