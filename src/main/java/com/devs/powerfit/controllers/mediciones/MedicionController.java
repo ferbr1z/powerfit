@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/suscripciones")
+@RequestMapping("/mediciones")
 public class MedicionController {
     private final IMedicionService medicionService;
 
