@@ -18,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,25 +38,24 @@ public class AuthService implements IAuthService {
     @Autowired
     private JWTService jwtService;
 
-    public ResponseEntity<?> register(UsuarioDto request){
-        LOGGER.error(request.toString());
+    public ResponseEntity<?> register(UsuarioDto request) {
         try {
-            if(userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent() || userDao.findByNombreAndActiveIsTrue(request.getNombre()).isPresent()){
+            if (request.getNombre().isEmpty() || request.getPassword().isEmpty() || request.getEmail().isEmpty() || request.getRol_id() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Todos los campos son obligatorios para registrar un nuevo usuario.");
+            }
+            if (userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent() || userDao.findByNombreAndActiveIsTrue(request.getNombre()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario ya existe");
             }
             Optional<RolBean> rol = rolDao.findByIdAndActiveTrue(request.getRol_id());
             if (rol.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Rol no encontrado");
             }
-
             UsuarioBean newUser = new UsuarioBean();
             newUser.setEmail(request.getEmail());
             newUser.setPassword(passwordEncoder.encode(request.getPassword()));
             newUser.setNombre(request.getNombre());
             newUser.setRol(rol.get());
             newUser.setActive(true);
-
-
             userDao.save(newUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
         } catch (Exception e) {
@@ -76,16 +74,9 @@ public class AuthService implements IAuthService {
 
             final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre());
             return ResponseEntity.ok().body(response);
-
         } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (AuthenticationException ex) {
-            // Si la autenticación falla por otra razón que no sea credenciales incorrectas
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Usuario no encontrado o credenciales inválidas");
         }
     }
-
-
-
 }
