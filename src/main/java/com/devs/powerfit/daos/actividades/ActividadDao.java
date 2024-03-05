@@ -1,7 +1,6 @@
 package com.devs.powerfit.daos.actividades;
 
 import com.devs.powerfit.beans.actividades.ActividadBean;
-import com.devs.powerfit.dtos.actividades.ActividadDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
