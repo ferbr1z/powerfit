@@ -21,7 +21,7 @@ public class SuscripcionDetalleBean extends AbstractBean {
     @ManyToOne
     @JoinColumn(name = "id_suscripcion")
     private SuscripcionBean suscripcion;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_actividad")
     private ActividadBean actividad;
     @Enumerated(EnumType.STRING)

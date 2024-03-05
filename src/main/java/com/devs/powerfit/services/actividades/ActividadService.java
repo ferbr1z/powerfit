@@ -34,8 +34,8 @@ public class ActividadService implements IActividadService  {
     @Override
     public ActividadDto create(ActividadDto actividadDto) {
         // Verificar si el nombre de la actividad está presente
-        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty()) {
-            throw new BadRequestException("El nombre de la actividad no puede estar vacío.");
+        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty() || actividadDto.getCostoMensual() == null || actividadDto.getCostoSemanal() == null ){
+            throw new BadRequestException("El nombre, costo mensual y semanal de la actividad no pueden estar vacíos.");
         }
 
         // Verificar si el costo mensual es válido (mayor o igual a 0)
@@ -99,6 +99,20 @@ public class ActividadService implements IActividadService  {
     @CachePut(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto update(Long id, ActividadDto actividadDto) {
+        // Verificar si el nombre de la actividad está presente
+        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty() || actividadDto.getCostoMensual() == null || actividadDto.getCostoSemanal() == null ){
+            throw new BadRequestException("El nombre, costo mensual y semanal de la actividad no pueden estar vacíos.");
+        }
+
+        // Verificar si el costo mensual es válido (mayor o igual a 0)
+        if (actividadDto.getCostoMensual() < 0) {
+            throw new BadRequestException("El costo mensual de la actividad no puede ser negativo.");
+        }
+
+        // Verificar si el costo semanal es válido (mayor o igual a 0)
+        if (actividadDto.getCostoSemanal() < 0)  {
+            throw new BadRequestException("El costo semanal de la actividad no puede ser negativo.");
+        }
         var actividad = actividadDao.findByIdAndActiveTrue(id);
         if (actividad.isPresent()) {
             var actividadBean = actividad.get();

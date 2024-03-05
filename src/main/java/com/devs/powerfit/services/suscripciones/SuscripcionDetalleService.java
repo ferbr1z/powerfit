@@ -1,6 +1,8 @@
 package com.devs.powerfit.services.suscripciones;
 
+import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionDetalleBean;
+import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDetalleDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDetalleDto;
@@ -26,9 +28,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import javax.swing.text.html.Option;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,42 +43,53 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
     private ActividadMapper actividadMapper;
     private SuscripcionDetalleMapper mapper;
     private SuscripcionMapper suscripcionMapper;
-    private SuscripcionService suscripcionService;
     private CacheManager cacheManager;
+    private SuscripcionDao suscripcionDao;
     @Autowired
-    public SuscripcionDetalleService(SuscripcionDetalleDao suscripcionDetalleDao, IActividadService actividadService, ActividadMapper actividadMapper, SuscripcionDetalleMapper mapper, SuscripcionMapper suscripcionMapper, SuscripcionService suscripcionService, CacheManager cacheManager) {
+    public SuscripcionDetalleService(SuscripcionDetalleDao suscripcionDetalleDao, IActividadService actividadService, ActividadMapper actividadMapper, SuscripcionDetalleMapper mapper, SuscripcionMapper suscripcionMapper, CacheManager cacheManager, SuscripcionDao suscripcionDao) {
         this.suscripcionDetalleDao = suscripcionDetalleDao;
         this.actividadService = actividadService;
         this.actividadMapper = actividadMapper;
         this.mapper = mapper;
         this.suscripcionMapper = suscripcionMapper;
-        this.suscripcionService = suscripcionService;
         this.cacheManager = cacheManager;
+        this.suscripcionDao = suscripcionDao;
     }
 
     @Override
     public SuscripcionDetalleDto create(SuscripcionDetalleDto suscripcionDetalleDto) {
         // Verificar si los campos obligatorios no están incompletos
-        if (suscripcionDetalleDto.getActividadId() == null || suscripcionDetalleDto.getSubscripcionId()==null) {
+        if (suscripcionDetalleDto.getActividadId() == null || suscripcionDetalleDto.getSubscripcionId() == null) {
             throw new BadRequestException("El campo actividadID y suscripcionId son obligatorios para crear una nueva suscripciónDetalle");
         }
-        //Verificar si la suscripcion existe
-        SuscripcionDto suscripcionDto=suscripcionService.getById(suscripcionDetalleDto.getSubscripcionId());
+
+        // Verificar si la suscripcion existe
+        Optional<SuscripcionBean> suscripcionOpcional = suscripcionDao.findByIdAndActiveTrue(suscripcionDetalleDto.getSubscripcionId());
+        if (suscripcionOpcional.isEmpty()) {
+            throw new BadRequestException("No existe suscripcion con ese ID");
+        }
+        System.out.println(suscripcionOpcional.get());
+        // Obtener la suscripcion completa
+        SuscripcionBean suscripcion = suscripcionOpcional.get();
+        System.out.println(suscripcion);
         // Verificar si el actividad existe
         ActividadDto actividadDto = actividadService.getById(suscripcionDetalleDto.getActividadId());
-        SuscripcionDetalleBean suscripcion = new SuscripcionDetalleBean();
+
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDetalleDto.getModalidad());
-        suscripcion.setActividad(actividadMapper.toBean(actividadDto));
-        suscripcion.setSuscripcion(suscripcionMapper.toBean(suscripcionDto));
-        suscripcion.setEstado(EEstado.valueOf(suscripcionDetalleDto.getEstado()));
-        suscripcion.setModalidad(modalidad);
-        suscripcion.setFechaInicio(new Date()); // Utilizamos el constructor sin argumentos para obtener la fecha actual
+
+        // Crear el detalle de suscripcion
+        SuscripcionDetalleBean suscripcionDetalle = new SuscripcionDetalleBean();
+        suscripcionDetalle.setSuscripcion(suscripcion); // Establecer la suscripcion en el detalle de suscripcion
+        suscripcionDetalle.setActividad(actividadMapper.toBean(actividadDto));
+        suscripcionDetalle.setEstado(EEstado.valueOf(suscripcionDetalleDto.getEstado()));
+        suscripcionDetalle.setModalidad(modalidad);
+        suscripcionDetalle.setFechaInicio(new Date()); // Utilizamos el constructor sin argumentos para obtener la fecha actual
 
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(suscripcion.getFechaInicio());
+        calendar.setTime(suscripcionDetalle.getFechaInicio());
 
-// Verificar si la modalidad es MENSUAL
+        // Verificar si la modalidad es MENSUAL
         if (modalidad == EModalidad.MENSUAL) {
             calendar.add(Calendar.MONTH, 1);
         } else {
@@ -81,17 +97,21 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
             calendar.add(Calendar.WEEK_OF_YEAR, 1);
         }
 
+        // Calcular la fecha de fin
         Date fechaFin = calendar.getTime();
+        suscripcionDetalle.setFechaFin(fechaFin);
+        suscripcionDetalle.setActive(true);
+        System.out.println(suscripcionDetalle);
+        // Guardar el detalle de suscripcion en la base de datos
+        SuscripcionDetalleBean savedSuscripcion = suscripcionDetalleDao.save(suscripcionDetalle);
+        SuscripcionDetalleDto detalleCreado = mapper.toDto(savedSuscripcion);
+        detalleCreado.setSubscripcionId(suscripcionDetalleDto.getSubscripcionId());
+        System.out.println(detalleCreado);
 
-        suscripcion.setFechaFin(fechaFin);
-        suscripcion.setActive(true);
-
-        // Guardar la suscripción en la base de datos
-        SuscripcionDetalleBean savedSuscripcion = suscripcionDetalleDao.save(suscripcion);
-
-        // Retornar el suscripcionDetalleDto creado
-        return mapper.toDto(savedSuscripcion);
+        // Retornar el detalle de suscripcion creado
+        return detalleCreado;
     }
+
     @Cacheable(cacheNames = "IS::api_suscripcion_detalles", key = "'suscripcion_detalle_'+#id")
     @Override
     public SuscripcionDetalleDto getById(Long id) {
@@ -182,8 +202,10 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
             // Verificar si se proporciona el ID de la suscripción para actualizar la suscripción asociada
             if (suscripcionDetalleDto.getSubscripcionId() != null) {
                 // Obtener la suscripción asociada al detalle de suscripción
-                SuscripcionDto suscripcionDto = suscripcionService.getById(suscripcionDetalleDto.getSubscripcionId());
-
+                SuscripcionDto suscripcionDto = suscripcionMapper.toDto(suscripcionDao.getById(suscripcionDetalleDto.getSubscripcionId()));
+                if(suscripcionDto==null){
+                    throw new BadRequestException("No existe suscripcion con ese ID");
+                }
                 // Asignar la suscripción actualizada al detalle de suscripción
                 suscripcionDetalleBean.setSuscripcion(suscripcionMapper.toBean(suscripcionDto));
             }
@@ -208,5 +230,31 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
             return true;
         }
         throw new NotFoundException("Detalle de suscripción no encontrado");
+    }
+    public List<SuscripcionDetalleDto> getAllBySuscripcionId( Long id) {
+        var suscripcionDetalles = suscripcionDetalleDao.findAllBySuscripcionIdAndActiveTrue(id);
+
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay detalles de suscripciones de ese id en la lista");
+        }
+
+        List<SuscripcionDetalleDto> suscripcionesDto = suscripcionDetalles.stream()
+                .map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle))
+                .collect(Collectors.toList());
+        // Cachear manualmente cada suscripcion en Redis
+        for (SuscripcionDetalleDto suscripcionDto : suscripcionesDto) {
+            String cacheName = "sd::api_suscripcion_detalles";
+            String key = "suscripcion_detalle_" + suscripcionDto.getId();
+            Cache cache = cacheManager.getCache(cacheName);
+
+            // Verificar si la actividad ya está en la caché
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+
+            if (valueWrapper == null) {
+                // Si no está en la caché, cachearla
+                cache.put(key, suscripcionDto);
+            }
+        }
+        return suscripcionesDto;
     }
 }
