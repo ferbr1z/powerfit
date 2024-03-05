@@ -1,6 +1,7 @@
 package com.devs.powerfit.dtos.suscripciones;
 
 import com.devs.powerfit.abstracts.AbstractDto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

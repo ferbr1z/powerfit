@@ -3,6 +3,8 @@ package com.devs.powerfit.services.suscripciones;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionConDetallesDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionDetalleDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -35,13 +37,15 @@ public class SuscripcionService implements ISuscripcionService {
     private SuscripcionMapper mapper;
     private ClienteMapper clienteMapper;
     private CacheManager cacheManager;
+    private SuscripcionDetalleService suscripcionDetalleService;
     @Autowired
-    public SuscripcionService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, CacheManager cacheManager) {
+    public SuscripcionService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, CacheManager cacheManager, SuscripcionDetalleService suscripcionDetalleService) {
         this.suscripcionDao = suscripcionDao;
         this.clienteService = clienteService;
         this.mapper = mapper;
         this.clienteMapper = clienteMapper;
         this.cacheManager = cacheManager;
+        this.suscripcionDetalleService = suscripcionDetalleService;
     }
 
     @Override
@@ -195,6 +199,7 @@ public class SuscripcionService implements ISuscripcionService {
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(suscripcionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }
+
 
 
 }
