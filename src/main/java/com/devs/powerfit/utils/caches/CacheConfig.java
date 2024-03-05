@@ -45,7 +45,11 @@
                             .entryTtl(Duration.ofDays(7))
                             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
                     .withCacheConfiguration("IS::api_actividades", RedisCacheConfiguration.defaultCacheConfig()
+                            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())))
+                    .withCacheConfiguration("IS::api_mediciones", RedisCacheConfiguration.defaultCacheConfig()
+                            .entryTtl(Duration.ofDays(7))
                             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())));
+
         }
 
 
