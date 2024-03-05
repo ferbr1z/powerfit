@@ -15,7 +15,6 @@
 
     @Configuration
     public class CacheConfig {
-
         @Bean
         public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory rf){
             RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
@@ -51,7 +50,5 @@
                             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer())));
 
         }
-
-
     }
 
