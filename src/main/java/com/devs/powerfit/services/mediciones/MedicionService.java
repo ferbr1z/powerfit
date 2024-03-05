@@ -17,6 +17,7 @@ import com.devs.powerfit.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
@@ -151,10 +152,10 @@ public class MedicionService implements IMedicionService {
 
             // Verificar si se proporciona el ID del cliente para actualizar el cliente asociado
             if(medicionDto.getClienteID() != null){
-                // Obtener el cliente asociado a la suscripción
+                // Obtener el cliente asociado a la medicion
                 ClienteDto clienteDto = clienteService.getById(medicionDto.getClienteID());
 
-                // Asignar el cliente actualizado a la suscripción
+                // Asignar el cliente actualizado a la medicion
                 medicionBean.setCliente(clienteMapper.toBean(clienteDto));
             }
 
@@ -164,10 +165,18 @@ public class MedicionService implements IMedicionService {
         }
         throw new NotFoundException("Medición no encontrada");
     }
-
+    @CacheEvict(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public boolean delete(Long id) {
-        return false;
+        var medicionOptional = medicionDao.findById(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
+            // Desactivar la medicion en lugar de eliminarla físicamente
+            medicionBean.setActive(false);
+            medicionDao.save(medicionBean);
+            return true;
+        }
+        throw new NotFoundException("Medición no encontrada");
     }
 
     @Override
