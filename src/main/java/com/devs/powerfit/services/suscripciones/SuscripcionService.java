@@ -3,8 +3,6 @@ package com.devs.powerfit.services.suscripciones;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
-import com.devs.powerfit.dtos.suscripciones.SuscripcionConDetallesDto;
-import com.devs.powerfit.dtos.suscripciones.SuscripcionDetalleDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -15,11 +13,7 @@ import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,15 +30,13 @@ public class SuscripcionService implements ISuscripcionService {
     private ClienteService clienteService;
     private SuscripcionMapper mapper;
     private ClienteMapper clienteMapper;
-    private CacheManager cacheManager;
     private SuscripcionDetalleService suscripcionDetalleService;
     @Autowired
-    public SuscripcionService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, CacheManager cacheManager, SuscripcionDetalleService suscripcionDetalleService) {
+    public SuscripcionService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, SuscripcionDetalleService suscripcionDetalleService) {
         this.suscripcionDao = suscripcionDao;
         this.clienteService = clienteService;
         this.mapper = mapper;
         this.clienteMapper = clienteMapper;
-        this.cacheManager = cacheManager;
         this.suscripcionDetalleService = suscripcionDetalleService;
     }
 
@@ -71,7 +63,6 @@ public class SuscripcionService implements ISuscripcionService {
         return mapper.toDto(savedSuscripcion);
     }
 
-    @Cacheable(cacheNames = "IS::api_suscripciones", key = "'suscripcion_'+#id")
     @Override
     public SuscripcionDto getById(Long id) {
         var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
@@ -92,20 +83,6 @@ public class SuscripcionService implements ISuscripcionService {
         }
 
         var suscripcionesDto = suscripciones.map(suscripcion -> mapper.toDto(suscripcion));
-        // Cachear manualmente cada suscripcion en Redis
-        for (SuscripcionDto suscripcionDto : suscripcionesDto) {
-            String cacheName = "sd::api_suscripciones";
-            String key = "suscripcion_" + suscripcionDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, suscripcionDto);
-            }
-        }
         var pageResponse = new PageResponse<SuscripcionDto>(
                 suscripcionesDto.getContent(),
                 suscripcionesDto.getTotalPages(),
@@ -114,7 +91,6 @@ public class SuscripcionService implements ISuscripcionService {
 
         return pageResponse;
     }
-    @CachePut(cacheNames = "IS::api_suscripciones", key = "'suscripcion_'+#id")
     @Override
     public SuscripcionDto update(Long id, SuscripcionDto suscripcionDto) {
         var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
@@ -142,7 +118,6 @@ public class SuscripcionService implements ISuscripcionService {
         throw new NotFoundException("Suscripción no encontrada");
     }
 
-    @CacheEvict(cacheNames = "IS::api_suscripciones", key = "'suscripcion_'+#id")
     @Override
     public boolean delete(Long id) {
         var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
@@ -182,20 +157,6 @@ public class SuscripcionService implements ISuscripcionService {
         List<SuscripcionDto> suscripcionesDto = suscripciones.stream()
                 .map(suscripcion -> mapper.toDto(suscripcion))
                 .collect(Collectors.toList());
-        // Cachear manualmente cada suscripcion en Redis
-        for (SuscripcionDto suscripcionDto : suscripcionesDto) {
-            String cacheName = "sd::api_suscripciones";
-            String key = "suscripcion_" + suscripcionDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, suscripcionDto);
-            }
-        }
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(suscripcionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }

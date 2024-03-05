@@ -3,17 +3,12 @@ package com.devs.powerfit.services.actividades;
 import com.devs.powerfit.daos.actividades.ActividadDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.exceptions.BadRequestException;
-import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
+import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ActividadService implements IActividadService  {
     private final ActividadDao actividadDao;
     private final ActividadMapper mapper;
-    private CacheManager cacheManager;
+
     @Autowired
-    public ActividadService(ActividadDao actividadDao, ActividadMapper mapper, CacheManager cacheManager) {
+    public ActividadService(ActividadDao actividadDao, ActividadMapper mapper) {
         this.actividadDao = actividadDao;
         this.mapper = mapper;
-        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -56,7 +50,6 @@ public class ActividadService implements IActividadService  {
         return mapper.toDto(actividad);
     }
 
-    @Cacheable(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto getById(Long id) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);
@@ -71,32 +64,15 @@ public class ActividadService implements IActividadService  {
     public PageResponse<ActividadDto> getAll(int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         var actividades = actividadDao.findAllByActiveTrue(pag);
-
         if (actividades.isEmpty()) {
             throw new NotFoundException("No hay actividades en la lista");
         }
-
         var actividadesDto = actividades.map(mapper::toDto);
-        // Cachear manualmente cada actividad en Redis
-        for (ActividadDto actividadDto : actividadesDto) {
-            String cacheName = "sd::api_actividades";
-            String key = "actividad_" + actividadDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, actividadDto);
-            }
-        }
         return new PageResponse<>(actividadesDto.getContent(),
                 actividadesDto.getTotalPages(),
                 actividadesDto.getTotalElements(),
                 actividadesDto.getNumber() + 1);
     }
-    @CachePut(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public ActividadDto update(Long id, ActividadDto actividadDto) {
         // Verificar si el nombre de la actividad está presente
@@ -127,7 +103,6 @@ public class ActividadService implements IActividadService  {
         }
         throw new NotFoundException("actividad no encontrada");
     }
-    @CacheEvict(cacheNames = "IS::api_actividades", key = "'actividad_'+#id")
     @Override
     public boolean delete(Long id) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);

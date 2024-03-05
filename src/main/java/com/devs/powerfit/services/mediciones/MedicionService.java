@@ -36,15 +36,12 @@ public class MedicionService implements IMedicionService {
     private ClienteService clienteService;
     private MedicionMapper mapper;
     private ClienteMapper clienteMapper;
-    private CacheManager cacheManager;
     @Autowired
     public MedicionService(MedicionDao medicionDao, ClienteService clienteService,
-                           MedicionMapper mapper, ClienteMapper clienteMapper,
-                           CacheManager cacheManager){
+                           MedicionMapper mapper, ClienteMapper clienteMapper){
         this.medicionDao = medicionDao;
         this.clienteService = clienteService;
         this.mapper = mapper;
-        this.cacheManager = cacheManager;
         this.clienteMapper = clienteMapper;
     }
     @Override
@@ -77,7 +74,6 @@ public class MedicionService implements IMedicionService {
         return mapper.toDto(savedMedicion);
     }
 
-    @Cacheable(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public MedicionDto getById(Long id) {
         var medicionOptional = medicionDao.findById(id);
@@ -98,21 +94,6 @@ public class MedicionService implements IMedicionService {
         }
 
         var medicionesDto = mediciones.map(medicion -> mapper.toDto(medicion));
-
-        // Cachear manualmente cada medicion en Redis
-        for(MedicionDto medicionDto : medicionesDto){
-            String cacheName = "IS::api_mediciones";
-            String key = "medicion_" + medicionDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null){
-                // Si no está en la caché, cachearla
-                cache.put(key, medicionDto);
-            }
-        }
         var pageResponse = new PageResponse<MedicionDto>(
                 medicionesDto.getContent(),
                 medicionesDto.getTotalPages(),
@@ -121,7 +102,6 @@ public class MedicionService implements IMedicionService {
         );
         return pageResponse;
     }
-    @CachePut(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public MedicionDto update(Long id, MedicionDto medicionDto) {
         var medicionOptional = medicionDao.findByClienteIdAndActiveTrue(id);
@@ -170,7 +150,6 @@ public class MedicionService implements IMedicionService {
         }
         throw new NotFoundException("Medición no encontrada");
     }
-    @CacheEvict(cacheNames = "IS::api_mediciones", key = "'medicion_'+#id")
     @Override
     public boolean delete(Long id) {
         var medicionOptional = medicionDao.findById(id);
@@ -209,20 +188,6 @@ public class MedicionService implements IMedicionService {
         List<MedicionDto> medicionesDto = mediciones.stream()
                 .map(medicion -> mapper.toDto(medicion))
                 .toList();
-        // Cachear manualmente cada medicion en Redis
-        for(MedicionDto medicionDto : medicionesDto){
-            String cacheName = "sd::api_mediciones";
-            String key = "medicion_" + medicionDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la mediciones ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if(valueWrapper == null){
-                // Si no está en la caché, cachearla
-                cache.put(key, medicionDto);
-            }
-        }
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }
