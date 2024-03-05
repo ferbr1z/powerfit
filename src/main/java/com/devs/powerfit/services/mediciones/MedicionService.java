@@ -24,6 +24,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class MedicionService implements IMedicionService {
@@ -181,6 +186,44 @@ public class MedicionService implements IMedicionService {
 
     @Override
     public PageResponse<MedicionDto> searchByNombreCliente(String nombre, int page) {
-        return null;
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        PageResponse<ClienteDto> clientesResponse = clienteService.searchByNombre(nombre, page);
+        List<ClienteDto> clientes = clientesResponse.getItems();
+
+        if (clientes.isEmpty()) {
+            throw new NotFoundException("No se encontraron clientes con ese nombre");
+        }
+
+        // Obtener mediciones para los clientes encontrados
+        List<MedicionBean> mediciones = new ArrayList<>();
+        clientes.forEach(cliente -> {
+            Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
+            medicion.ifPresent(mediciones::add);
+        });
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para los clientes con ese nombre");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = mediciones.stream()
+                .map(medicion -> mapper.toDto(medicion))
+                .toList();
+        // Cachear manualmente cada medicion en Redis
+        for(MedicionDto medicionDto : medicionesDto){
+            String cacheName = "sd::api_mediciones";
+            String key = "medicion_" + medicionDto.getId();
+            Cache cache = cacheManager.getCache(cacheName);
+
+            // Verificar si la mediciones ya está en la caché
+            Cache.ValueWrapper valueWrapper = cache.get(key);
+
+            if(valueWrapper == null){
+                // Si no está en la caché, cachearla
+                cache.put(key, medicionDto);
+            }
+        }
+        // Crear y retornar la respuesta de la página
+        return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }
 }
