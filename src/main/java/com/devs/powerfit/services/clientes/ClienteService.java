@@ -31,12 +31,10 @@ public class ClienteService implements IClienteService {
 
     private ClienteDao clienteDao;
     private ClienteMapper mapper;
-    private CacheManager cacheManager;
     @Autowired
-    public ClienteService(ClienteDao clienteDao, ClienteMapper mapper, CacheManager cacheManager) {
+    public ClienteService(ClienteDao clienteDao, ClienteMapper mapper) {
         this.clienteDao = clienteDao;
         this.mapper = mapper;
-        this.cacheManager = cacheManager;
     }
 
 
@@ -44,7 +42,7 @@ public class ClienteService implements IClienteService {
     public ClienteDto create(ClienteDto clienteDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (clienteDto.getNombre() == null || clienteDto.getCedula() == null) {
-            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente");
+            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente" );
         }
 
         // Verificar si ya existe un cliente con la misma cédula
@@ -92,11 +90,6 @@ public class ClienteService implements IClienteService {
         clienteDao.save(nuevoCliente);
         return mapper.toDto(nuevoCliente);
     }
-
-
-
-
-    @Cacheable(cacheNames = "IS::api_clientes", key = "'cliente_'+#id")
     @Override
     public ClienteDto getById(Long id) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
@@ -117,27 +110,13 @@ public class ClienteService implements IClienteService {
         }
 
         var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        // Cachear manualmente cada cliente en Redis
-        for (ClienteDto clienteDto : clientesDto) {
-            String cacheName = "sd::api_clientes";
-            String key = "cliente_" + clienteDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
 
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, clienteDto);
-            }
-        }
         var pageResponse = new PageResponse<ClienteDto>(clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
                 clientesDto.getNumber() + 1);
         return pageResponse;
     }
-    @CachePut(cacheNames = "IS::api_clientes", key = "'cliente_'+#id")
     @Override
     public ClienteDto update(Long id, ClienteDto clienteDto) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
@@ -157,7 +136,6 @@ public class ClienteService implements IClienteService {
         }
         throw new NotFoundException("Cliente no encontrado");
     }
-    @CacheEvict(cacheNames = "IS::api_clientes", key = "'cliente_'+#id")
     @Override
     public boolean delete(Long id) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
@@ -179,20 +157,6 @@ public class ClienteService implements IClienteService {
         }
 
         var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        // Cachear manualmente cada cliente en Redis
-        for (ClienteDto clienteDto : clientesDto) {
-            String cacheName = "sd::api_clientes";
-            String key = "cliente_" + clienteDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, clienteDto);
-            }
-        }
         var pageResponse = new PageResponse<ClienteDto>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),
@@ -210,22 +174,7 @@ public class ClienteService implements IClienteService {
         if(clientes.isEmpty()){
             throw new NotFoundException("No hay clientes con esa cedula");
         }
-
         var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        // Cachear manualmente cada cliente en Redis
-        for (ClienteDto clienteDto : clientesDto) {
-            String cacheName = "sd::api_clientes";
-            String key = "cliente_" + clienteDto.getId();
-            Cache cache = cacheManager.getCache(cacheName);
-
-            // Verificar si la actividad ya está en la caché
-            Cache.ValueWrapper valueWrapper = cache.get(key);
-
-            if (valueWrapper == null) {
-                // Si no está en la caché, cachearla
-                cache.put(key, clienteDto);
-            }
-        }
         var pageResponse = new PageResponse<ClienteDto>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),

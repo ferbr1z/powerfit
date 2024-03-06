@@ -11,7 +11,6 @@ import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,16 +23,14 @@ public class SuscripcionConDetalleService implements ISuscripcionConDetalleServi
     private ClienteService clienteService;
     private SuscripcionMapper mapper;
     private ClienteMapper clienteMapper;
-    private CacheManager cacheManager;
     private SuscripcionDetalleService suscripcionDetalleService;
     private SuscripcionService suscripcionService;
     @Autowired
-    public SuscripcionConDetalleService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, CacheManager cacheManager, SuscripcionDetalleService suscripcionDetalleService, SuscripcionService suscripcionService) {
+    public SuscripcionConDetalleService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, SuscripcionDetalleService suscripcionDetalleService, SuscripcionService suscripcionService) {
         this.suscripcionDao = suscripcionDao;
         this.clienteService = clienteService;
         this.mapper = mapper;
         this.clienteMapper = clienteMapper;
-        this.cacheManager = cacheManager;
         this.suscripcionDetalleService = suscripcionDetalleService;
         this.suscripcionService = suscripcionService;
     }
@@ -45,7 +42,7 @@ public class SuscripcionConDetalleService implements ISuscripcionConDetalleServi
 
         // Verificar si la suscripción principal es nula
         if (suscripcionDto == null) {
-            throw new BadRequestException("La suscripción principal es nula");
+            throw new BadRequestException("La suscripción principal es nula" );
         }
 
         // Verificar si la lista de detalles de suscripción está vacía
