@@ -42,7 +42,7 @@ public class ClienteService implements IClienteService {
     public ClienteDto create(ClienteDto clienteDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (clienteDto.getNombre() == null || clienteDto.getCedula() == null) {
-            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente");
+            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente" );
         }
 
         // Verificar si ya existe un cliente con la misma cédula

@@ -81,7 +81,7 @@ public class MedicionService implements IMedicionService {
             var medicionBean = medicionOptional.get();
             return mapper.toDto(medicionBean);
         }
-        throw new NotFoundException("Medición no encontrada");
+        throw new NotFoundException("Medición no encontrada" );
     }
 
     @Override

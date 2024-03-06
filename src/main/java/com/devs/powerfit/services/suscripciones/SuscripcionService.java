@@ -128,7 +128,7 @@ public class SuscripcionService implements ISuscripcionService {
             suscripcionDao.save(suscripcionBean);
             return true;
         }
-        throw new NotFoundException("Suscripción no encontrada");
+        throw new NotFoundException("Suscripción no encontrada" );
     }
 
 

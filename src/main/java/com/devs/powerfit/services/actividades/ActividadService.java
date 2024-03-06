@@ -34,7 +34,7 @@ public class ActividadService implements IActividadService  {
 
         // Verificar si el costo mensual es válido (mayor o igual a 0)
         if (actividadDto.getCostoMensual() < 0) {
-            throw new BadRequestException("El costo mensual de la actividad no puede ser negativo.");
+            throw new BadRequestException("El costo mensual de la actividad no puede ser negativo." );
         }
 
         // Verificar si el costo semanal es válido (mayor o igual a 0)

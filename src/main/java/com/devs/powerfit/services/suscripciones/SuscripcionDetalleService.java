@@ -211,7 +211,7 @@ public class SuscripcionDetalleService implements ISuscripcionDetalleService {
             suscripcionDetalleDao.save(suscripcionDetalleBean);
             return true;
         }
-        throw new NotFoundException("Detalle de suscripción no encontrado");
+        throw new NotFoundException("Detalle de suscripción no encontrado" );
     }
     public List<SuscripcionDetalleDto> getAllBySuscripcionId( Long id) {
         var suscripcionDetalles = suscripcionDetalleDao.findAllBySuscripcionIdAndActiveTrue(id);

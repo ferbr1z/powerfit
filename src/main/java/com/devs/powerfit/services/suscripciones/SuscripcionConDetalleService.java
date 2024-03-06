@@ -42,7 +42,7 @@ public class SuscripcionConDetalleService implements ISuscripcionConDetalleServi
 
         // Verificar si la suscripción principal es nula
         if (suscripcionDto == null) {
-            throw new BadRequestException("La suscripción principal es nula");
+            throw new BadRequestException("La suscripción principal es nula" );
         }
 
         // Verificar si la lista de detalles de suscripción está vacía
