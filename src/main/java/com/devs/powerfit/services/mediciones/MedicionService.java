@@ -191,4 +191,33 @@ public class MedicionService implements IMedicionService {
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }
+
+    @Override
+    public PageResponse<MedicionDto> searchByCiCliente(String ci, int page) {
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        PageResponse<ClienteDto> clientesResponse = clienteService.searchByCi(ci, page);
+        List<ClienteDto> clientes = clientesResponse.getItems();
+
+        if (clientes.isEmpty()) {
+            throw new NotFoundException("No se encontraron clientes con ese nombre");
+        }
+
+        // Obtener mediciones para los clientes encontrados
+        List<MedicionBean> mediciones = new ArrayList<>();
+        clientes.forEach(cliente -> {
+            Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
+            medicion.ifPresent(mediciones::add);
+        });
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para los clientes con ese nombre");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = mediciones.stream()
+                .map(medicion -> mapper.toDto(medicion))
+                .toList();
+        // Crear y retornar la respuesta de la página
+        return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
+    }
 }

@@ -59,4 +59,10 @@ public class MedicionController {
     public ResponseEntity<PageResponse<MedicionDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(medicionService.searchByNombreCliente(nombre,page), HttpStatus.OK);
     }
+
+    @GetMapping("/search/{ci}/page/{page}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    public ResponseEntity<PageResponse<MedicionDto>> searchByCi(@PathVariable int page, @PathVariable String ci) {
+        return new ResponseEntity<>(medicionService.searchByCiCliente(ci,page), HttpStatus.OK);
+    }
 }
