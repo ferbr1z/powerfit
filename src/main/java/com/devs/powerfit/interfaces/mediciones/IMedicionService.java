@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface IMedicionService extends IService<MedicionDto> {
     PageResponse<MedicionDto> searchByNombreCliente(String nombre, int page);
-    PageResponse<MedicionDto> searchByCiCliente(String ci, int page);
-    List<MedicionDto> searchByIdCliente(Long id);
+    PageResponse<MedicionDto> searchByCiCliente(int ci, int page);
+    PageResponse<MedicionDto> searchByIdCliente(Long id, int page);
 }

@@ -19,7 +19,7 @@ public interface MedicionDao extends JpaRepository<MedicionBean, Long> {
     //MedicionBean findTopByClienteIdOrderByFechaDesc(Long id);
     //Optional<MedicionBean> findByImcGreaterThan(Double valorIMC);
     Page<MedicionBean> findAllByActiveTrue(Pageable pageable);
-    //Page<MedicionBean> findAllByClienteIdAndActiveTrue(Pageable pageable);
+    Page<MedicionBean> findAllByClienteIdAndActiveTrue(Pageable pageable, Long id);
     //Page<MedicionBean> findAllByFechaAndActiveTrue(Pageable pageable);
     //Page<MedicionBean> findAllByFechaBetween(Pageable pageable);
     //Page<MedicionBean> findAllByClienteIdAndFechaBetween(Pageable pageable);
