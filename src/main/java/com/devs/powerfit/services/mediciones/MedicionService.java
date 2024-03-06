@@ -220,4 +220,30 @@ public class MedicionService implements IMedicionService {
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
     }
+
+    @Override
+    public List<MedicionDto> searchByIdCliente(Long id) {
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        ClienteDto cliente = clienteService.getById(id);
+
+        if (cliente == null) {
+            throw new NotFoundException("No se encontró cliente con ese id");
+        }
+
+        // Obtener mediciones para el cliente encontrado
+        List<MedicionBean> mediciones = new ArrayList<>();
+        Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
+        medicion.ifPresent(mediciones::add);
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para el cliente con esa id");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = mediciones.stream()
+                .map(medicionBean -> mapper.toDto(medicionBean))
+                .toList();
+        // Crear y retornar la respuesta de la página
+        return medicionesDto;
+    }
 }
