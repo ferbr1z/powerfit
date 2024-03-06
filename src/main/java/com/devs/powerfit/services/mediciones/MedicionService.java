@@ -193,9 +193,9 @@ public class MedicionService implements IMedicionService {
     }
 
     @Override
-    public PageResponse<MedicionDto> searchByCiCliente(String ci, int page) {
+    public PageResponse<MedicionDto> searchByCiCliente(int ci, int page) {
         // Buscar clientes por nombre utilizando el servicio de cliente
-        PageResponse<ClienteDto> clientesResponse = clienteService.searchByCi(ci, page);
+        PageResponse<ClienteDto> clientesResponse = clienteService.searchByCi(String.valueOf(ci), page);
         List<ClienteDto> clientes = clientesResponse.getItems();
 
         if (clientes.isEmpty()) {
@@ -222,7 +222,8 @@ public class MedicionService implements IMedicionService {
     }
 
     @Override
-    public List<MedicionDto> searchByIdCliente(Long id) {
+    public PageResponse<MedicionDto> searchByIdCliente(Long id, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         // Buscar clientes por nombre utilizando el servicio de cliente
         ClienteDto cliente = clienteService.getById(id);
 
@@ -231,19 +232,17 @@ public class MedicionService implements IMedicionService {
         }
 
         // Obtener mediciones para el cliente encontrado
-        List<MedicionBean> mediciones = new ArrayList<>();
-        Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
-        medicion.ifPresent(mediciones::add);
+        var medicionesResponse = medicionDao.findAllByClienteIdAndActiveTrue(pag, cliente.getId());
 
-        if(mediciones.isEmpty()){
+        if(medicionesResponse.isEmpty()){
             throw new NotFoundException("No se encontraron mediciones para el cliente con esa id");
         }
 
         // Convertir las mediciones a DTOs
-        List<MedicionDto> medicionesDto = mediciones.stream()
+        List<MedicionDto> medicionesDto = medicionesResponse.stream()
                 .map(medicionBean -> mapper.toDto(medicionBean))
                 .toList();
         // Crear y retornar la respuesta de la página
-        return medicionesDto;
+        return new PageResponse<>(medicionesDto, medicionesResponse.getTotalPages(), medicionesResponse.getTotalElements(), page);
     }
 }
