@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/mediciones")
 public class MedicionController {
@@ -64,5 +66,11 @@ public class MedicionController {
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     public ResponseEntity<PageResponse<MedicionDto>> searchByCi(@PathVariable int page, @PathVariable String ci) {
         return new ResponseEntity<>(medicionService.searchByCiCliente(ci,page), HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{idCliente}")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    public ResponseEntity<List<MedicionDto>> searchByCi(@PathVariable Long idCliente) {
+        return new ResponseEntity<>(medicionService.searchByIdCliente(idCliente), HttpStatus.OK);
     }
 }
