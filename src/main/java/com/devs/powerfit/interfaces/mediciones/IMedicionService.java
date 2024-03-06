@@ -6,4 +6,5 @@ import com.devs.powerfit.utils.responses.PageResponse;
 
 public interface IMedicionService extends IService<MedicionDto> {
     PageResponse<MedicionDto> searchByNombreCliente(String nombre, int page);
+    PageResponse<MedicionDto> searchByCiCliente(String ci, int page);
 }
