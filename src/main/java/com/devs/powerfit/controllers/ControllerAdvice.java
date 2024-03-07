@@ -1,6 +1,6 @@
 package com.devs.powerfit.controllers;
 
-import com.devs.powerfit.dtos.ErrorDto;
+import com.devs.powerfit.dtos.errors.ErrorDto;
 import com.devs.powerfit.exceptions.BaseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

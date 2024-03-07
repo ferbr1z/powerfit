@@ -1,0 +1,248 @@
+package com.devs.powerfit.services.mediciones;
+
+import com.devs.powerfit.beans.clientes.ClienteBean;
+import com.devs.powerfit.beans.mediciones.MedicionBean;
+import com.devs.powerfit.daos.mediciones.MedicionDao;
+import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.dtos.mediciones.MedicionDto;
+import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.interfaces.mediciones.IMedicionService;
+import com.devs.powerfit.services.clientes.ClienteService;
+import com.devs.powerfit.utils.Setting;
+import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
+import com.devs.powerfit.utils.mappers.medicionMappers.MedicionMapper;
+import com.devs.powerfit.utils.responses.PageResponse;
+import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.exceptions.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class MedicionService implements IMedicionService {
+    private MedicionDao medicionDao;
+    private ClienteService clienteService;
+    private MedicionMapper mapper;
+    private ClienteMapper clienteMapper;
+    @Autowired
+    public MedicionService(MedicionDao medicionDao, ClienteService clienteService,
+                           MedicionMapper mapper, ClienteMapper clienteMapper){
+        this.medicionDao = medicionDao;
+        this.clienteService = clienteService;
+        this.mapper = mapper;
+        this.clienteMapper = clienteMapper;
+    }
+    @Override
+    public MedicionDto create(MedicionDto medicionDto) {
+        // Verificar si los campos obligatorios no están incompletos
+        if (medicionDto.getClienteID() == null || medicionDto.getFecha() == null) {
+            throw new BadRequestException("El campo clienteID y fecha son obligatorios para crear una nueva medición");
+        }
+
+        // Verificar si el cliente existe
+        ClienteDto clienteDto = clienteService.getById(medicionDto.getClienteID());
+
+        // Crear una instancia de Medicion desde MedicionDto
+        MedicionBean medicion = new MedicionBean();
+        medicion.setCliente(clienteMapper.toBean(clienteDto));
+        medicion.setFecha(medicionDto.getFecha());
+        medicion.setPeso((medicionDto.getPeso()));
+        medicion.setAltura(medicionDto.getAltura());
+        medicion.setImc(medicionDto.getImc());
+        medicion.setCirBrazo(medicionDto.getCirBrazo());
+        medicion.setCirPiernas(medicionDto.getCirPiernas());
+        medicion.setCirCintura(medicionDto.getCirCintura());
+        medicion.setCirPecho(medicionDto.getCirPecho());
+        medicion.setActive(true);
+
+        // Guardar la medicion en la base de datos
+        MedicionBean savedMedicion = medicionDao.save(medicion);
+
+        // Retornar el MedicionDao creado
+        return mapper.toDto(savedMedicion);
+    }
+
+    @Override
+    public MedicionDto getById(Long id) {
+        var medicionOptional = medicionDao.findById(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
+            return mapper.toDto(medicionBean);
+        }
+        throw new NotFoundException("Medición no encontrada" );
+    }
+
+    @Override
+    public PageResponse<MedicionDto> getAll(int page) {
+        var pag = PageRequest.of(page -1, Setting.PAGE_SIZE);
+        var mediciones = medicionDao.findAllByActiveTrue(pag);
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No hay mediciones en la lista");
+        }
+
+        var medicionesDto = mediciones.map(medicion -> mapper.toDto(medicion));
+        var pageResponse = new PageResponse<MedicionDto>(
+                medicionesDto.getContent(),
+                medicionesDto.getTotalPages(),
+                medicionesDto.getTotalElements(),
+                medicionesDto.getNumber() + 1
+        );
+        return pageResponse;
+    }
+    @Override
+    public MedicionDto update(Long id, MedicionDto medicionDto) {
+        var medicionOptional = medicionDao.findByClienteIdAndActiveTrue(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
+
+            // Actualizar los campos de la medicion con los valores del DTO
+            if(medicionDto.getFecha() != null){
+                medicionBean.setFecha(medicionDto.getFecha());
+            }
+
+            if (medicionDto.getPeso() != null) {
+                medicionBean.setPeso(medicionDto.getPeso());
+            }
+            if (medicionDto.getAltura() != null) {
+                medicionBean.setAltura(medicionDto.getAltura());
+            }
+            if (medicionDto.getImc() != null) {
+                medicionBean.setImc(medicionDto.getImc());
+            }
+            if (medicionDto.getCirBrazo() != null) {
+                medicionBean.setCirBrazo(medicionDto.getCirBrazo());
+            }
+            if (medicionDto.getCirPiernas() != null) {
+                medicionBean.setCirPiernas(medicionDto.getCirPiernas());
+            }
+            if (medicionDto.getCirCintura() != null) {
+                medicionBean.setCirCintura(medicionDto.getCirCintura());
+            }
+            if (medicionDto.getCirPecho() != null) {
+                medicionBean.setCirPecho(medicionDto.getCirPecho());
+            }
+
+            // Verificar si se proporciona el ID del cliente para actualizar el cliente asociado
+            if(medicionDto.getClienteID() != null){
+                // Obtener el cliente asociado a la medicion
+                ClienteDto clienteDto = clienteService.getById(medicionDto.getClienteID());
+
+                // Asignar el cliente actualizado a la medicion
+                medicionBean.setCliente(clienteMapper.toBean(clienteDto));
+            }
+
+            medicionDao.save(medicionBean);
+
+            return  mapper.toDto(medicionBean);
+        }
+        throw new NotFoundException("Medición no encontrada");
+    }
+    @Override
+    public boolean delete(Long id) {
+        var medicionOptional = medicionDao.findById(id);
+        if(medicionOptional.isPresent()){
+            var medicionBean = medicionOptional.get();
+            // Desactivar la medicion en lugar de eliminarla físicamente
+            medicionBean.setActive(false);
+            medicionDao.save(medicionBean);
+            return true;
+        }
+        throw new NotFoundException("Medición no encontrada");
+    }
+
+    @Override
+    public PageResponse<MedicionDto> searchByNombreCliente(String nombre, int page) {
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        PageResponse<ClienteDto> clientesResponse = clienteService.searchByNombre(nombre, page);
+        List<ClienteDto> clientes = clientesResponse.getItems();
+
+        if (clientes.isEmpty()) {
+            throw new NotFoundException("No se encontraron clientes con ese nombre");
+        }
+
+        // Obtener mediciones para los clientes encontrados
+        List<MedicionBean> mediciones = new ArrayList<>();
+        clientes.forEach(cliente -> {
+            Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
+            medicion.ifPresent(mediciones::add);
+        });
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para los clientes con ese nombre");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = mediciones.stream()
+                .map(medicion -> mapper.toDto(medicion))
+                .toList();
+        // Crear y retornar la respuesta de la página
+        return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
+    }
+
+    @Override
+    public PageResponse<MedicionDto> searchByCiCliente(int ci, int page) {
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        PageResponse<ClienteDto> clientesResponse = clienteService.searchByCi(String.valueOf(ci), page);
+        List<ClienteDto> clientes = clientesResponse.getItems();
+
+        if (clientes.isEmpty()) {
+            throw new NotFoundException("No se encontraron clientes con ese nombre");
+        }
+
+        // Obtener mediciones para los clientes encontrados
+        List<MedicionBean> mediciones = new ArrayList<>();
+        clientes.forEach(cliente -> {
+            Optional<MedicionBean> medicion = medicionDao.findByClienteIdAndActiveTrue(cliente.getId());
+            medicion.ifPresent(mediciones::add);
+        });
+
+        if(mediciones.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para los clientes con ese nombre");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = mediciones.stream()
+                .map(medicion -> mapper.toDto(medicion))
+                .toList();
+        // Crear y retornar la respuesta de la página
+        return new PageResponse<>(medicionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
+    }
+
+    @Override
+    public PageResponse<MedicionDto> searchByIdCliente(Long id, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        // Buscar clientes por nombre utilizando el servicio de cliente
+        ClienteDto cliente = clienteService.getById(id);
+
+        if (cliente == null) {
+            throw new NotFoundException("No se encontró cliente con ese id");
+        }
+
+        // Obtener mediciones para el cliente encontrado
+        var medicionesResponse = medicionDao.findAllByClienteIdAndActiveTrue(pag, cliente.getId());
+
+        if(medicionesResponse.isEmpty()){
+            throw new NotFoundException("No se encontraron mediciones para el cliente con esa id");
+        }
+
+        // Convertir las mediciones a DTOs
+        List<MedicionDto> medicionesDto = medicionesResponse.stream()
+                .map(medicionBean -> mapper.toDto(medicionBean))
+                .toList();
+        // Crear y retornar la respuesta de la página
+        return new PageResponse<>(medicionesDto, medicionesResponse.getTotalPages(), medicionesResponse.getTotalElements(), page);
+    }
+}
