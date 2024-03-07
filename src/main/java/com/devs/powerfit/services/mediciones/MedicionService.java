@@ -104,7 +104,7 @@ public class MedicionService implements IMedicionService {
     }
     @Override
     public MedicionDto update(Long id, MedicionDto medicionDto) {
-        var medicionOptional = medicionDao.findByClienteIdAndActiveTrue(id);
+        var medicionOptional = medicionDao.findById(id);
         if(medicionOptional.isPresent()){
             var medicionBean = medicionOptional.get();
 
