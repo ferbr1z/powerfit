@@ -3,7 +3,9 @@ package com.devs.powerfit.utils.mappers.CajaMappers;
 import com.devs.powerfit.abstracts.AbstractMapper;
 import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.dtos.cajas.CajaDto;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CajaMapper extends AbstractMapper<CajaBean, CajaDto> {
     @Override
     public CajaBean toBean(CajaDto dto) {
