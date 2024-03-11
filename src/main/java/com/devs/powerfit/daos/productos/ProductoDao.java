@@ -12,5 +12,8 @@ import java.util.Optional;
 public interface ProductoDao extends JpaRepository<ProductoBean,Long> {
     Optional<ProductoBean> findByNombreAndActiveIsTrue(String nombre);
     Optional<ProductoBean> findByCodigoAndActiveIsTrue(String codigo);
+    Optional<ProductoBean> findByDescripcionAndActiveIsTrue(String descripcion);
     Page findAllByActiveIsTrue(Pageable pageable);
+    Optional<ProductoBean> findByIdAndActiveIsTrue(Long id);
+
 }
