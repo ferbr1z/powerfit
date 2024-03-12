@@ -92,6 +92,11 @@ public class ProductoService implements IProductoService {
                 if (productoDto.getCodigo().length() != 6) {
                     throw new BadRequestException("El código debe tener una longitud de 6 dígitos");
                 }
+                // Verifica si el código que se está tratando de actualizar ya existe
+                Optional<ProductoBean> existingProduct = productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo());
+                if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
+                    throw new BadRequestException("El código ingresado ya está en uso por otro producto");
+                }
                 productoBean.setCodigo(productoDto.getCodigo());
             }
             // Validación de costo
