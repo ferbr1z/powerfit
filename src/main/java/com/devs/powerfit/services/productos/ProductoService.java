@@ -38,6 +38,10 @@ public class ProductoService implements IProductoService {
         if(productoDto.getCantidad() < 0 || productoDto.getCosto() <= 0 || productoDto.getPrecio() <= 0){
             throw new BadRequestException("El costo, precio y la cantidad no pueden ser menor o igual a 0(cero)");
         }
+        // Verifica que el código tenga una longitud exacta de 6 dígitos
+        if (productoDto.getCodigo().length() != 6) {
+            throw new BadRequestException("El código debe tener una longitud exacta de 6 dígitos");
+        }
         //Se verifica que no existe un producto con el mismo codigo
         if (productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo()).isPresent()){
             throw new BadRequestException("Ya existe un producto activo con el mismo código");
@@ -79,16 +83,46 @@ public class ProductoService implements IProductoService {
 
     @Override
     public ProductoDto update(Long id, ProductoDto productoDto) {
-
         Optional<ProductoBean> producto = productoDao.findByIdAndActiveIsTrue(id);
         if (producto.isPresent()) {
             ProductoBean productoBean = producto.get();
-            productoBean.setNombre(productoDto.getNombre() != null ? productoDto.getNombre() : productoBean.getNombre());
-            productoBean.setDescripcion(productoDto.getDescripcion() != null ? productoDto.getDescripcion() : productoBean.getDescripcion());
-            productoBean.setCodigo(productoDto.getCodigo() != null ? productoDto.getCodigo() : productoBean.getCodigo());
-            productoBean.setPrecio(productoDto.getPrecio() != null ? productoDto.getPrecio() : productoBean.getPrecio());
-            productoBean.setCosto(productoDto.getCosto() != null ? productoDto.getCosto() : productoBean.getCosto());
-            productoBean.setCantidad(productoDto.getCantidad() != null ? productoDto.getCantidad() : productoBean.getCantidad());
+            if(productoDto.getNombre() != null) productoBean.setNombre(productoDto.getNombre());
+            if(productoDto.getDescripcion() != null) productoBean.setDescripcion(productoDto.getDescripcion());
+            if (productoDto.getCodigo() != null) {
+                if (productoDto.getCodigo().length() != 6) {
+                    throw new BadRequestException("El código debe tener una longitud de 6 dígitos");
+                }
+                // Verifica si el código que se está tratando de actualizar ya existe
+                Optional<ProductoBean> existingProduct = productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo());
+                if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
+                    throw new BadRequestException("El código ingresado ya está en uso por otro producto");
+                }
+                productoBean.setCodigo(productoDto.getCodigo());
+            }
+            // Validación de costo
+            if (productoDto.getCosto() != null) {
+                if (productoDto.getCosto() <= 0) {
+                    throw new BadRequestException("El costo debe ser mayor que cero");
+                }
+                productoBean.setCosto(productoDto.getCosto());
+            }
+
+            // Validación de precio
+            if (productoDto.getPrecio() != null) {
+                if (productoDto.getPrecio() <= 0) {
+                    throw new BadRequestException("El precio debe ser mayor que cero");
+                }
+                productoBean.setPrecio(productoDto.getPrecio());
+            }
+
+            // Validación de cantidad
+            if (productoDto.getCantidad() != null) {
+                if (productoDto.getCantidad() < 0) {
+                    throw new BadRequestException("La cantidad no puede ser negativa");
+                }
+                productoBean.setCantidad(productoDto.getCantidad());
+            }
+
             productoDao.save(productoBean);
             return productoMapper.toDto(productoBean);
         }
