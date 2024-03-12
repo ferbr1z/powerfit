@@ -2,6 +2,7 @@ package com.devs.powerfit.controllers.cajas;
 
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.interfaces.cajas.ICajaService;
+import com.devs.powerfit.interfaces.cajas.ISesionCajaService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ public class CajaControllerTest {
 
     @Mock
     private ICajaService cajaService;
+    @Mock
+    private ISesionCajaService sesionCajaService;
 
     @InjectMocks
     private CajaController cajaController;
@@ -27,6 +30,7 @@ public class CajaControllerTest {
     @BeforeEach
     public void setUp() {
         cajaService = mock(ICajaService.class);
+        sesionCajaService = mock(ISesionCajaService.class);
         cajaController = new CajaController(cajaService, sesionCajaService);
     }
 
