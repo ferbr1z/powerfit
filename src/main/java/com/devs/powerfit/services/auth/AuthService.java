@@ -63,6 +63,81 @@ public class AuthService implements IAuthService {
         }
     }
 
+    public ResponseEntity<?> update(String email, UsuarioDto request) {
+        try {
+            Optional<UsuarioBean> optionalUser = userDao.findByEmailAndActiveIsTrue(email);
+
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            }
+
+            UsuarioBean user = optionalUser.get();
+
+            if (request.getNombre() != null && !request.getNombre().isEmpty()) {
+                user.setNombre(request.getNombre());
+            }
+
+            if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+                user.setEmail(request.getEmail());
+            }
+
+            if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(request.getPassword()));
+            }
+
+            if (request.getRol_id() != null) {
+                Optional<RolBean> rol = rolDao.findByIdAndActiveTrue(request.getRol_id());
+                if (rol.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Rol no encontrado");
+                }
+                user.setRol(rol.get());
+            }
+
+            userDao.save(user);
+
+            return ResponseEntity.ok().body(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("No se pudo actualizar el usuario");
+        }
+
+
+
+    }
+
+    public ResponseEntity<?> getByEmail(String email) {
+        try {
+            Optional<UsuarioBean> optionalUser = userDao.findByEmailAndActiveIsTrue(email);
+
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            }
+
+            UsuarioBean user = optionalUser.get();
+            return ResponseEntity.ok().body(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener el usuario por email");
+        }
+    }
+
+    public ResponseEntity<?> delete(String email){
+        try {
+            Optional<UsuarioBean> optionalUser = userDao.findByEmailAndActiveIsTrue(email);
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+            }
+                UsuarioBean user = optionalUser.get();
+                user.setActive(false);
+                userDao.save(user);
+                return ResponseEntity.ok().body("Eliminado con exito");
+
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener el usuario por email");
+        }
+
+    }
+
+
+
     public ResponseEntity<?> login(AuthRequest request) {
         try {
             final Authentication authentication = authenticationManager.authenticate(
