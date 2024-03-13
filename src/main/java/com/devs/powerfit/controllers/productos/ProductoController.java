@@ -43,7 +43,7 @@ public class ProductoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @DeleteMapping("/{id}")
-    ResponseEntity<Boolean> update(@PathVariable Long id){
+    ResponseEntity<Boolean> delete(@PathVariable Long id){
         return new ResponseEntity<>(productoService.delete(id), HttpStatus.OK);
     }
 
