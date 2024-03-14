@@ -1,7 +1,5 @@
 package com.devs.powerfit.services.cajas;
 
-import com.devs.powerfit.beans.auth.UsuarioBean;
-import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
@@ -14,16 +12,12 @@ import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.SesionCajaMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class SesionCajaService implements ISesionCajaService {
@@ -207,6 +201,11 @@ public class SesionCajaService implements ISesionCajaService {
         SesionCajaBean sesionCajaActualizada = sesionCajaDao.save(sesionCajaExistente);
 
         return sesionCajaMapper.toDto(sesionCajaActualizada);
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        return false;
     }
 
 }
