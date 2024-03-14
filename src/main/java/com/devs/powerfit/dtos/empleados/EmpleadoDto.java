@@ -8,7 +8,6 @@ import lombok.Data;
 public class EmpleadoDto extends AbstractDto {
 
     private String nombre;
-    private String ruc;
     private String cedula;
     private String telefono;
     private String email;
