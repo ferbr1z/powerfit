@@ -1,6 +1,7 @@
 package com.devs.powerfit.services.empleados;
 
 import com.devs.powerfit.beans.empleados.EmpleadoBean;
+import com.devs.powerfit.daos.auth.RolDao;
 import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.auth.UsuarioDto;
 import com.devs.powerfit.dtos.empleados.EmpleadoDto;
@@ -26,12 +27,15 @@ public class EmpleadoService implements IEmpleadoService {
     private EmpleadoDao empleadoDao;
     private EmpleadoMapper mapper;
 
+    private RolDao rolDao;
+
     private AuthService authService;
     @Autowired
-    public EmpleadoService(EmpleadoDao empleadoDao, EmpleadoMapper mapper, AuthService authService){
+    public EmpleadoService(EmpleadoDao empleadoDao, EmpleadoMapper mapper, AuthService authService,RolDao rolDao ){
         this.empleadoDao = empleadoDao;
         this.mapper = mapper;
         this.authService = authService;
+        this.rolDao = rolDao;
     }
     @Override
     public EmpleadoDto create(EmpleadoDto empleadoDto) {
@@ -44,6 +48,10 @@ public class EmpleadoService implements IEmpleadoService {
         if (empleadoDao.findByCedulaAndActiveIsTrue(empleadoDto.getCedula()).isPresent()){
             throw new BadRequestException("Ya existe un empleado activo con el mismo numero de cédula");
         }
+        if (!rolDao.findByIdAndActiveTrue(empleadoDto.getRol_id()).isPresent()) {
+            throw new BadRequestException("El rol especificado no existe");
+        }
+
         EmpleadoBean empleadoBean = mapper.toBean(empleadoDto);
         empleadoBean.setActive(true);
         empleadoDao.save(empleadoBean);
@@ -86,29 +94,47 @@ public class EmpleadoService implements IEmpleadoService {
 
     @Override
     public EmpleadoDto update(Long id, EmpleadoDto empleadoDto) {
-        Optional<EmpleadoBean> empleado = empleadoDao.findByIdAndActiveIsTrue(id);
-        if(empleado.isPresent()){
-            EmpleadoBean empleadoBean = empleado.get();
-            if (empleadoDto.getNombre() != null) empleadoBean.setNombre(empleadoDto.getNombre());
-            if (empleadoDto.getCedula() != null) empleadoBean.setCedula(empleadoDto.getCedula());
-            if (empleadoDto.getRuc() != null) empleadoBean.setRuc(empleadoDto.getRuc());
-            if (empleadoDto.getRol_id() != null) empleadoBean.setRol_id(empleadoDto.getRol_id());
+        Optional<EmpleadoBean> empleadoOptional = empleadoDao.findByIdAndActiveIsTrue(id);
+
+        if (empleadoOptional.isPresent()) {
+            UsuarioDto usuarioDto = new UsuarioDto();
+            EmpleadoBean empleadoBean = empleadoOptional.get();
+            if (empleadoDto.getNombre() != null) {
+                empleadoBean.setNombre(empleadoDto.getNombre());
+                usuarioDto.setNombre(empleadoDto.getNombre());
+            }
+            if (empleadoDto.getCedula() != null && !empleadoDto.getCedula().equals(empleadoBean.getCedula())) {
+                // Verificar si la nueva cédula ya está en uso por otro empleado
+                if (empleadoDao.findByCedulaAndActiveIsTrue(empleadoDto.getCedula()).isPresent()) {
+                    throw new BadRequestException("Ya existe un empleado activo con la misma cédula");
+                }
+                empleadoBean.setCedula(empleadoDto.getCedula());
+                usuarioDto.setPassword(empleadoDto.getCedula()); // La contraseña es la cédula del empleado
+            }
+
+            if (empleadoDto.getRol_id() != null) {
+                if (!rolDao.findByIdAndActiveTrue(empleadoDto.getRol_id()).isPresent()) {
+                    throw new BadRequestException("El rol especificado no existe");
+                }
+                empleadoBean.setRol_id(empleadoDto.getRol_id());
+                usuarioDto.setRol_id(empleadoDto.getRol_id());
+            }
             if (empleadoDto.getDireccion() != null) empleadoBean.setDireccion(empleadoDto.getDireccion());
-            if (empleadoDto.getEmail() != null) empleadoBean.setEmail(empleadoDto.getEmail());
+            if (empleadoDto.getEmail() != null && !empleadoDto.getEmail().equals(empleadoBean.getEmail())) {
+                // Verificar si el nuevo email ya está en uso por otro empleado
+                if (empleadoDao.findByEmailAndActiveIsTrue(empleadoDto.getEmail()).isPresent()) {
+                    throw new BadRequestException("Ya existe un empleado activo con el mismo email");
+                }
+                usuarioDto.setEmail(empleadoDto.getEmail());
+                empleadoBean.setEmail(empleadoDto.getEmail());
+            }
             if (empleadoDto.getTelefono() != null) empleadoBean.setTelefono(empleadoDto.getTelefono());
 
-            empleadoDao.save(empleadoBean);
             // Actualizar los datos del usuario asociado al empleado
-            UsuarioDto usuarioDto = new UsuarioDto();
-            usuarioDto.setNombre(empleadoDto.getNombre());
-            usuarioDto.setEmail(empleadoDto.getEmail());
-            usuarioDto.setPassword(empleadoDto.getCedula()); // La contraseña es la cedula del empleado
-            usuarioDto.setRol_id(empleadoDto.getRol_id());
             authService.update(empleadoBean.getEmail(), usuarioDto); // Actualizar usuario
+            empleadoDao.save(empleadoBean);
 
             return mapper.toDto(empleadoBean);
-
-
         }
         throw new NotFoundException("Empleado no encontrado.");
     }

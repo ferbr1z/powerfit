@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 public class EmpleadoBean extends AbstractBean {
     @Column
     private String nombre;
-    private String ruc;
     @Column(unique = true)
     private String cedula;
     @Column
