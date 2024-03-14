@@ -1,5 +1,7 @@
 package com.devs.powerfit.services.cajas;
 
+import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
@@ -141,51 +143,64 @@ public class SesionCajaService implements ISesionCajaService {
         SesionCajaBean sesionCajaExistente = sesionCajaDao.findById(id)
                 .orElseThrow(() -> new NotFoundException("Sesión de caja no encontrada con el ID proporcionado: " + id));
 
-        // Verificar si el monto inicial es válido (mayor o igual a 0)
-        if (sesionCajaDto.getMontoInicial() < 0) {
-            throw new BadRequestException("El monto inicial no puede ser negativo.");
+        // Verificar si la sesión de caja ya ha sido cerrada
+        if (sesionCajaExistente.getHoraCierre() != null) {
+            throw new BadRequestException("La sesión de caja ya ha sido cerrada y no puede ser actualizada.");
         }
 
-        // Verificar si la fecha y la hora de apertura son válidas (no nulas)
-        if (sesionCajaDto.getFecha() == null || sesionCajaDto.getHoraApertura() == null) {
-            throw new BadRequestException("La fecha y la hora de apertura son obligatorias.");
+        // Obtener la caja del DTO si está presente y establecerla en la sesión de caja existente
+        if (sesionCajaDto.getIdCaja() != null) {
+            var caja = cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja())
+                    .orElseThrow(() -> new NotFoundException("Caja no encontrada con el ID proporcionado: " + sesionCajaDto.getIdCaja()));
+            sesionCajaExistente.setCaja(caja);
         }
 
-        // Verificar si la caja y el usuario están presentes
-        if (sesionCajaDto.getIdCaja() == null || sesionCajaDto.getIdUsuario() == null) {
-            throw new BadRequestException("La caja y el usuario son obligatorios.");
+        // Obtener el usuario del DTO si está presente y establecerlo en la sesión de caja existente
+        if (sesionCajaDto.getIdUsuario() != null) {
+            var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado con el ID proporcionado: " + sesionCajaDto.getIdUsuario()));
+            sesionCajaExistente.setUsuario(usuario);
         }
 
-        // Actualizar los campos de la sesión de caja existente con los valores proporcionados en sesionCajaDto
-        sesionCajaExistente.setMontoInicial(sesionCajaDto.getMontoInicial());
-        sesionCajaExistente.setMontoFinal(sesionCajaDto.getMontoFinal());
-        sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
-
-        // Formatear cadena de fecha a objeto Date
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("dd-MM-yyyy");
-        try {
-            String fechaFormateada = sdfFecha.format(sesionCajaDto.getFecha());
-            sesionCajaExistente.setFecha(sdfFecha.parse(fechaFormateada));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + sesionCajaDto.getFecha());
+        // Actualizar el monto inicial si se proporciona en el DTO
+        if (sesionCajaDto.getMontoInicial() != null) {
+            // Verificar si el monto inicial es válido (mayor o igual a 0)
+            if (sesionCajaDto.getMontoInicial() < 0) {
+                throw new BadRequestException("El monto inicial no puede ser negativo.");
+            }
+            sesionCajaExistente.setMontoInicial(sesionCajaDto.getMontoInicial());
         }
 
-        // Formatear cadena de hora de apertura a objeto Date
-        SimpleDateFormat sdfHoraApertura = new SimpleDateFormat("HH:mm:ss");
-        try {
-            String horaAperturaFormateada = sdfHoraApertura.format(sesionCajaDto.getHoraApertura());
-            sesionCajaExistente.setHoraApertura(sdfHoraApertura.parse(horaAperturaFormateada));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de hora de apertura inválido: " + sesionCajaDto.getHoraApertura());
+        // Actualizar el campo montoFinal si se proporciona en el DTO
+        if (sesionCajaDto.getMontoFinal() != null) {
+            sesionCajaExistente.setMontoFinal(sesionCajaDto.getMontoFinal());
         }
 
-        // Formatear cadena de hora de cierre a objeto Date
-        SimpleDateFormat sdfHoraCierre = new SimpleDateFormat("HH:mm:ss");
-        try {
-            String horaCierreFormateada = sdfHoraCierre.format(sesionCajaDto.getHoraCierre());
-            sesionCajaExistente.setHoraCierre(sdfHoraCierre.parse(horaCierreFormateada));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de hora de cierre inválido: " + sesionCajaDto.getHoraCierre());
+        // Actualizar la hora de cierre si se proporciona en el DTO
+        if (sesionCajaDto.getHoraCierre() != null) {
+            sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
+        }
+
+        // Actualizar la fecha si se proporciona en el DTO
+        if (sesionCajaDto.getFecha() != null) {
+            // Verificar si la fecha proporcionada tiene el formato correcto
+            SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                sesionCajaExistente.setFecha(sdfFecha.parse(sdfFecha.format(sesionCajaDto.getFecha())));
+            } catch (ParseException e) {
+                throw new BadRequestException("Formato de fecha inválido: " + sesionCajaDto.getFecha());
+            }
+        }
+
+        // Actualizar la hora de apertura si se proporciona en el DTO
+        if (sesionCajaDto.getHoraApertura() != null) {
+            // Verificar si la hora de apertura proporcionada tiene el formato correcto
+            SimpleDateFormat sdfHoraApertura = new SimpleDateFormat("HH:mm:ss");
+            try {
+                sesionCajaExistente.setHoraApertura(sdfHoraApertura.parse(sdfHoraApertura.format(sesionCajaDto.getHoraApertura())));
+            } catch (ParseException e) {
+                throw new BadRequestException("Formato de hora de apertura inválido: " + sesionCajaDto.getHoraApertura());
+            }
         }
 
         // Guardar la sesión de caja actualizada
@@ -193,6 +208,8 @@ public class SesionCajaService implements ISesionCajaService {
 
         return sesionCajaMapper.toDto(sesionCajaActualizada);
     }
+
+
 
 
     @Override
