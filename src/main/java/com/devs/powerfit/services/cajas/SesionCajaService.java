@@ -209,18 +209,4 @@ public class SesionCajaService implements ISesionCajaService {
         return sesionCajaMapper.toDto(sesionCajaActualizada);
     }
 
-
-
-
-    @Override
-    public boolean delete(Long id) {
-        var caja = sesionCajaDao.findByIdAndActiveTrue(id);
-        if (caja.isPresent()) {
-            var sesionCajaBean = caja.get();
-           sesionCajaBean.setActive(false);
-            sesionCajaDao.save(sesionCajaBean);
-            return true;
-        }
-        throw new NotFoundException("Caja no encontrada");
-    }
 }
