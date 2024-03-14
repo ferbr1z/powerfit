@@ -2,87 +2,141 @@ package com.devs.powerfit.services.suscripciones;
 
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
+import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.enums.EModalidad;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
-import com.devs.powerfit.interfaces.suscripciones.ISuscripcionService;
+import com.devs.powerfit.interfaces.actividades.IActividadService;
+import com.devs.powerfit.interfaces.suscripciones.ISuscripcionDetalleService;
 import com.devs.powerfit.services.clientes.ClienteService;
 import com.devs.powerfit.utils.Setting;
+import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class SuscripcionService implements ISuscripcionService {
-    private SuscripcionDao suscripcionDao;
-    private ClienteService clienteService;
+public class SuscripcionService implements ISuscripcionDetalleService {
+    private SuscripcionDao suscripcionDetalleDao;
+    private IActividadService actividadService;
+    private ActividadMapper actividadMapper;
     private SuscripcionMapper mapper;
+    private ClienteService clienteService;
     private ClienteMapper clienteMapper;
-    private SuscripcionDetalleService suscripcionDetalleService;
+
     @Autowired
-    public SuscripcionService(SuscripcionDao suscripcionDao, ClienteService clienteService, SuscripcionMapper mapper, ClienteMapper clienteMapper, SuscripcionDetalleService suscripcionDetalleService) {
-        this.suscripcionDao = suscripcionDao;
-        this.clienteService = clienteService;
+    public SuscripcionService(SuscripcionDao suscripcionDetalleDao, IActividadService actividadService, ActividadMapper actividadMapper, SuscripcionMapper mapper, SuscripcionMapper suscripcionMapper, SuscripcionDao suscripcionDao, ClienteService clienteService, ClienteMapper clienteMapper) {
+        this.suscripcionDetalleDao = suscripcionDetalleDao;
+        this.actividadService = actividadService;
+        this.actividadMapper = actividadMapper;
         this.mapper = mapper;
+        this.clienteService = clienteService;
         this.clienteMapper = clienteMapper;
-        this.suscripcionDetalleService = suscripcionDetalleService;
     }
 
     @Override
     public SuscripcionDto create(SuscripcionDto suscripcionDto) {
         // Verificar si los campos obligatorios no están incompletos
-        if (suscripcionDto.getClienteID() == null) {
-            throw new BadRequestException("El campo clienteID es obligatorio para crear una nueva suscripción");
+        if (suscripcionDto.getActividadId() == null || suscripcionDto.getClienteId() == null) {
+            throw new BadRequestException("El campo actividadID y clienteId son obligatorios para crear una nueva suscripción");
         }
 
         // Verificar si el cliente existe
-        ClienteDto clienteDto = clienteService.getById(suscripcionDto.getClienteID());
+        ClienteDto clienteDto = clienteService.getById(suscripcionDto.getClienteId());
+        if (clienteDto == null) {
+            throw new NotFoundException("Cliente no encontrado con el ID proporcionado: " + suscripcionDto.getClienteId());
+        }
 
-        // Crear una instancia de Suscripcion desde SuscripcionDto
-        SuscripcionBean suscripcion = new SuscripcionBean();
-        suscripcion.setCliente(clienteMapper.toBean(clienteDto));
-        suscripcion.setTotal(suscripcionDto.getTotal());
-        suscripcion.setActive(true);
+        // Verificar si la actividad existe
+        ActividadDto actividadDto = actividadService.getById(suscripcionDto.getActividadId());
+        if (actividadDto == null) {
+            throw new NotFoundException("Actividad no encontrada con el ID proporcionado: " + suscripcionDto.getActividadId());
+        }
 
-        // Guardar la suscripción en la base de datos
-        SuscripcionBean savedSuscripcion = suscripcionDao.save(suscripcion);
+        // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
+        EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // Obtener la fecha de inicio
+        Date fechaInicio;
+        if (suscripcionDto.getFechaInicio() != null) {
+            try {
+                fechaInicio = sdf.parse(sdf.format( suscripcionDto.getFechaInicio()));
+            } catch (ParseException e) {
+                throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
+            }
+        } else {
+            fechaInicio = new Date();
+        }
+        // Crear el detalle de suscripcion
+        SuscripcionBean suscripcionDetalle = new SuscripcionBean();
+        suscripcionDetalle.setCliente(clienteMapper.toBean(clienteDto));
+        suscripcionDetalle.setActividad(actividadMapper.toBean(actividadDto));
+        suscripcionDetalle.setEstado(EEstado.valueOf(suscripcionDto.getEstado()));
+        suscripcionDetalle.setModalidad(modalidad);
+        suscripcionDetalle.setFechaInicio(fechaInicio);
 
-        // Retornar el SuscripcionDto creado
-        return mapper.toDto(savedSuscripcion);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fechaInicio);
+
+        // Verificar si la modalidad es MENSUAL
+        if (modalidad == EModalidad.MENSUAL) {
+            calendar.add(Calendar.MONTH, 1);
+        } else {
+            // Si no es MENSUAL, entonces es SEMANAL
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+
+        // Calcular la fecha de fin
+        Date fechaFin = calendar.getTime();
+        try {
+            suscripcionDetalle.setFechaFin(sdf.parse(sdf.format( fechaFin)));
+        } catch (ParseException e) {
+            throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
+        }
+        suscripcionDetalle.setActive(true); // Establecer como activa
+
+        // Guardar el detalle de suscripcion en la base de datos
+        SuscripcionBean savedSuscripcion = suscripcionDetalleDao.save(suscripcionDetalle);
+        SuscripcionDto detalleCreado = mapper.toDto(savedSuscripcion);
+
+        // Retornar el detalle de suscripcion creado
+        return detalleCreado;
     }
+
 
     @Override
     public SuscripcionDto getById(Long id) {
-        var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
-        if (suscripcionOptional.isPresent()) {
-            var suscripcionBean = suscripcionOptional.get();
-            return mapper.toDto(suscripcionBean);
+        var suscripcionDetalleOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);
+        if (suscripcionDetalleOptional.isPresent()) {
+            var suscripcionDetalleBean = suscripcionDetalleOptional.get();
+            return mapper.toDto(suscripcionDetalleBean);
         }
-        throw new NotFoundException("Suscripción no encontrada");
+        throw new NotFoundException("Detalle de suscripción no encontrado");
     }
 
     @Override
     public PageResponse<SuscripcionDto> getAll(int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var suscripciones = suscripcionDao.findAllByActiveTrue(pag);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByActiveTrue(pag);
 
-        if (suscripciones.isEmpty()) {
-            throw new NotFoundException("No hay suscripciones en la lista");
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay detalles de suscripciones en la lista");
         }
 
-        var suscripcionesDto = suscripciones.map(suscripcion -> mapper.toDto(suscripcion));
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
         var pageResponse = new PageResponse<SuscripcionDto>(
                 suscripcionesDto.getContent(),
                 suscripcionesDto.getTotalPages(),
@@ -93,74 +147,153 @@ public class SuscripcionService implements ISuscripcionService {
     }
     @Override
     public SuscripcionDto update(Long id, SuscripcionDto suscripcionDto) {
-        var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
-        if (suscripcionOptional.isPresent()) {
-            var suscripcionBean = suscripcionOptional.get();
+        var suscripcionDetalleOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);
+        if (suscripcionDetalleOptional.isPresent()) {
+            var suscripcionDetalleBean = suscripcionDetalleOptional.get();
 
-            // Actualizar los campos de la suscripción con los valores del DTO
-            if (suscripcionDto.getTotal() != null) {
-                suscripcionBean.setTotal(suscripcionDto.getTotal());
+            // Actualizar los campos del detalle de suscripción con los valores del DTO
+            if (suscripcionDto.getModalidad() != null) {
+                EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
+                suscripcionDetalleBean.setModalidad(modalidad);
+
+                // Actualizar la fecha de inicio si se proporciona en el DTO
+                if (suscripcionDto.getFechaInicio() != null) {
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                        Date fechaInicio = sdf.parse(sdf.format(suscripcionDto.getFechaInicio()));
+                        suscripcionDetalleBean.setFechaInicio(fechaInicio);
+
+                        // Recalcular la fecha de fin basada en la nueva fecha de inicio y la modalidad
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(fechaInicio);
+                        int field = (modalidad == EModalidad.MENSUAL) ? Calendar.MONTH : Calendar.WEEK_OF_YEAR;
+                        calendar.add(field, 1);
+                        Date fechaFin = calendar.getTime();
+                        suscripcionDetalleBean.setFechaFin(sdf.parse(sdf.format(fechaFin)));
+                    } catch (ParseException e) {
+                        throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
+                    }
+                }
             }
 
-            // Verificar si se proporciona el ID del cliente para actualizar el cliente asociado
-            if (suscripcionDto.getClienteID() != null) {
-                // Obtener el cliente asociado a la suscripción
-                ClienteDto clienteDto = clienteService.getById(suscripcionDto.getClienteID());
-
-                // Asignar el cliente actualizado a la suscripción
-                suscripcionBean.setCliente(clienteMapper.toBean(clienteDto));
+            if (suscripcionDto.getEstado() != null) {
+                suscripcionDetalleBean.setEstado(EEstado.valueOf(suscripcionDto.getEstado()));
             }
 
-            suscripcionDao.save(suscripcionBean);
+            // Verificar si se proporciona el ID de la actividad para actualizar la actividad asociada
+            if (suscripcionDto.getActividadId() != null) {
+                // Obtener la actividad asociada al detalle de suscripción
+                ActividadDto actividadDto = actividadService.getById(suscripcionDto.getActividadId());
 
-            return mapper.toDto(suscripcionBean);
+                // Asignar la actividad actualizada al detalle de suscripción
+                suscripcionDetalleBean.setActividad(actividadMapper.toBean(actividadDto));
+            }
+
+            suscripcionDetalleDao.save(suscripcionDetalleBean);
+
+            return mapper.toDto(suscripcionDetalleBean);
         }
-        throw new NotFoundException("Suscripción no encontrada");
+        throw new NotFoundException("Detalle de suscripción no encontrado");
     }
 
     @Override
     public boolean delete(Long id) {
-        var suscripcionOptional = suscripcionDao.findByIdAndActiveTrue(id);
-        if (suscripcionOptional.isPresent()) {
-            var suscripcionBean = suscripcionOptional.get();
-            // Desactivar la suscripción en lugar de eliminarla físicamente
-            suscripcionBean.setActive(false);
-            suscripcionDao.save(suscripcionBean);
-            return true;
-        }
-        throw new NotFoundException("Suscripción no encontrada" );
+        return false;
     }
 
+    public PageResponse<SuscripcionDto> getAllByClientId(Long id,int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByClienteIdAndActiveTrue(pag,id);
 
-    @Override
-    public PageResponse<SuscripcionDto> searchByNombreCliente(String nombre, int page) {
-        // Buscar clientes por nombre utilizando el servicio de cliente
-        PageResponse<ClienteDto> clientesResponse = clienteService.searchByNombre(nombre, page);
-        List<ClienteDto> clientes = clientesResponse.getItems();
-
-        if (clientes.isEmpty()) {
-            throw new NotFoundException("No se encontraron clientes con ese nombre");
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay  suscripciones de ese clienteId en la lista");
         }
 
-        // Obtener suscripciones para los clientes encontrados
-        List<SuscripcionBean> suscripciones = new ArrayList<>();
-        clientes.forEach(cliente -> {
-            Optional<SuscripcionBean> suscripcion = suscripcionDao.findByClienteIdAndActiveTrue(cliente.getId());
-            suscripcion.ifPresent(suscripciones::add);
-        });
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        var pageResponse = new PageResponse<SuscripcionDto>(
+                suscripcionesDto.getContent(),
+                suscripcionesDto.getTotalPages(),
+                suscripcionesDto.getTotalElements(),
+                suscripcionesDto.getNumber() + 1);
 
-        if (suscripciones.isEmpty()) {
-            throw new NotFoundException("No se encontraron suscripciones para los clientes con ese nombre");
-        }
-
-        // Convertir las suscripciones a DTOs
-        List<SuscripcionDto> suscripcionesDto = suscripciones.stream()
-                .map(suscripcion -> mapper.toDto(suscripcion))
-                .collect(Collectors.toList());
-        // Crear y retornar la respuesta de la página
-        return new PageResponse<>(suscripcionesDto, clientesResponse.getTotalPages(), clientesResponse.getTotalItems(), page);
+        return pageResponse;
     }
+    public List<SuscripcionDto> createList(List<SuscripcionDto> suscripcionDtoList) {
+        List<SuscripcionDto> suscripcionesCreadas = new ArrayList<>();
 
+        for (SuscripcionDto suscripcionDto : suscripcionDtoList) {
+            SuscripcionDto suscripcionCreada = create(suscripcionDto);
+            suscripcionesCreadas.add(suscripcionCreada);
+        }
 
+        return suscripcionesCreadas;
+    }
+    public PageResponse<SuscripcionDto> getAllPendientesByClientId(Long id, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByClienteIdAndEstadoAndActiveTrue(pag, id, EEstado.PENDIENTE);
 
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay suscripciones pendientes para este cliente");
+        }
+
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        var pageResponse = new PageResponse<SuscripcionDto>(
+                suscripcionesDto.getContent(),
+                suscripcionesDto.getTotalPages(),
+                suscripcionesDto.getTotalElements(),
+                suscripcionesDto.getNumber() + 1);
+
+        return pageResponse;
+    }
+    public PageResponse<SuscripcionDto> getAllPagadosByClientId(Long id, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByClienteIdAndEstadoAndActiveTrue(pag, id, EEstado.PAGADO);
+
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay suscripciones pagadas para este cliente");
+        }
+
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        var pageResponse = new PageResponse<SuscripcionDto>(
+                suscripcionesDto.getContent(),
+                suscripcionesDto.getTotalPages(),
+                suscripcionesDto.getTotalElements(),
+                suscripcionesDto.getNumber() + 1);
+
+        return pageResponse;
+    }
+    public PageResponse<SuscripcionDto> getAllPagados( int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByEstadoAndActiveTrue(pag,  EEstado.PAGADO);
+
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay suscripciones pagadas");
+        }
+
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        var pageResponse = new PageResponse<SuscripcionDto>(
+                suscripcionesDto.getContent(),
+                suscripcionesDto.getTotalPages(),
+                suscripcionesDto.getTotalElements(),
+                suscripcionesDto.getNumber() + 1);
+
+        return pageResponse;
+    }
+    public PageResponse<SuscripcionDto> getAllPendientes( int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var suscripcionDetalles = suscripcionDetalleDao.findAllByEstadoAndActiveTrue(pag,  EEstado.PENDIENTE);
+
+        if (suscripcionDetalles.isEmpty()) {
+            throw new NotFoundException("No hay suscripciones pendientes");
+        }
+
+        var suscripcionesDto = suscripcionDetalles.map(suscripcionDetalle -> mapper.toDto(suscripcionDetalle));
+        var pageResponse = new PageResponse<SuscripcionDto>(
+                suscripcionesDto.getContent(),
+                suscripcionesDto.getTotalPages(),
+                suscripcionesDto.getTotalElements(),
+                suscripcionesDto.getNumber() + 1);
+
+        return pageResponse;
+    }
 }

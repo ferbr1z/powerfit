@@ -19,7 +19,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClienteBean extends AbstractBean {
-
     @Column
     private String nombre;
     private String ruc;
