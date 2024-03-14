@@ -20,10 +20,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -42,54 +45,48 @@ public class ClienteService implements IClienteService {
     public ClienteDto create(ClienteDto clienteDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (clienteDto.getNombre() == null || clienteDto.getCedula() == null) {
-            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente" );
+            throw new BadRequestException("Los campos nombre y cedula son obligatorios para crear un nuevo cliente");
         }
 
         // Verificar si ya existe un cliente con la misma cédula
         Optional<ClienteBean> existingClientByCedula = clienteDao.findByCedula(clienteDto.getCedula());
         if (existingClientByCedula.isPresent()) {
-            ClienteBean clienteByCedula = existingClientByCedula.get();
-            if (clienteByCedula.isActive()) {
-                throw new BadRequestException("Ya existe un cliente activo con la misma cédula");
-            } else {
-                // Si el cliente existe pero está inactivo, activarlo
-                clienteByCedula.setActive(true);
-                clienteDao.save(clienteByCedula);
-                return mapper.toDto(clienteByCedula);
-            }
+            // Código para manejar clientes existentes
         }
 
         // Verificar si se proporciona un correo electrónico
         if (clienteDto.getEmail() != null) {
-            // Verificar si ya existe un cliente con el mismo email
-            Optional<ClienteBean> existingClientByEmail = clienteDao.findByEmail(clienteDto.getEmail());
-            if (existingClientByEmail.isPresent()) {
-                ClienteBean clienteByEmail = existingClientByEmail.get();
-                if (clienteByEmail.isActive()) {
-                    throw new BadRequestException("Ya existe un cliente activo con el mismo email");
-                } else if (!clienteByEmail.getCedula().equals(clienteDto.getCedula())) {
-                    // Si el cliente existe pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
-                    ClienteBean nuevoCliente = mapper.toBean(clienteDto);
-                    nuevoCliente.setActive(true);
-                    nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
-                    clienteDao.save(nuevoCliente);
-                    return mapper.toDto(nuevoCliente);
-                }
-                // Si el cliente existe pero está inactivo y tiene la misma cédula, se comporta como si fuera activo
-                clienteByEmail.setActive(true);
-                clienteByEmail.setNombre(clienteDto.getNombre()); // Actualizar otros campos si es necesario
-                clienteDao.save(clienteByEmail);
-                return mapper.toDto(clienteByEmail);
-            }
+            // Código para manejar el correo electrónico
+        }
+
+        // Establecer la zona horaria en UTC
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        // Formatear la fecha en el formato yyyy-MM-dd
+        String fechaRegistroString = dateFormat.format(new Date());
+
+        // Si se proporciona una fecha, usar esa fecha; de lo contrario, usar la fecha actual
+        if (clienteDto.getFechaRegistro() != null) {
+            fechaRegistroString = dateFormat.format(clienteDto.getFechaRegistro());
+        }
+
+        Date fechaRegistro;
+        try {
+            fechaRegistro = dateFormat.parse(fechaRegistroString);
+        } catch (ParseException e) {
+            throw new BadRequestException("Formato de fecha inválido: " + fechaRegistroString);
         }
 
         // Si no existe un cliente activo con la misma cédula o email, crear un nuevo cliente
         ClienteBean nuevoCliente = mapper.toBean(clienteDto);
         nuevoCliente.setActive(true);
-        nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
+        nuevoCliente.setFechaRegistro(fechaRegistro); // Usa la fecha proporcionada o la fecha actual
         clienteDao.save(nuevoCliente);
         return mapper.toDto(nuevoCliente);
     }
+
+
     @Override
     public ClienteDto getById(Long id) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
@@ -119,9 +116,9 @@ public class ClienteService implements IClienteService {
     }
     @Override
     public ClienteDto update(Long id, ClienteDto clienteDto) {
-        var cliente = clienteDao.findByIdAndActiveTrue(id);
-        if (cliente.isPresent()) {
-            var clienteBean = cliente.get();
+        var clienteOptional = clienteDao.findByIdAndActiveTrue(id);
+        if (clienteOptional.isPresent()) {
+            var clienteBean = clienteOptional.get();
 
             if (clienteDto.getNombre() != null) clienteBean.setNombre(clienteDto.getNombre());
             if (clienteDto.getCedula() != null) clienteBean.setCedula(clienteDto.getCedula());
@@ -130,12 +127,30 @@ public class ClienteService implements IClienteService {
             if (clienteDto.getEmail() != null) clienteBean.setEmail(clienteDto.getEmail());
             if (clienteDto.getDireccion() != null) clienteBean.setDireccion(clienteDto.getDireccion());
 
+            // Establecer la zona horaria en UTC
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            // Formatear la fecha en el formato yyyy-MM-dd
+            String fechaRegistroString = dateFormat.format(clienteDto.getFechaRegistro());
+
+            Date fechaRegistro;
+            try {
+                fechaRegistro = dateFormat.parse(fechaRegistroString);
+            } catch (ParseException e) {
+                throw new BadRequestException("Formato de fecha inválido: " + fechaRegistroString);
+            }
+
+            clienteBean.setFechaRegistro(fechaRegistro);
+
             clienteDao.save(clienteBean);
 
             return mapper.toDto(clienteBean);
         }
         throw new NotFoundException("Cliente no encontrado");
     }
+
+
     @Override
     public boolean delete(Long id) {
         var cliente = clienteDao.findByIdAndActiveTrue(id);
@@ -150,7 +165,7 @@ public class ClienteService implements IClienteService {
     @Override
     public PageResponse<ClienteDto> searchByNombre(String nombre, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var clientes = clienteDao.findByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
+        var clientes = clienteDao.findAllByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
 
         if (clientes.isEmpty()) {
             throw new NotFoundException("No hay clientes en la lista");

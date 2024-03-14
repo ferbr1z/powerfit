@@ -1,4 +1,4 @@
-package com.devs.powerfit.beans.clientes;
+package com.devs.powerfit.beans.empleados;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import jakarta.persistence.Column;
@@ -9,19 +9,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.time.LocalDate;
-
 @Entity
 @Data
-@Table(name = "clientes")
+@Table(name = "empleados")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClienteBean extends AbstractBean {
+public class EmpleadoBean extends AbstractBean {
     @Column
     private String nombre;
-    private String ruc;
     @Column(unique = true)
     private String cedula;
     @Column
@@ -31,5 +27,5 @@ public class ClienteBean extends AbstractBean {
     @Column
     private String direccion;
     @Column
-    private Date fechaRegistro;
+    private Long rol_id;
 }

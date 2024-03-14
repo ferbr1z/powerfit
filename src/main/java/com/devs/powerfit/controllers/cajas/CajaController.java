@@ -80,11 +80,4 @@ public class CajaController {
         return new ResponseEntity<>(sesionCajaService.update(id, sesionCajaDto), HttpStatus.OK);
     }
 
-    // Eliminar una sesión de caja
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @DeleteMapping("/sesiones-caja/{id}")
-    public ResponseEntity<Boolean> deleteSesionCaja(@PathVariable Long id) {
-        return new ResponseEntity<>(sesionCajaService.delete(id), HttpStatus.OK);
-    }
-
 }
