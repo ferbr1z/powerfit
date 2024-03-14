@@ -2,7 +2,7 @@ package com.devs.powerfit.beans.facturas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.productos.ProductoBean;
-import com.devs.powerfit.beans.suscripciones.SuscripcionDetalleBean;
+import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +24,7 @@ public class FacturaDetalleBean extends AbstractBean {
     private ProductoBean productoBean;
     @ManyToOne
     @JoinColumn(name = "suscripcion_id")
-    private SuscripcionDetalleBean suscripcion;
+    private SuscripcionBean suscripcion;
     @Column
     private Double precio;
     @Column

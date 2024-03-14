@@ -2,7 +2,6 @@ package com.devs.powerfit.beans.facturas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
-import com.devs.powerfit.beans.suscripciones.SuscripcionDetalleBean;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
