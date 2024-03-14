@@ -1,6 +1,7 @@
 package com.devs.powerfit.dtos.clientes;
 
 import com.devs.powerfit.abstracts.AbstractDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,5 +14,6 @@ public class ClienteDto extends AbstractDto {
     private String telefono;
     private String email;
     private String direccion;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fechaRegistro;
 }

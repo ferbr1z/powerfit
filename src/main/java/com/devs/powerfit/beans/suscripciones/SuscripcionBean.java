@@ -1,15 +1,17 @@
 package com.devs.powerfit.beans.suscripciones;
 
 import com.devs.powerfit.abstracts.AbstractBean;
+import com.devs.powerfit.beans.actividades.ActividadBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.enums.EModalidad;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Entity
 @Data
@@ -17,10 +19,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SuscripcionBean extends AbstractBean {
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_cliente")
     private ClienteBean cliente;
+    @ManyToOne
+    @JoinColumn(name = "id_actividad")
+    private ActividadBean actividad;
+    @Enumerated(EnumType.STRING)
+    private EEstado estado;
+    @Enumerated(EnumType.STRING)
+    private EModalidad modalidad;
     @Column
-    private Double Total;
-
+    private Date fechaInicio;
+    @Column
+    Date fechaFin;
 }

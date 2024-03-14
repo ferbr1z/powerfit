@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class SuscripcionMapper extends AbstractMapper<SuscripcionBean, SuscripcionDto> {
     @Override
     public SuscripcionBean toBean(SuscripcionDto dto) {
-            return modelMapper.map(dto, SuscripcionBean.class);
+        return modelMapper.map(dto, SuscripcionBean.class);
     }
 
     @Override

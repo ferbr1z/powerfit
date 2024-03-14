@@ -17,7 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,10 +43,9 @@ public class MedicionService implements IMedicionService {
     public MedicionDto create(MedicionDto medicionDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (medicionDto.getClienteID() == null ||
-                medicionDto.getFecha() == null ||
                 medicionDto.getPeso() == null ||
                 medicionDto.getAltura() == null) {
-            throw new BadRequestException("Los campos clienteID, fecha, peso y altura son obligatorios para crear una nueva medición");
+            throw new BadRequestException("Los campos clienteID, peso y altura son obligatorios para crear una nueva medición");
         }
 
         // Verificar si el cliente existe
@@ -59,6 +61,21 @@ public class MedicionService implements IMedicionService {
         // Verificar que el peso y la altura no sean cero ni negativos
         if (peso <= 0 || altura <= 0) {
             throw new BadRequestException("El peso y la altura deben ser valores positivos y no pueden ser cero");
+        }
+
+        // Obtener la fecha actual o la fecha proporcionada
+        Date fecha = medicionDto.getFecha() != null ? medicionDto.getFecha() : new Date();
+
+        // Formatear la fecha como yyyy-MM-dd
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaFormateada = sdf.format(fecha);
+
+        // Convertir la fecha formateada de vuelta a un objeto Date
+        Date fechaDate;
+        try {
+            fechaDate = sdf.parse(fechaFormateada);
+        } catch (ParseException e) {
+            throw new BadRequestException("Formato de fecha inválido: " + fechaFormateada);
         }
 
         // Verificar si el IMC es proporcionado o calcularlo
@@ -78,23 +95,23 @@ public class MedicionService implements IMedicionService {
         // Crear una instancia de Medicion desde MedicionDto
         MedicionBean medicion = new MedicionBean();
         medicion.setCliente(clienteMapper.toBean(clienteDto));
-        medicion.setFecha(medicionDto.getFecha());
+        medicion.setFecha(fechaDate);
         medicion.setPeso(peso);
         medicion.setAltura(altura);
         medicion.setImc(imc);
 
         // Establecer las circunferencias corporales si se proporcionan
-        if (medicionDto.getCirBrazo() != null && medicionDto.getCirBrazo() < 0 ||
-                medicionDto.getCirPiernas() != null && medicionDto.getCirPiernas() < 0 ||
-                medicionDto.getCirCintura() != null && medicionDto.getCirCintura() < 0 ||
-                medicionDto.getCirPecho() != null && medicionDto.getCirPecho() < 0) {
+        if (medicionDto.getCirBrazo() != null && medicionDto.getCirBrazo() >= 0 &&
+                medicionDto.getCirPiernas() != null && medicionDto.getCirPiernas() >= 0 &&
+                medicionDto.getCirCintura() != null && medicionDto.getCirCintura() >= 0 &&
+                medicionDto.getCirPecho() != null && medicionDto.getCirPecho() >= 0) {
+            medicion.setCirBrazo(medicionDto.getCirBrazo());
+            medicion.setCirPiernas(medicionDto.getCirPiernas());
+            medicion.setCirCintura(medicionDto.getCirCintura());
+            medicion.setCirPecho(medicionDto.getCirPecho());
+        } else {
             throw new BadRequestException("Las circunferencias corporales deben ser valores positivos");
         }
-
-        medicion.setCirBrazo(medicionDto.getCirBrazo());
-        medicion.setCirPiernas(medicionDto.getCirPiernas());
-        medicion.setCirCintura(medicionDto.getCirCintura());
-        medicion.setCirPecho(medicionDto.getCirPecho());
 
         medicion.setActive(true);
 
@@ -104,6 +121,7 @@ public class MedicionService implements IMedicionService {
         // Retornar el MedicionDao creado
         return mapper.toDto(savedMedicion);
     }
+
 
 
     @Override
@@ -137,8 +155,8 @@ public class MedicionService implements IMedicionService {
     @Override
     public MedicionDto update(Long id, MedicionDto medicionDto) {
         // Verificar si la medición existe
-        var medicionOptional = medicionDao.findByClienteIdAndActiveTrue(id);
-        if(medicionOptional.isPresent()) {
+        var medicionOptional = medicionDao.findByIdAndActiveTrue(id);
+        if (medicionOptional.isPresent()) {
             var medicionBean = medicionOptional.get();
 
             // Verificar y actualizar los campos de la medición con los valores del DTO
@@ -148,20 +166,14 @@ public class MedicionService implements IMedicionService {
 
             if (medicionDto.getPeso() != null && medicionDto.getPeso() > 0) {
                 medicionBean.setPeso(medicionDto.getPeso());
-            } else {
-                throw new BadRequestException("El peso debe ser un valor positivo");
             }
 
             if (medicionDto.getAltura() != null && medicionDto.getAltura() > 0) {
                 medicionBean.setAltura(medicionDto.getAltura());
-            } else {
-                throw new BadRequestException("La altura debe ser un valor positivo");
             }
 
             if (medicionDto.getImc() != null && medicionDto.getImc() >= 0) {
                 medicionBean.setImc(medicionDto.getImc());
-            } else {
-                throw new BadRequestException("El IMC debe ser un valor no negativo");
             }
 
             if (medicionDto.getCirBrazo() != null && medicionDto.getCirBrazo() > 0) {
@@ -180,13 +192,25 @@ public class MedicionService implements IMedicionService {
                 medicionBean.setCirPecho(medicionDto.getCirPecho());
             }
 
-            // Recalcular el IMC
-            double peso = medicionBean.getPeso();
-            double altura = medicionBean.getAltura();
-            double imc = peso / (altura * altura);
-            // Redondear el IMC a dos decimales
-            imc = Math.round(imc * 100.0) / 100.0;
-            medicionBean.setImc(imc);
+            // Recalcular el IMC si se han actualizado peso o altura
+            if (medicionDto.getPeso() != null || medicionDto.getAltura() != null) {
+                double peso = medicionBean.getPeso();
+                double altura = medicionBean.getAltura();
+                double imc = peso / (altura * altura);
+                // Redondear el IMC a dos decimales
+                imc = Math.round(imc * 100.0) / 100.0;
+                medicionBean.setImc(imc);
+            }
+
+            // Actualizar el clienteId si se proporciona en el DTO
+            if (medicionDto.getClienteID() != null) {
+                // Verificar si el nuevo cliente existe
+                ClienteDto nuevoClienteDto = clienteService.getById(medicionDto.getClienteID());
+                if (nuevoClienteDto == null) {
+                    throw new NotFoundException("El cliente especificado no existe");
+                }
+                medicionBean.setCliente(clienteMapper.toBean(nuevoClienteDto));
+            }
 
             // Guardar la medición actualizada en la base de datos
             medicionDao.save(medicionBean);
@@ -195,6 +219,8 @@ public class MedicionService implements IMedicionService {
         }
         throw new NotFoundException("Medición no encontrada");
     }
+
+
 
 
 
