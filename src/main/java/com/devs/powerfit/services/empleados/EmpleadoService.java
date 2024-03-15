@@ -39,17 +39,12 @@ public class EmpleadoService implements IEmpleadoService {
     }
     @Override
     public EmpleadoDto create(EmpleadoDto empleadoDto) {
-        if(empleadoDto.getNombre().isEmpty() || empleadoDto.getCedula().isEmpty() || empleadoDto.getEmail().isEmpty()){
-            throw new BadRequestException("Todos los campos son obligatorio para crear un nuevo empleado");
-        }
+
         if (empleadoDao.findByEmailAndActiveIsTrue(empleadoDto.getEmail()).isPresent()){
             throw new BadRequestException("Ya existe un empleado activo con el mismo email");
         }
         if (empleadoDao.findByCedulaAndActiveIsTrue(empleadoDto.getCedula()).isPresent()){
             throw new BadRequestException("Ya existe un empleado activo con el mismo numero de cédula");
-        }
-        if (!rolDao.findByIdAndActiveTrue(empleadoDto.getRol_id()).isPresent()) {
-            throw new BadRequestException("El rol especificado no existe");
         }
 
         EmpleadoBean empleadoBean = mapper.toBean(empleadoDto);

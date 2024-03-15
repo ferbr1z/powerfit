@@ -3,6 +3,7 @@ package com.devs.powerfit.controllers.empleados;
 import com.devs.powerfit.dtos.empleados.EmpleadoDto;
 import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class EmpleadoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PostMapping
-    ResponseEntity<EmpleadoDto> create (@RequestBody EmpleadoDto empleadoDto){
+    ResponseEntity<EmpleadoDto> create (@Valid @RequestBody EmpleadoDto empleadoDto){
         return new ResponseEntity<>(empleadoService.create(empleadoDto), HttpStatus.CREATED);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -37,7 +38,7 @@ public class EmpleadoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")
-    ResponseEntity<EmpleadoDto> update(@PathVariable Long id, @RequestBody EmpleadoDto empleadoDto){
+    ResponseEntity<EmpleadoDto> update(@PathVariable Long id,@Valid @RequestBody EmpleadoDto empleadoDto){
         return new ResponseEntity<>(empleadoService.update(id,empleadoDto), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
