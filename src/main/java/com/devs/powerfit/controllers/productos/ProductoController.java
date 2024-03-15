@@ -3,6 +3,7 @@ package com.devs.powerfit.controllers.productos;
 import com.devs.powerfit.dtos.productos.ProductoDto;
 import com.devs.powerfit.interfaces.productos.IProductoService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class ProductoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PostMapping
-    ResponseEntity<ProductoDto> create(@RequestBody ProductoDto producto){
+    ResponseEntity<ProductoDto> create(@Valid @RequestBody ProductoDto producto){
         return new ResponseEntity<>(productoService.create(producto), HttpStatus.CREATED);
     }
 
@@ -37,7 +38,7 @@ public class ProductoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")
-    ResponseEntity<ProductoDto> update(@PathVariable Long id, @RequestBody ProductoDto productoDto){
+    ResponseEntity<ProductoDto> update(@PathVariable Long id,@Valid @RequestBody ProductoDto productoDto){
         return new ResponseEntity<>(productoService.update(id,productoDto), HttpStatus.OK);
     }
 

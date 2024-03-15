@@ -30,6 +30,9 @@ public class ProductoService implements IProductoService {
 
     @Override
     public ProductoDto create(ProductoDto productoDto) {
+        if (productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo()).isPresent()){
+            throw new BadRequestException("Ya existe un producto activo con ese codigo");
+        }
         ProductoBean producto = productoMapper.toBean(productoDto);
         producto.setActive(true);
         productoDao.save(producto);
@@ -72,9 +75,6 @@ public class ProductoService implements IProductoService {
             if(productoDto.getNombre() != null) productoBean.setNombre(productoDto.getNombre());
             if(productoDto.getDescripcion() != null) productoBean.setDescripcion(productoDto.getDescripcion());
             if (productoDto.getCodigo() != null) {
-                if (productoDto.getCodigo().length() != 6) {
-                    throw new BadRequestException("El código debe tener una longitud de 6 dígitos");
-                }
                 // Verifica si el código que se está tratando de actualizar ya existe
                 Optional<ProductoBean> existingProduct = productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo());
                 if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id)) {
@@ -82,29 +82,10 @@ public class ProductoService implements IProductoService {
                 }
                 productoBean.setCodigo(productoDto.getCodigo());
             }
-            // Validación de costo
-            if (productoDto.getCosto() != null) {
-                if (productoDto.getCosto() <= 0) {
-                    throw new BadRequestException("El costo debe ser mayor que cero");
-                }
-                productoBean.setCosto(productoDto.getCosto());
-            }
 
-            // Validación de precio
-            if (productoDto.getPrecio() != null) {
-                if (productoDto.getPrecio() <= 0) {
-                    throw new BadRequestException("El precio debe ser mayor que cero");
-                }
-                productoBean.setPrecio(productoDto.getPrecio());
-            }
-
-            // Validación de cantidad
-            if (productoDto.getCantidad() != null) {
-                if (productoDto.getCantidad() < 0) {
-                    throw new BadRequestException("La cantidad no puede ser negativa");
-                }
-                productoBean.setCantidad(productoDto.getCantidad());
-            }
+            if (productoDto.getCosto() != null) productoBean.setCosto(productoDto.getCosto());
+            if (productoDto.getPrecio() != null) productoBean.setPrecio(productoDto.getPrecio());
+            if (productoDto.getCantidad() != null) productoBean.setCantidad(productoDto.getCantidad());
 
             productoDao.save(productoBean);
             return productoMapper.toDto(productoBean);

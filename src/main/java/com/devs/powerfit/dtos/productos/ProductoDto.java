@@ -18,4 +18,6 @@ public class ProductoDto extends AbstractDto{
 
     private Double precio;
 
+    private Double iva;
+
 }
