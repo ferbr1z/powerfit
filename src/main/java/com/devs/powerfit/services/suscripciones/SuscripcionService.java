@@ -8,6 +8,7 @@ import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
 import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.exceptions.ConflictException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.interfaces.suscripciones.ISuscripcionDetalleService;
@@ -69,17 +70,25 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         // Obtener la fecha de inicio
         Date fechaInicio;
         if (suscripcionDto.getFechaInicio() != null) {
             try {
-                fechaInicio = sdf.parse(sdf.format( suscripcionDto.getFechaInicio()));
+                fechaInicio = sdf.parse(sdf.format(suscripcionDto.getFechaInicio()));
             } catch (ParseException e) {
                 throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
             }
         } else {
             fechaInicio = new Date();
         }
+
+        // Verificar si ya existe una suscripción pendiente para el cliente y la actividad específicos
+        var suscripcionExistente = suscripcionDetalleDao.findByClienteAndActividadAndEstadoAndFechaFinAfter(clienteMapper.toBean(clienteDto),actividadMapper.toBean(actividadDto),EEstado.PENDIENTE,fechaInicio);
+        if (suscripcionExistente.isEmpty()) {
+            throw new ConflictException("El cliente ya tiene una suscripción pendiente para la misma actividad.");
+        }
+
         // Crear el detalle de suscripcion
         SuscripcionBean suscripcionDetalle = new SuscripcionBean();
         suscripcionDetalle.setCliente(clienteMapper.toBean(clienteDto));
@@ -102,7 +111,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Calcular la fecha de fin
         Date fechaFin = calendar.getTime();
         try {
-            suscripcionDetalle.setFechaFin(sdf.parse(sdf.format( fechaFin)));
+            suscripcionDetalle.setFechaFin(sdf.parse(sdf.format(fechaFin)));
         } catch (ParseException e) {
             throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
         }
@@ -115,6 +124,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Retornar el detalle de suscripcion creado
         return detalleCreado;
     }
+
 
 
     @Override
