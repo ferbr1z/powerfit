@@ -23,10 +23,10 @@ import java.util.Date;
 
 @Service
 public class FacturaService implements IFacturaService {
-    private FacturaDao facturaDao;
-    private FacturaMapper mapper;
-    private ClienteService clienteService;
-    private ClienteMapper clienteMapper;
+    private final FacturaDao facturaDao;
+    private final FacturaMapper mapper;
+    private final ClienteService clienteService;
+    private final ClienteMapper clienteMapper;
     @Autowired
     public FacturaService(FacturaDao facturaDao, FacturaMapper mapper, ClienteService clienteService, ClienteMapper clienteMapper) {
         this.facturaDao = facturaDao;
