@@ -33,7 +33,11 @@ public class ControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorDto> handleConstraintViolationException(ConstraintViolationException e) {
         String message = e.getConstraintViolations().stream()
-                .map(violation -> violation.getPropertyPath() + ": " + violation.getMessage())
+                .map(violation -> {
+                    String field = violation.getPropertyPath().toString();
+                    String errorMessage = violation.getMessage();
+                    return "Error en el campo '" + field + "': " + errorMessage;
+                })
                 .collect(Collectors.joining("; "));
 
         ErrorDto errorDto = ErrorDto.builder()
@@ -43,5 +47,6 @@ public class ControllerAdvice {
 
         return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
     }
+
 }
 
