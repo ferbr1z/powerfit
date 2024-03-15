@@ -30,23 +30,6 @@ public class ProductoService implements IProductoService {
 
     @Override
     public ProductoDto create(ProductoDto productoDto) {
-        //Se verifican si todos los campos están completados
-        if(productoDto.getCodigo().isEmpty() || productoDto.getNombre().isEmpty() || productoDto.getCosto() == null || productoDto.getPrecio() == null || productoDto.getCantidad() == null){
-            throw new BadRequestException("Todos los campos son obligatorio para crear un nuevo producto");
-        }
-        //Se verifica que los datos numericos sean positivos y mayor a cero
-        if(productoDto.getCantidad() < 0 || productoDto.getCosto() <= 0 || productoDto.getPrecio() <= 0){
-            throw new BadRequestException("El costo, precio y la cantidad no pueden ser menor o igual a 0(cero)");
-        }
-        // Verifica que el código tenga una longitud exacta de 6 dígitos
-        if (productoDto.getCodigo().length() != 6) {
-            throw new BadRequestException("El código debe tener una longitud exacta de 6 dígitos");
-        }
-        //Se verifica que no existe un producto con el mismo codigo
-        if (productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo()).isPresent()){
-            throw new BadRequestException("Ya existe un producto activo con el mismo código");
-        }
-
         ProductoBean producto = productoMapper.toBean(productoDto);
         producto.setActive(true);
         productoDao.save(producto);
