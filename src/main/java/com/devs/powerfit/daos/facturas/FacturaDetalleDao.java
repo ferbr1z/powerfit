@@ -14,4 +14,6 @@ public interface FacturaDetalleDao extends JpaRepository<FacturaDetalleBean,Long
     Optional<FacturaDetalleBean> findByIdAndActiveTrue(Long id);
     Page<FacturaDetalleBean> findAllByActiveTrue(Pageable pageable);
     List<FacturaDetalleBean> findAllByFacturaIdAndActiveTrue( Long id);
+
+    boolean existsByFacturaIdAndSuscripcionId(Long facturaId, Long suscripcionId);
 }

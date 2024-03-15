@@ -105,6 +105,12 @@ public class FacturaDetalleService implements IFacturaDetalleService {
             // Retornar el FacturaDetalleDto creado
             return mapper.toDto(savedFacturaDetalle);
         } else if (facturaDetalleDto.getSuscripcionId() != null) {
+            // Verificar si ya existe un detalle de factura para esta suscripción en la misma factura principal
+            boolean suscripcionExistente = facturaDetalleDao.existsByFacturaIdAndSuscripcionId(facturaDetalleDto.getFacturaId(), facturaDetalleDto.getSuscripcionId());
+            if (suscripcionExistente) {
+                throw new BadRequestException("La suscripción ya ha sido agregada previamente a esta factura");
+            }
+
             // Verificar si se trata de una suscripción
             var suscripcionDto = suscripcionService.getById(facturaDetalleDto.getSuscripcionId());
             if (suscripcionDto == null) {
@@ -134,11 +140,11 @@ public class FacturaDetalleService implements IFacturaDetalleService {
 
             // Retornar el FacturaDetalleDto creado
             return mapper.toDto(savedFacturaDetalle);
-
         } else {
             throw new BadRequestException("Debe especificar un producto o una suscripción para el detalle de la factura");
         }
     }
+
 
     @Override
     public FacturaDetalleDto getById(Long id) {
