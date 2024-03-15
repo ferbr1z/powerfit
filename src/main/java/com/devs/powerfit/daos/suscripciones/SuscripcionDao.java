@@ -20,6 +20,6 @@ public interface SuscripcionDao extends JpaRepository<SuscripcionBean,Long>{
     Page<SuscripcionBean> findAllByClienteIdAndActiveTrue(Pageable pageable,Long clienteId);
     Page<SuscripcionBean>findAllByClienteIdAndEstadoAndActiveTrue(Pageable pageable,Long id,  EEstado estado);
     Page<SuscripcionBean>findAllByEstadoAndActiveTrue(Pageable pageable,EEstado estado);
+    boolean existsByClienteAndActividadAndEstado(ClienteBean cliente,ActividadBean actividad,EEstado estado);
 
-    Optional< SuscripcionBean> findByClienteAndActividadAndEstadoAndFechaFinAfter(ClienteBean bean, ActividadBean bean1, EEstado eEstado, Date fechaInicio);
 }
