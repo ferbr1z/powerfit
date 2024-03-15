@@ -7,9 +7,10 @@ import lombok.Data;
 public class FacturaDetalleDto extends AbstractDto {
     private Long facturaId;
     private Long productoId;
-    private Long subscripcionId;
+    private Long suscripcionId;
     private Double precioUnitario;
     private Integer cantidad;
     private Double subtotal;
-    private Double ivaGenerado;
+    private Double iva;
+    private Double ivaTotal;
 }

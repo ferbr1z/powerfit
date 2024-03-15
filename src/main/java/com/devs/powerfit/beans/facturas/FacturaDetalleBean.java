@@ -21,15 +21,18 @@ public class FacturaDetalleBean extends AbstractBean {
     private FacturaBean factura;
     @ManyToOne
     @JoinColumn(name = "producto_id")
-    private ProductoBean productoBean;
+    private ProductoBean producto;
     @ManyToOne
     @JoinColumn(name = "suscripcion_id")
     private SuscripcionBean suscripcion;
     @Column
-    private Double precio;
+    private Double precioUnitario;
     @Column
     private Integer cantidad;
+    @Column
     private Double subTotal;
+    @Column
     private Double iva;
+    @Column
     private double ivaTotal;
 }
