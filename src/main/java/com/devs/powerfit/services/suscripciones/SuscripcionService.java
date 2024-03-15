@@ -66,6 +66,10 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         if (actividadDto == null) {
             throw new NotFoundException("Actividad no encontrada con el ID proporcionado: " + suscripcionDto.getActividadId());
         }
+        // Verificar si ya existe una suscripción activa para el mismo cliente y la misma actividad que no esté pagada
+        if (suscripcionDetalleDao.existsByClienteAndActividadAndEstado(clienteMapper.toBean(clienteDto), actividadMapper.toBean(actividadDto), EEstado.PENDIENTE)){
+            throw new BadRequestException("No se puede crear una nueva suscripción porque ya existe una suscripción pendiente de pago para el mismo cliente y la misma actividad.");
+        }
 
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
@@ -81,12 +85,6 @@ public class SuscripcionService implements ISuscripcionDetalleService {
             }
         } else {
             fechaInicio = new Date();
-        }
-
-        // Verificar si ya existe una suscripción pendiente para el cliente y la actividad específicos
-        var suscripcionExistente = suscripcionDetalleDao.findByClienteAndActividadAndEstadoAndFechaFinAfter(clienteMapper.toBean(clienteDto),actividadMapper.toBean(actividadDto),EEstado.PENDIENTE,fechaInicio);
-        if (suscripcionExistente.isEmpty()) {
-            throw new ConflictException("El cliente ya tiene una suscripción pendiente para la misma actividad.");
         }
 
         // Crear el detalle de suscripcion
