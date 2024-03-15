@@ -70,29 +70,5 @@ public class FacturaController {
     public ResponseEntity<FacturaDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
         return new ResponseEntity<>(facturaService.searchByNumeroFactura(numeroFactura), HttpStatus.OK);
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @PostMapping("/detalles")
-    public ResponseEntity<FacturaDetalleDto> createDetalle(@RequestBody FacturaDetalleDto facturaDetalleDto) {
-        return new ResponseEntity<>(facturaDetalleService.create(facturaDetalleDto), HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/detalles/{id}")
-    public ResponseEntity<FacturaDetalleDto> getDetalleById(@PathVariable Long id) {
-        return new ResponseEntity<>(facturaDetalleService.getById(id), HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @PutMapping("/detalles/{id}")
-    public ResponseEntity<FacturaDetalleDto> update(@PathVariable Long id, @RequestBody FacturaDetalleDto facturaDetalleDto) {
-        return new ResponseEntity<>(facturaDetalleService.update(id, facturaDetalleDto), HttpStatus.OK);
-    }
-
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/detalles/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDetalleDto>> getAllDetalles(@PathVariable int page) {
-        return new ResponseEntity<>(facturaDetalleService.getAll(page), HttpStatus.OK);
-    }
 }
 

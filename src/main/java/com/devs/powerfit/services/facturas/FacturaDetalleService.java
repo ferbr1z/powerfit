@@ -22,22 +22,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional()
 public class FacturaDetalleService implements IFacturaDetalleService {
-    private FacturaDao facturaDao;
-    private ClienteService clienteService;
-    private FacturaDetalleDao facturaDetalleDao;
-    private SuscripcionService suscripcionService;
-    private ProductoService productoService;
-    private FacturaMapper facturaMapper;
-    private FacturaDetalleMapper mapper;
-    private ClienteMapper clienteMapper;
-    private ProductoMapper productoMapper;
-    private SuscripcionMapper suscripcionMapper;
+    private final FacturaDao facturaDao;
+    private final ClienteService clienteService;
+    private final FacturaDetalleDao facturaDetalleDao;
+    private final SuscripcionService suscripcionService;
+    private final ProductoService productoService;
+    private final FacturaMapper facturaMapper;
+    private final FacturaDetalleMapper mapper;
+    private final ClienteMapper clienteMapper;
+    private final ProductoMapper productoMapper;
+    private final SuscripcionMapper suscripcionMapper;
 
     public FacturaDetalleService(FacturaDao facturaDao, ClienteService clienteService, FacturaDetalleDao facturaDetalleDao, SuscripcionService suscripcionService, ProductoService productoService, FacturaMapper facturaMapper, FacturaDetalleMapper mapper, ClienteMapper clienteMapper, ProductoMapper productoMapper, SuscripcionMapper suscripcionMapper) {
         this.facturaDao = facturaDao;
@@ -56,7 +55,7 @@ public class FacturaDetalleService implements IFacturaDetalleService {
     public FacturaDetalleDto create(FacturaDetalleDto facturaDetalleDto) {
         // Verificar si los campos obligatorios no están incompletos
         if (facturaDetalleDto.getFacturaId() == null || (facturaDetalleDto.getProductoId() == null && facturaDetalleDto.getSuscripcionId() == null) || facturaDetalleDto.getPrecioUnitario() == null || facturaDetalleDto.getCantidad() == null) {
-            throw new BadRequestException("Los campos facturaId, productoId o subscripcionId, precioUnitario y cantidad son obligatorios para crear un nuevo detalle de factura");
+            throw new BadRequestException("Los campos facturaId, productoId o suscripcionId, precioUnitario y cantidad son obligatorios para crear un nuevo detalle de factura");
         }
 
         // Verificar si la factura existe
