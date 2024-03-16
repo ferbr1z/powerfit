@@ -14,6 +14,10 @@ public interface ProductoDao extends JpaRepository<ProductoBean,Long> {
     Optional<ProductoBean> findByCodigoAndActiveIsTrue(String codigo);
     Optional<ProductoBean> findByDescripcionAndActiveIsTrue(String descripcion);
     Page findAllByActiveIsTrue(Pageable pageable);
+
+    Page findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
+
+    Page findAllByPrecioBetweenAndActiveIsTrue(Double min, Double max, Pageable pageable);
     Optional<ProductoBean> findByIdAndActiveIsTrue(Long id);
 
 }

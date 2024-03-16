@@ -55,5 +55,18 @@ public class ProductoController {
     }
 
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{nombre}/page/{page}")
+    ResponseEntity<PageResponse<ProductoDto>> searchByNombre(@PathVariable int page,@PathVariable String nombre){
+        return new ResponseEntity<>(productoService.searchByNombre(nombre,page), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{min}/{max}/page/{page}")
+    ResponseEntity<PageResponse<ProductoDto>> searchByPrecioBetween(@PathVariable int page,@PathVariable Double min,@PathVariable Double max){
+        return new ResponseEntity<>(productoService.searchByPrecioBetween(min, max, page), HttpStatus.OK);
+    }
+
+
 
 }
