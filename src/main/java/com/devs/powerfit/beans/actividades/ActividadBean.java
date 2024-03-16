@@ -24,5 +24,4 @@ public class ActividadBean extends AbstractBean {
     private Double costoMensual;
     @Column
     private Double costoSemanal;
-
 }
