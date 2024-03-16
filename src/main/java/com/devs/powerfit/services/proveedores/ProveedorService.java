@@ -37,6 +37,9 @@ public class ProveedorService implements IProveedorService {
         if (proveedorDao.findByRucAndActiveIsTrue(proveedorDto.getRuc()).isPresent()){
             throw new BadRequestException("Ya existe un proovedor activo con ese Ruc");
         }
+        if (proveedorDao.findByTelefonoAndActiveIsTrue(proveedorDto.getTelefono()).isPresent()){
+            throw new BadRequestException("Ya existe un proovedor activo con ese telefono");
+        }
         ProveedorBean proveedorBean = mapper.toBean(proveedorDto);
         proveedorBean.setActive(true);
         proveedorDao.save(proveedorBean);
@@ -55,7 +58,7 @@ public class ProveedorService implements IProveedorService {
     @Override
     public PageResponse<ProveedorDto> getAll(int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        Page<ProveedorBean> proveedores = proveedorDao.findAll(pag);
+        Page<ProveedorBean> proveedores = proveedorDao.findAllByActiveIsTrue(pag);
         if (proveedores.isEmpty()){
             throw new NotFoundException("No hay proveedores en la lista");
         }
@@ -72,13 +75,19 @@ public class ProveedorService implements IProveedorService {
         var proveedorOptional = proveedorDao.findByIdAndActiveIsTrue(id);
         if (proveedorOptional.isPresent()) {
             ProveedorBean proveedor = proveedorOptional.get();
+            // Verificar si algún dato del proveedor ya está siendo utilizado por otro proveedor
+            if (isAnyFieldAlreadyExists(proveedorDto, proveedor.getId())) {
+                throw new BadRequestException("No se puede actualizar el proveedor porque algún dato ya está siendo utilizado por otro proveedor");
+            }
+
+            // Actualizar los datos del proveedor
             if (proveedorDto.getNombre() != null) proveedor.setNombre(proveedorDto.getNombre());
             if (proveedorDto.getEmail() != null) proveedor.setEmail(proveedorDto.getEmail());
             if (proveedorDto.getRuc() != null) proveedor.setRuc(proveedorDto.getRuc());
             if (proveedorDto.getTelefono() != null) proveedor.setTelefono(proveedorDto.getTelefono());
             if (proveedorDto.getDireccion() != null) proveedor.setDireccion(proveedorDto.getDireccion());
 
-            // Verificar si la actualización tiene éxito
+            // Guardar los cambios y verificar si la actualización tiene éxito
             ProveedorBean updatedProveedor = proveedorDao.save(proveedor);
             if (updatedProveedor != null) {
                 // Se ha actualizado correctamente
@@ -101,5 +110,30 @@ public class ProveedorService implements IProveedorService {
             return true;
         }
         throw new NotFoundException("Proveedor no encontrado");
+    }
+
+
+
+    // Método para verificar si algún dato del proveedor ya está siendo utilizado por otro proveedor
+    private boolean isAnyFieldAlreadyExists(ProveedorDto proveedorDto, Long currentProveedorId) {
+        if (proveedorDto == null) {
+            return false;
+        }
+
+        // Verificar si algún proveedor ya tiene el mismo nombre, email, ruc, teléfono o dirección
+        if (proveedorDto.getNombre() != null && proveedorDao.existsByNombreAndIdNot(proveedorDto.getNombre(), currentProveedorId)) {
+            return true;
+        }
+        if (proveedorDto.getEmail() != null && proveedorDao.existsByEmailAndIdNot(proveedorDto.getEmail(), currentProveedorId)) {
+            return true;
+        }
+        if (proveedorDto.getRuc() != null && proveedorDao.existsByRucAndIdNot(proveedorDto.getRuc(), currentProveedorId)) {
+            return true;
+        }
+        if (proveedorDto.getTelefono() != null && proveedorDao.existsByTelefonoAndIdNot(proveedorDto.getTelefono(), currentProveedorId)) {
+            return true;
+        }
+
+        return false;
     }
 }

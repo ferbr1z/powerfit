@@ -13,7 +13,16 @@ public interface ProveedorDao extends JpaRepository<ProveedorBean, Long> {
     Optional<ProveedorBean> findByIdAndActiveIsTrue(Long id);
     Optional<ProveedorBean> findByEmailAndActiveIsTrue(String email);
     Optional<ProveedorBean> findByRucAndActiveIsTrue(String ruc);
-
+    Optional<ProveedorBean> findByTelefonoAndActiveIsTrue(String telefono);
     Page findAllByActiveIsTrue(Pageable pageable);
+
+    boolean existsByNombreAndIdNot(String nombre, Long id);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByRucAndIdNot(String ruc, Long id);
+
+    boolean existsByTelefonoAndIdNot(String telefono, Long id);
+
 }
 
