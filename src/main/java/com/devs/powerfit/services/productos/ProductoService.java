@@ -114,4 +114,38 @@ public class ProductoService implements IProductoService {
             throw new NotFoundException("Producto no encontrado");
         }
     }
+    @Override
+    public PageResponse<ProductoDto> searchByNombre(String nombre, int page){
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<ProductoBean> productos = productoDao.findAllByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
+
+        if (productos.isEmpty()){
+            throw new NotFoundException("No hay productos en la lista");
+        }
+         var productosDto = productos.map(producto -> productoMapper.toDto(producto));
+
+        return new PageResponse<ProductoDto>(
+                productosDto.getContent(),
+                productosDto.getTotalPages(),
+                productosDto.getTotalElements(),
+                productosDto.getNumber() + 1);
+    }
+    @Override
+    public PageResponse<ProductoDto> searchByPrecioBetween(Double minPrecio, Double maxPrecio, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<ProductoBean> productos = productoDao.findAllByPrecioBetweenAndActiveIsTrue(minPrecio, maxPrecio, pag);
+
+        if (productos.isEmpty()){
+            throw new NotFoundException("No hay productos en el rango de precios especificado");
+        }
+
+        var productosDto = productos.map(producto -> productoMapper.toDto(producto));
+
+        return new PageResponse<>(
+                productosDto.getContent(),
+                productosDto.getTotalPages(),
+                productosDto.getTotalElements(),
+                productosDto.getNumber() + 1);
+    }
+
 }
