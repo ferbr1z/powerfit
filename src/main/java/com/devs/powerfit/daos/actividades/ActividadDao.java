@@ -12,4 +12,5 @@ public interface ActividadDao extends JpaRepository<ActividadBean, Long> {
     Page<ActividadBean> findByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
     Optional<ActividadBean> findByIdAndActiveTrue(Long id);
     Page<ActividadBean> findAllByActiveTrue(Pageable pageable);
+    Long countByActiveTrue();
 }
