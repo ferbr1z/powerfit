@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional()
+@Transactional
 public class FacturaDetalleService implements IFacturaDetalleService {
     private final FacturaDao facturaDao;
     private final ClienteService clienteService;

@@ -6,11 +6,13 @@ import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.interfaces.facturas.IFacturaConDetallesService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class FacturaConDetallesService implements IFacturaConDetallesService {
 
     private final FacturaService facturaService;
