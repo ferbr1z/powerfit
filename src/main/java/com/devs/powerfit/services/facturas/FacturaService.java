@@ -16,12 +16,14 @@ import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
+@Transactional
 public class FacturaService implements IFacturaService {
     private final FacturaDao facturaDao;
     private final FacturaMapper mapper;
