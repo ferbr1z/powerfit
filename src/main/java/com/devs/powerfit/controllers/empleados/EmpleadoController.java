@@ -46,4 +46,17 @@ public class EmpleadoController {
     ResponseEntity<Boolean> delete(@PathVariable Long id){
         return new ResponseEntity<>(empleadoService.delete(id), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{nombre}/page/{page}")
+    ResponseEntity<PageResponse<EmpleadoDto>> searchByNombre(@PathVariable int page, @PathVariable String nombre){
+        return new ResponseEntity<>(empleadoService.searchByNombre(nombre,page), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/searchByRol/{id}/page/{page}")
+    ResponseEntity<PageResponse<EmpleadoDto>> searchByRolId(@PathVariable int page, @PathVariable Long id){
+        return new ResponseEntity<>(empleadoService.searchByRolId(id,page), HttpStatus.OK);
+    }
+
 }
