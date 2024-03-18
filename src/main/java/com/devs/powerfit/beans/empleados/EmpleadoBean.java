@@ -43,10 +43,10 @@ public class EmpleadoBean extends AbstractBean {
 
     @NotNullable
     @Column
-    private Long rol_id;
+    private Long rol;
 
     @AssertTrue(message = "El rol debe ser 1, 3 o 4")
     private boolean isValidRolId(){
-        return rol_id == 1 || rol_id == 3 || rol_id == 4;
+        return rol == 1 || rol == 3 || rol == 4;
     }
 }

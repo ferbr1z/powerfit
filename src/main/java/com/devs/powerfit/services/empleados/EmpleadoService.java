@@ -56,7 +56,7 @@ public class EmpleadoService implements IEmpleadoService {
         usuarioDto.setNombre(empleadoDto.getNombre());
         usuarioDto.setEmail(empleadoDto.getEmail());
         usuarioDto.setPassword(empleadoDto.getCedula()); // La contraseña es la cedula del empleado
-        usuarioDto.setRol_id(empleadoDto.getRol_id());
+        usuarioDto.setRol_id(empleadoDto.getRol());
         // Guardar el nuevo Usuario
         authService.register(usuarioDto);
 
@@ -107,12 +107,12 @@ public class EmpleadoService implements IEmpleadoService {
                 usuarioDto.setPassword(empleadoDto.getCedula()); // La contraseña es la cédula del empleado
             }
 
-            if (empleadoDto.getRol_id() != null) {
-                if (!rolDao.findByIdAndActiveTrue(empleadoDto.getRol_id()).isPresent()) {
+            if (empleadoDto.getRol() != null) {
+                if (!rolDao.findByIdAndActiveTrue(empleadoDto.getRol()).isPresent()) {
                     throw new BadRequestException("El rol especificado no existe");
                 }
-                empleadoBean.setRol_id(empleadoDto.getRol_id());
-                usuarioDto.setRol_id(empleadoDto.getRol_id());
+                empleadoBean.setRol(empleadoDto.getRol());
+                usuarioDto.setRol_id(empleadoDto.getRol());
             }
             if (empleadoDto.getDireccion() != null) empleadoBean.setDireccion(empleadoDto.getDireccion());
             if (empleadoDto.getEmail() != null && !empleadoDto.getEmail().equals(empleadoBean.getEmail())) {
@@ -150,4 +150,31 @@ public class EmpleadoService implements IEmpleadoService {
         throw new NotFoundException("Empleado no encontrado.");
     }
 
+    @Override
+    public PageResponse<EmpleadoDto> searchByNombre(String nombre, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<EmpleadoBean> empleados = empleadoDao.findAllByNombreContainingIgnoreCaseAndActiveIsTrue(pag,nombre);
+        if (empleados.isEmpty()){
+            throw new NotFoundException("No hay empleados en la lista");
+        }
+        var empleadosDto = empleados.map(empleado -> mapper.toDto(empleado));
+        return new PageResponse<EmpleadoDto>(empleadosDto.getContent(),
+                empleadosDto.getTotalPages(),
+                empleadosDto.getTotalElements(),
+                empleadosDto.getNumber() + 1);
+    }
+
+    @Override
+    public PageResponse<EmpleadoDto> searchByRolId(Long id, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<EmpleadoBean> empleados = empleadoDao.findAllByRolAndActiveIsTrue(pag,id);
+        if (empleados.isEmpty()){
+            throw new NotFoundException("No hay empleados en la lista");
+        }
+        var empleadosDto = empleados.map(empleado -> mapper.toDto(empleado));
+        return new PageResponse<EmpleadoDto>(empleadosDto.getContent(),
+                empleadosDto.getTotalPages(),
+                empleadosDto.getTotalElements(),
+                empleadosDto.getNumber() + 1);
+    }
 }

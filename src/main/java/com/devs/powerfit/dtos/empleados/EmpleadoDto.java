@@ -12,5 +12,5 @@ public class EmpleadoDto extends AbstractDto {
     private String telefono;
     private String email;
     private String direccion;
-    private Long rol_id;
+    private Long rol;
 }

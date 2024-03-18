@@ -14,4 +14,8 @@ public interface EmpleadoDao extends JpaRepository<EmpleadoBean, Long> {
     Optional<EmpleadoBean> findByEmailAndActiveIsTrue(String email);
     Optional<EmpleadoBean> findByCedulaAndActiveIsTrue(String email);
     Page<EmpleadoBean> findAllByActiveIsTrue(Pageable pageable);
+    Page findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
+
+    Page<EmpleadoBean> findAllByRolAndActiveIsTrue(Pageable pageable, Long rolId);
+
 }

@@ -1,5 +1,6 @@
 package com.devs.powerfit.controllers.proveedores;
 
+
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
 import com.devs.powerfit.interfaces.proveedores.IProveedorService;
 import com.devs.powerfit.utils.responses.PageResponse;
@@ -47,6 +48,12 @@ public class ProveedorController {
     @DeleteMapping("/{id}")
     ResponseEntity<Boolean> delete(@PathVariable Long id){
         return new ResponseEntity<>(proveedorService.delete(id), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{nombre}/page/{page}")
+    ResponseEntity<PageResponse<ProveedorDto>> searchByNombre(@PathVariable int page, @PathVariable String nombre){
+        return new ResponseEntity<>(proveedorService.searchByNombre(nombre,page), HttpStatus.OK);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.proveedores;
 
+
 import com.devs.powerfit.beans.proveedores.ProveedorBean;
 import com.devs.powerfit.daos.proveedores.ProveedorDao;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
@@ -110,6 +111,21 @@ public class ProveedorService implements IProveedorService {
             return true;
         }
         throw new NotFoundException("Proveedor no encontrado");
+    }
+
+    @Override
+    public PageResponse<ProveedorDto> searchByNombre(String nombre, int page){
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<ProveedorBean> proveedores = proveedorDao.findAllByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
+        if (proveedores.isEmpty()){
+            throw new NotFoundException("No hay proveedores en la lista");
+        }
+        var proveedoresDto = proveedores.map(proveedor -> mapper.toDto(proveedor));
+
+        return new PageResponse<ProveedorDto>(proveedoresDto.getContent(),
+                proveedoresDto.getTotalPages(),
+                proveedoresDto.getTotalElements(),
+                proveedoresDto.getNumber() + 1);
     }
 
 
