@@ -56,4 +56,10 @@ public class ProveedorController {
         return new ResponseEntity<>(proveedorService.searchByNombre(nombre,page), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/searchByRuc/{ruc}/page/{page}")
+    ResponseEntity<PageResponse<ProveedorDto>> searchByRuc(@PathVariable int page, @PathVariable String ruc){
+        return new ResponseEntity<>(proveedorService.searchByRuc(ruc,page), HttpStatus.OK);
+    }
+
 }

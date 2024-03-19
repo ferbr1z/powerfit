@@ -128,6 +128,21 @@ public class ProveedorService implements IProveedorService {
                 proveedoresDto.getNumber() + 1);
     }
 
+    @Override
+    public PageResponse<ProveedorDto> searchByRuc(String ruc, int page){
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<ProveedorBean> proveedores = proveedorDao.findAllByRucContainingAndActiveIsTrue(pag, ruc);
+        if (proveedores.isEmpty()){
+            throw new NotFoundException("No hay proveedores en la lista");
+        }
+        var proveedoresDto = proveedores.map(proveedor -> mapper.toDto(proveedor));
+
+        return new PageResponse<ProveedorDto>(proveedoresDto.getContent(),
+                proveedoresDto.getTotalPages(),
+                proveedoresDto.getTotalElements(),
+                proveedoresDto.getNumber() + 1);
+    }
+
 
 
     // Método para verificar si algún dato del proveedor ya está siendo utilizado por otro proveedor
