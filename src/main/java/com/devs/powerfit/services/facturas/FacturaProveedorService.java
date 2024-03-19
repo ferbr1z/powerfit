@@ -52,6 +52,9 @@ public class FacturaProveedorService implements IFacturaProveedorService {
         if (facturaProveedorDto.getIvaTotal() != null && facturaProveedorDto.getIvaTotal() != ivaTotal) {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
+        if (facturaDao.existsByNroFactura(facturaProveedorDto.getNroFactura())) {
+            throw new BadRequestException("Ya existe una factura con el número " + facturaProveedorDto.getNroFactura());
+        }
 
         double total = facturaProveedorDto.getTotal() != null ? facturaProveedorDto.getTotal() : facturaProveedorDto.getSubTotal() + ivaTotal;
 
