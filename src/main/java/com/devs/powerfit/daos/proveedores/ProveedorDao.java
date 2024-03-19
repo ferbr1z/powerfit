@@ -15,6 +15,7 @@ public interface ProveedorDao extends JpaRepository<ProveedorBean, Long> {
     Optional<ProveedorBean> findByRucAndActiveIsTrue(String ruc);
     Optional<ProveedorBean> findByTelefonoAndActiveIsTrue(String telefono);
     Page findAllByActiveIsTrue(Pageable pageable);
+    Page findAllByRucContainingAndActiveIsTrue(Pageable pageable, String ruc);
     Page findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
 
     boolean existsByNombreAndIdNot(String nombre, Long id);
@@ -24,6 +25,7 @@ public interface ProveedorDao extends JpaRepository<ProveedorBean, Long> {
     boolean existsByRucAndIdNot(String ruc, Long id);
 
     boolean existsByTelefonoAndIdNot(String telefono, Long id);
+
 
 
 
