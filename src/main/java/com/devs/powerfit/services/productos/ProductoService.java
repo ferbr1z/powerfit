@@ -30,14 +30,31 @@ public class ProductoService implements IProductoService {
 
     @Override
     public ProductoDto create(ProductoDto productoDto) {
-        if (productoDao.findByCodigoAndActiveIsTrue(productoDto.getCodigo()).isPresent()){
-            throw new BadRequestException("Ya existe un producto activo con ese codigo");
+        Optional<ProductoBean> existingProduct = productoDao.findByCodigo(productoDto.getCodigo());
+        if (existingProduct.isPresent()) {
+            ProductoBean existingProductBean = existingProduct.get();
+            if (existingProductBean.isActive()) {
+                throw new BadRequestException("Ya existe un producto activo con ese código");
+            } else {
+                // Si existe un producto inactivo con el mismo código, lo activamos y lo actualizamos
+                existingProductBean.setActive(true);
+                existingProductBean.setNombre(productoDto.getNombre());
+                existingProductBean.setDescripcion(productoDto.getDescripcion());
+                existingProductBean.setCosto(productoDto.getCosto());
+                existingProductBean.setPrecio(productoDto.getPrecio());
+                existingProductBean.setCantidad(productoDto.getCantidad());
+                productoDao.save(existingProductBean);
+                return productoMapper.toDto(existingProductBean);
+            }
+        } else {
+            // Si no existe un producto con el mismo código, creamos uno nuevo
+            ProductoBean newProduct = productoMapper.toBean(productoDto);
+            newProduct.setActive(true);
+            productoDao.save(newProduct);
+            return productoMapper.toDto(newProduct);
         }
-        ProductoBean producto = productoMapper.toBean(productoDto);
-        producto.setActive(true);
-        productoDao.save(producto);
-        return productoMapper.toDto(producto);
     }
+
 
     @Override
     public ProductoDto getById(Long id) {
