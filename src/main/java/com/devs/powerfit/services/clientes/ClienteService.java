@@ -51,12 +51,39 @@ public class ClienteService implements IClienteService {
         // Verificar si ya existe un cliente con la misma cédula
         Optional<ClienteBean> existingClientByCedula = clienteDao.findByCedula(clienteDto.getCedula());
         if (existingClientByCedula.isPresent()) {
-            // Código para manejar clientes existentes
+            ClienteBean clienteByCedula = existingClientByCedula.get();
+            if (clienteByCedula.isActive()) {
+                throw new BadRequestException("Ya existe un cliente activo con la misma cédula");
+            } else {
+                // Si el cliente existe pero está inactivo, activarlo
+                clienteByCedula.setActive(true);
+                clienteDao.save(clienteByCedula);
+                return mapper.toDto(clienteByCedula);
+            }
         }
 
         // Verificar si se proporciona un correo electrónico
         if (clienteDto.getEmail() != null) {
-            // Código para manejar el correo electrónico
+            // Verificar si ya existe un cliente con el mismo email
+            Optional<ClienteBean> existingClientByEmail = clienteDao.findByEmail(clienteDto.getEmail());
+            if (existingClientByEmail.isPresent()) {
+                ClienteBean clienteByEmail = existingClientByEmail.get();
+                if (clienteByEmail.isActive()) {
+                    throw new BadRequestException("Ya existe un cliente activo con el mismo email");
+                } else if (!clienteByEmail.getCedula().equals(clienteDto.getCedula())) {
+                    // Si el cliente existe pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
+                    ClienteBean nuevoCliente = mapper.toBean(clienteDto);
+                    nuevoCliente.setActive(true);
+                    nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
+                    clienteDao.save(nuevoCliente);
+                    return mapper.toDto(nuevoCliente);
+                }
+                // Si el cliente existe pero está inactivo y tiene la misma cédula, se comporta como si fuera activo
+                clienteByEmail.setActive(true);
+                clienteByEmail.setNombre(clienteDto.getNombre()); // Actualizar otros campos si es necesario
+                clienteDao.save(clienteByEmail);
+                return mapper.toDto(clienteByEmail);
+            }
         }
 
         // Establecer la zona horaria en UTC
