@@ -206,7 +206,16 @@ public class SuscripcionService implements ISuscripcionDetalleService {
 
     @Override
     public boolean delete(Long id) {
-        return false;
+
+        var suscripcionOptional = suscripcionDetalleDao.findByIdAndActiveTrue(id);
+        if (suscripcionOptional.isPresent()) {
+            var suscripcionBean = suscripcionOptional.get();
+            // Desactivar la suscripción en lugar de eliminarla físicamente
+            suscripcionBean.setActive(false);
+            suscripcionDetalleDao.save(suscripcionBean);
+            return true;
+        }
+        throw new NotFoundException("Suscripción no encontrada" );
     }
 
     public PageResponse<SuscripcionDto> getAllByClientId(Long id,int page) {
