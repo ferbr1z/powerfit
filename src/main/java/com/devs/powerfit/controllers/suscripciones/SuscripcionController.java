@@ -46,6 +46,11 @@ public class SuscripcionController {
         return new ResponseEntity<>(updatedSuscripcion, HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
+        return new ResponseEntity<>(suscripcionService.delete(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/cliente/{id}/page/{page}")
     public ResponseEntity<PageResponse<SuscripcionDto>> SearchByClientId(@PathVariable Long id,@PathVariable int page) {
         PageResponse<SuscripcionDto> suscripcionesPage = suscripcionService.getAllByClientId(id,page);
