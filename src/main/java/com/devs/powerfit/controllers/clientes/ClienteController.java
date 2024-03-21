@@ -1,6 +1,8 @@
 package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/clientes")
 public class ClienteController {
     private final IClienteService clienteService;
+    private final ClienteListaService clienteListaService;
     @Autowired
-    public ClienteController(IClienteService clienteService) {
+    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService) {
         this.clienteService = clienteService;
+        this.clienteListaService = clienteListaService;
     }
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -31,6 +35,11 @@ public class ClienteController {
     @GetMapping("/page/{page}")
     public ResponseEntity<PageResponse<ClienteDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(clienteService.getAll(page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/lista/page/{page}")
+    public ResponseEntity<PageResponse<ClienteListaDto>> getAllWithEstado(@PathVariable int page) {
+        return new ResponseEntity<>(clienteListaService.obtenerTodosClientesConEstadoGeneral(page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")

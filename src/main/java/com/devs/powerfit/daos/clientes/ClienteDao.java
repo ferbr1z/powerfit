@@ -15,7 +15,7 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Optional<ClienteBean> findByCedula( String cedula);
     Optional<ClienteBean> findByEmail( String email);
 
-    Page<ClienteBean> findByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
+    Page<ClienteBean> findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
     Page<ClienteBean>findByCedulaAndActiveIsTrue(Pageable pageable, String cedula);
 
     Page<ClienteBean> findAllByActiveTrue(Pageable pageable);

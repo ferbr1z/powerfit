@@ -2,10 +2,13 @@ package com.devs.powerfit.controllers;
 
 import com.devs.powerfit.dtos.errors.ErrorDto;
 import com.devs.powerfit.exceptions.BaseException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ControllerAdvice {
@@ -26,5 +29,24 @@ public class ControllerAdvice {
                 .build();
         return new ResponseEntity<>(errorDto, e.getStatus());
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorDto> handleConstraintViolationException(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+                .map(violation -> {
+                    String field = violation.getPropertyPath().toString();
+                    String errorMessage = violation.getMessage();
+                    return "Error en el campo '" + field + "': " + errorMessage;
+                })
+                .collect(Collectors.joining("; "));
+
+        ErrorDto errorDto = ErrorDto.builder()
+                .code(HttpStatus.BAD_REQUEST.toString())
+                .message(message)
+                .build();
+
+        return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
+    }
+
 }
 
