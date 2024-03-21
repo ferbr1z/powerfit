@@ -52,12 +52,12 @@ public class ClienteController {
         return new ResponseEntity<>(clienteService.delete(id), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/search/{nombre}/page/{page}")
+    @GetMapping("/searchByName/{nombre}/page/{page}")
     public ResponseEntity<PageResponse<ClienteDto>> searchByName(@PathVariable int page,@PathVariable String nombre) {
         return new ResponseEntity<>(clienteService.searchByNombre(nombre,page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/search/{ci}/page/{page}")
+    @GetMapping("/searchByCi/{ci}/page/{page}")
     public ResponseEntity<PageResponse<ClienteDto>> searchByCi(@PathVariable int page,@PathVariable String ci) {
         return new ResponseEntity<>(clienteService.searchByCi(ci,page), HttpStatus.OK);
     }
