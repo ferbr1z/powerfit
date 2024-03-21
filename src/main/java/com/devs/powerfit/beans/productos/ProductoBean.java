@@ -30,7 +30,6 @@ public class ProductoBean extends AbstractBean {
     private String nombre;
 
     @Column
-    @NotNullAndNotBlank
     private String descripcion;
 
     @NotNullAndNotBlank
