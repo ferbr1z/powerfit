@@ -1,4 +1,4 @@
-package com.devs.powerfit.utils.mappers.suscipciones;
+package com.devs.powerfit.utils.mappers.suscipcioneMapper;
 
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
