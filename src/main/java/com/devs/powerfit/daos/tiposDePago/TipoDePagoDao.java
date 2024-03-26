@@ -13,4 +13,5 @@ public interface TipoDePagoDao extends JpaRepository<TipoDePagoBean,Long> {
     Optional<TipoDePagoBean> findByIdAndActiveTrue(Long id);
     Page<TipoDePagoBean> findAllByActiveTrue(Pageable pageable);
     Page<TipoDePagoBean> findAllByNombreContainingIgnoreCaseAndActiveTrue(Pageable pageable, String nombre);
+    Optional<TipoDePagoBean> findByNombreContainingIgnoreCase(String nombre);
 }
