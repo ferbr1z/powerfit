@@ -10,4 +10,6 @@ public class ArqueoDetalleDto extends AbstractDto {
     private double montoEntrada;
 
     private double montoSalida;
+
+    private Long movimientoId;
 }
