@@ -12,8 +12,6 @@ import java.util.List;
 public interface IMovimientoService extends IService<MovimientoDto> {
     PageResponse<MovimientoDto> searchBySesionId(Long sesionId, int page);
     List<MovimientoDto> getAllBySesionId(Long sesionId);
-    PageResponse<MovimientoDto> searchBetweenFecha(int page, Date fechaMenor, Date fechaMayor);
-    List<MovimientoDto> getAllBetweenFecha(Date fechaMenor, Date fechaMayor);
     PageResponse<MovimientoDto> searchBySesion(int page, Date fechaMenor, Date fechaMayor);
     PageResponse<MovimientoDto> searchBySesionAndEntrada(int page, Long sesionId, boolean entrada);
     List<MovimientoDto> getAllBySesionAndEntrada(Long sesionId, boolean entrada);
