@@ -45,15 +45,8 @@ public class MovimientoService implements IMovimientoService {
         return null;
     }
 
-    @Override
-    public PageResponse<MovimientoDto> searchBetweenFecha(int page, Date fechaMenor, Date fechaMayor) {
-        return null;
-    }
 
-    @Override
-    public List<MovimientoDto> getAllBetweenFecha(Date fechaMenor, Date fechaMayor) {
-        return null;
-    }
+
 
     @Override
     public PageResponse<MovimientoDto> searchBySesion(int page, Date fechaMenor, Date fechaMayor) {
