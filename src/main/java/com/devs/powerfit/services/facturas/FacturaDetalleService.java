@@ -16,7 +16,7 @@ import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaDetalleMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.productoMapper.ProductoMapper;
-import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
+import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

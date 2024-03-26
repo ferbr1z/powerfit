@@ -8,7 +8,6 @@ import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
 import com.devs.powerfit.exceptions.BadRequestException;
-import com.devs.powerfit.exceptions.ConflictException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.interfaces.suscripciones.ISuscripcionDetalleService;
@@ -16,7 +15,7 @@ import com.devs.powerfit.services.clientes.ClienteService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
-import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
+import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

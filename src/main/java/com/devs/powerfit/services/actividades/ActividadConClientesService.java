@@ -12,7 +12,7 @@ import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
-import com.devs.powerfit.utils.mappers.suscipciones.SuscripcionMapper;
+import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
