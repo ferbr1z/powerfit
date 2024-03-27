@@ -14,4 +14,5 @@ public interface CajaDao extends JpaRepository<CajaBean,Long> {
 
     Optional<CajaBean> findByIdAndActiveTrue(Long id);
     Page<CajaBean> findAllByActiveTrue(Pageable pageable);
+    Optional<CajaBean> findFirstByOrderByNumeroCajaDesc();
 }
