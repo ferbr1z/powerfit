@@ -1,6 +1,5 @@
 package com.devs.powerfit.controllers.movimientos;
 
-import com.devs.powerfit.dtos.mediciones.MedicionDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.services.movimientos.MovimientoConDetalleService;
 import org.springframework.beans.factory.annotation.Autowired;

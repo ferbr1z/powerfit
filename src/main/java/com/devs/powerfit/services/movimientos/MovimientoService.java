@@ -1,6 +1,8 @@
 package com.devs.powerfit.services.movimientos;
 
+import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.movimientos.MovimientoBean;
+import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
@@ -24,24 +26,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @Transactional
 public class MovimientoService implements IMovimientoService {
     private final MovimientoDao dao;
     private final FacturaService facturaService;
     private final FacturaMapper facturaMapper;
-    private SesionCajaService sesionCajaService;
+    private SesionCajaDao sesionCajaDao;
     private final FacturaProveedorService facturaProveedorService;
     private final FacturaProveedorMapper facturaProveedorMapper;
     private final SesionCajaMapper sesionCajaMapper;
     private final MovimientoMapper mapper;
 
     @Autowired
-    public MovimientoService(MovimientoDao dao, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaService sesionCajaService, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, SesionCajaMapper sesionCajaMapper, MovimientoMapper mapper) {
+    public MovimientoService(MovimientoDao dao, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, SesionCajaMapper sesionCajaMapper, MovimientoMapper mapper) {
         this.dao = dao;
         this.facturaService = facturaService;
         this.facturaMapper = facturaMapper;
-        this.sesionCajaService = sesionCajaService;
+        this.sesionCajaDao = sesionCajaDao;
         this.facturaProveedorService = facturaProveedorService;
         this.facturaProveedorMapper = facturaProveedorMapper;
         this.sesionCajaMapper = sesionCajaMapper;
@@ -51,10 +55,11 @@ public class MovimientoService implements IMovimientoService {
     @Override
     public MovimientoDto create(MovimientoDto movimientoDto) {
         // Verificar que sesionId sea válido
-        SesionCajaDto sesion = sesionCajaService.getById(movimientoDto.getSesionId());
-        if (sesion == null) {
+        Optional<SesionCajaBean> sesion = sesionCajaDao.findByIdAndActiveTrue(movimientoDto.getSesionId());
+        if (sesion.isEmpty()) {
             throw new BadRequestException("SesionId debe ser válido.");
         }
+
 
         // Generar la fecha actual si no se proporciona
         if (movimientoDto.getFecha() == null) {
@@ -113,7 +118,7 @@ public class MovimientoService implements IMovimientoService {
                 facturaActualizada= facturaService.modificarPagado(factura.getId(),true);
             }
             movimiento.setFactura(facturaMapper.toBean(facturaActualizada));
-            movimiento.setSesion(sesionCajaMapper.toBean(sesion));
+            movimiento.setSesion(sesion.get());
             movimiento.setFacturaProveedor(null);
             MovimientoBean creado= dao.save(movimiento);
             return mapper.toDto(creado);
@@ -143,7 +148,7 @@ public class MovimientoService implements IMovimientoService {
             }
             FacturaProveedorDto facturaProveedorActualizada = facturaProveedorService.update(facturaProveedor.getId(), facturaProveedor);
             movimiento.setFacturaProveedor(facturaProveedorMapper.toBean(facturaProveedorActualizada));
-            movimiento.setSesion(sesionCajaMapper.toBean(sesion));
+            movimiento.setSesion(sesion.get());
             movimiento.setFactura(null);
             MovimientoBean creado = dao.save(movimiento);
             return mapper.toDto(creado);

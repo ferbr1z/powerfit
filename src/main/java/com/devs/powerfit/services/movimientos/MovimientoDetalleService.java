@@ -58,7 +58,7 @@ public class MovimientoDetalleService implements IMovimientoDetalleService {
         detalle.setMovimiento(movimiento);
         detalle.setTipoDePago(tipoDePagoMapper.toBean(tipoDePago));
         detalle.setMonto(movimientoDetalleDto.getMonto());
-
+        detalle.setActive(true);
         // Guardar el detalle del movimiento en la base de datos
         MovimientoDetalleBean detalleCreado = dao.save(detalle);
 
