@@ -7,4 +7,6 @@ import com.devs.powerfit.utils.responses.PageResponse;
 public interface IEmpleadoService extends IService<EmpleadoDto> {
     PageResponse<EmpleadoDto> searchByNombre(String nombre, int page);
     PageResponse<EmpleadoDto> searchByRolId(Long id, int page);
+
+    public EmpleadoDto getByEmail(String email);
 }

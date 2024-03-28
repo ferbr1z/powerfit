@@ -12,5 +12,6 @@ public class AuthResponse {
     private String accessToken;
     private String rol;
     private String nombre;
+    private Long empleadoId;
 
 }

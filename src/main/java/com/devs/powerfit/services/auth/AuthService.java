@@ -2,13 +2,17 @@ package com.devs.powerfit.services.auth;
 
 import com.devs.powerfit.beans.auth.RolBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import com.devs.powerfit.daos.auth.RolDao;
 import com.devs.powerfit.daos.auth.UsuarioDao;
+import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.auth.UsuarioDto;
+import com.devs.powerfit.dtos.empleados.EmpleadoDto;
 import com.devs.powerfit.interfaces.auth.IAuthService;
 import com.devs.powerfit.security.auth.AuthRequest;
 import com.devs.powerfit.security.auth.AuthResponse;
 import com.devs.powerfit.security.jwt.JWTService;
+import com.devs.powerfit.services.empleados.EmpleadoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +41,9 @@ public class AuthService implements IAuthService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private EmpleadoDao empleadoDao;
 
     public ResponseEntity<?> register(UsuarioDto request) {
         try {
@@ -146,8 +153,10 @@ public class AuthService implements IAuthService {
             final UsuarioBean user = (UsuarioBean) authentication.getPrincipal();
             final String accessToken = jwtService.generateToken(user);
             Optional<RolBean> rolName = rolDao.findByIdAndActiveTrue(user.getRol().getId());
+            Optional<EmpleadoBean> empleadoBean = empleadoDao.findByEmailAndActiveIsTrue(request.getEmail());
 
-            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre());
+
+            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre(), empleadoBean.get().getId());
             return ResponseEntity.ok().body(response);
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
