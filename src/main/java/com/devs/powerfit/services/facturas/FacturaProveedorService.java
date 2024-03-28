@@ -154,7 +154,30 @@ public class FacturaProveedorService implements IFacturaProveedorService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
-
+    public PageResponse<FacturaProveedorDto> searchByPendiente( int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByPagado(pageRequest,false );
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
+    public PageResponse<FacturaProveedorDto> searchByPagado( int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByPagado(pageRequest,true );
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
     @Override
     public FacturaProveedorDto searchByNumeroFactura(String numeroFactura) {
         var factura = facturaDao.findByNroFacturaIgnoreCaseAndActiveTrue(numeroFactura);

@@ -1,9 +1,9 @@
 package com.devs.powerfit.beans.cajas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +17,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CajaBean extends AbstractBean {
     @Column(unique = true)
+    @NotNullAndNotBlank
     private String nombre;
     private Double monto;
+    @Positive
+    private Long numeroCaja;
+    private Long numeroFactura;
 }

@@ -4,6 +4,8 @@ import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.productos.ProductoBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,11 +30,15 @@ public class FacturaDetalleBean extends AbstractBean {
     @Column
     private Double precioUnitario;
     @Column
+    @Min(value = 1,message = "No se puede realizar una factura con cantidad 0")
     private Integer cantidad;
     @Column
+    @PositiveOrZero
     private Double subTotal;
     @Column
+    @PositiveOrZero
     private Double iva;
     @Column
+    @PositiveOrZero
     private double ivaTotal;
 }

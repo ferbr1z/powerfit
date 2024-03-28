@@ -17,4 +17,5 @@ public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
     Optional<FacturaBean> findByIdAndActiveTrue(Long id);
     Page<FacturaBean> findAllByActiveTrue(Pageable pageable);
     boolean existsByNroFactura(String nroFactura);
+    Page<FacturaBean>findAllByPagado(Pageable pageable,boolean pagado);
 }
