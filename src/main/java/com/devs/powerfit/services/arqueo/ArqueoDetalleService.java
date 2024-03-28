@@ -6,6 +6,7 @@ import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.beans.movimientos.MovimientoDetalleBean;
 import com.devs.powerfit.daos.arqueo.ArqueoDao;
 import com.devs.powerfit.daos.arqueo.ArqueoDetalleDao;
+import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDetalleDao;
 import com.devs.powerfit.dtos.arqueo.ArqueoDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
@@ -29,34 +30,38 @@ public class ArqueoDetalleService implements IArqueoDetallesService {
 
     private ArqueoDao arqueoDao;
 
+    private MovimientoDao movDao;
+
     @Autowired
-    public ArqueoDetalleService(MovimientoDetalleDao movimientoDetalle, ArqueoDetalleMapper arqueoDetalleMapper, ArqueoDetalleDao arqueoDetalleDao, ArqueoDao arqueoDao) {
+    public ArqueoDetalleService(MovimientoDetalleDao movimientoDetalle, ArqueoDetalleMapper arqueoDetalleMapper, ArqueoDetalleDao arqueoDetalleDao, ArqueoDao arqueoDao, MovimientoDao movDao) {
         this.movimientoDetalle = movimientoDetalle;
         this.arqueoDetalleMapper = arqueoDetalleMapper;
         this.arqueoDetalleDao = arqueoDetalleDao;
         this.arqueoDao = arqueoDao;
+        this.movDao = movDao;
     }
 
     @Override
     public ArqueoDetalleDto crearArqueoDetalle(ArqueoDetalleDto arqueoDetalleDto) {
-        Optional<MovimientoDetalleBean> movimientoDetalleBean = movimientoDetalle.findByIdAndActiveTrue(arqueoDetalleDto.getMovimientoId());
-        if (!movimientoDetalleBean.isPresent()) {
-            throw new NotFoundException("No se encontró detalle de movimiento para el movimiento con ID");
-        }
-//        // Asignar los valores de monto de entrada y salida según el parámetro de entrada
-//        arqueoDetalleDto.setMontoEntrada(entrada ? movimientoDetalleBean.get().getMonto() : null);
-//        arqueoDetalleDto.setMontoSalida(entrada ? null : movimientoDetalleBean.get().getMonto());
-
-        // Mapear el DTO de detalle de arqueo a un objeto de entidad ArqueoDetalleBean
-        ArqueoDetalleBean arqueoDetalleBean = arqueoDetalleMapper.toBean(arqueoDetalleDto);
-        arqueoDetalleBean.setActive(true);
-        Optional<ArqueoBean> arqueoBean = arqueoDao.findByIdAndActiveIsTrue(arqueoDetalleDto.getArqueoId());
-        arqueoDetalleBean.setArqueo(arqueoBean.get());
-
-        arqueoDetalleDao.save(arqueoDetalleBean);
-
-        return arqueoDetalleMapper.toDto(arqueoDetalleBean);
-
+        Optional<MovimientoBean> movimientoBean = movDao.findByIdAndActiveTrue(arqueoDetalleDto.getMovimientoId());
+        List<MovimientoDetalleBean> movimientoDetalleBean = movimientoDetalle.findAllByMovimientoAndActiveTrue(movimientoBean.get());
+//        if (movimientoDetalleBean.isPresent()) {
+//            // Asignar los valores de monto de entrada y salida según el parámetro de entrada
+//            arqueoDetalleDto.setMontoEntrada(true ? movimientoDetalleBean.get().getMonto() : null);
+//            arqueoDetalleDto.setMontoSalida(false ? null : movimientoDetalleBean.get().getMonto());
+//
+//            // Mapear el DTO de detalle de arqueo a un objeto de entidad ArqueoDetalleBean
+//            ArqueoDetalleBean arqueoDetalleBean = arqueoDetalleMapper.toBean(arqueoDetalleDto);
+//            arqueoDetalleBean.setActive(true);
+//            Optional<ArqueoBean> arqueoBean = arqueoDao.findByIdAndActiveIsTrue(arqueoDetalleDto.getArqueoId());
+//            arqueoDetalleBean.setArqueo(arqueoBean.get());
+//
+//            arqueoDetalleDao.save(arqueoDetalleBean);
+//
+//            return arqueoDetalleMapper.toDto(arqueoDetalleBean);
+//
+//        }
+        throw new NotFoundException("No se encontró detalle de movimiento para el movimiento con ID: " + arqueoDetalleDto.getMovimientoId());
 
     }
 

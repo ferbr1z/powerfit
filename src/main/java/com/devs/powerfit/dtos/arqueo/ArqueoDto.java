@@ -19,4 +19,6 @@ public class ArqueoDto extends AbstractDto {
     private Date hora;
 
     private Double montoTotal;
+
+    private List<ArqueoDetalleDto> detalles;
 }

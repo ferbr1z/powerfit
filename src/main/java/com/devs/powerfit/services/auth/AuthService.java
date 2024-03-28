@@ -2,19 +2,17 @@ package com.devs.powerfit.services.auth;
 
 import com.devs.powerfit.beans.auth.RolBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import com.devs.powerfit.daos.auth.RolDao;
 import com.devs.powerfit.daos.auth.UsuarioDao;
+import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.auth.UsuarioDto;
-import com.devs.powerfit.dtos.empleados.EmpleadoDto;
 import com.devs.powerfit.interfaces.auth.IAuthService;
 import com.devs.powerfit.security.auth.AuthRequest;
 import com.devs.powerfit.security.auth.AuthResponse;
 import com.devs.powerfit.security.jwt.JWTService;
-import com.devs.powerfit.services.empleados.EmpleadoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +28,7 @@ import java.util.Optional;
 
 @Service
 public class AuthService implements IAuthService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthService.class);
+
     @Autowired
     UsuarioDao userDao;
     @Autowired
@@ -44,6 +42,9 @@ public class AuthService implements IAuthService {
 
     @Autowired
     private EmpleadoDao empleadoDao;
+
+    @Autowired
+    private ClienteDao clienteDao;
 
     public ResponseEntity<?> register(UsuarioDto request) {
         try {
@@ -154,10 +155,14 @@ public class AuthService implements IAuthService {
             final String accessToken = jwtService.generateToken(user);
             Optional<RolBean> rolName = rolDao.findByIdAndActiveTrue(user.getRol().getId());
             Optional<EmpleadoBean> empleadoBean = empleadoDao.findByEmailAndActiveIsTrue(request.getEmail());
-
-
+            Optional<ClienteBean> clienteBean = clienteDao.findByEmail(request.getEmail());
+            if (user.getRol().getId() == 2){
+                final AuthResponse responseCliente = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre(), clienteBean.get().getId());
+                return ResponseEntity.ok().body(responseCliente);
+            }
             final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre(), empleadoBean.get().getId());
             return ResponseEntity.ok().body(response);
+
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Usuario no encontrado o credenciales inválidas");
