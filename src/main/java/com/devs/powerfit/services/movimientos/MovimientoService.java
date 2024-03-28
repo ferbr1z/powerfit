@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -184,7 +185,14 @@ public class MovimientoService implements IMovimientoService {
 
     @Override
     public List<MovimientoDto> getAllBySesionId(Long sesionId) {
-        return null;
+        var sesion=sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesion.isEmpty()){
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        var movimientos=dao.findAllBySesionAndActiveTrue(sesion.get());
+        return movimientos.stream()
+                .map(movimientoBean -> mapper.toDto(movimientoBean))
+                .collect(Collectors.toList());
     }
 
 

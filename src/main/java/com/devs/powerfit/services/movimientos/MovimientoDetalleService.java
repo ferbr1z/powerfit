@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -94,7 +95,14 @@ public class MovimientoDetalleService implements IMovimientoDetalleService {
 
     @Override
     public List<MovimientoDetalleDto> findAllByMovimiento(Long movimientoId) {
-        return null;
+        var movimiento = movimientoDao.findByIdAndActiveTrue(movimientoId);
+        if (movimiento.isEmpty()) {
+            throw new BadRequestException("No existe movimiento con ese id");
+        }
+        var detalles = dao.findAllByMovimientoAndActiveTrue(movimiento.get());
+        return detalles.stream()
+                .map(movimientoDetalleBean -> mapper.toDto(movimientoDetalleBean))
+                .collect(Collectors.toList()); // Añade este colector para convertir el Stream a List
     }
 
     @Override
