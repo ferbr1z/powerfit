@@ -15,9 +15,8 @@ public class ArqueoDto extends AbstractDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fecha;
 
+    @JsonFormat(pattern = "HH:mm:ss")
     private Date hora;
 
     private Double montoTotal;
-
-    private List<ArqueoDetalleDto> detalles;
 }
