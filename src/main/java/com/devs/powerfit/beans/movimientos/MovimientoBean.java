@@ -33,10 +33,8 @@ public class MovimientoBean extends AbstractBean {
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
     @Column
-    @NotNullAndNotBlank
     private Date fecha;
     @Column
-    @NotNullAndNotBlank
     private Date hora;
     @Column
     @Positive
