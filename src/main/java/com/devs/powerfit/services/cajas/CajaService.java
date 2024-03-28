@@ -2,6 +2,7 @@ package com.devs.powerfit.services.cajas;
 
 import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.daos.cajas.CajaDao;
+import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -128,5 +129,20 @@ public class CajaService implements ICajaService {
             return true;
         }
         throw new NotFoundException("Caja no encontrada");
+    }
+    public PageResponse<CajaDto> searchByNombre(String nombre, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var cajas = cajaDao.findAllByNombreContainingIgnoreCaseAndActiveTrue(pag, nombre);
+
+        if (cajas.isEmpty()) {
+            throw new NotFoundException("No hay actividades en la lista");
+        }
+
+        var cajasDto = cajas.map(mapper::toDto);
+        return new PageResponse<>(
+                cajasDto.getContent(),
+                cajasDto.getTotalPages(),
+                cajasDto.getTotalElements(),
+                cajasDto.getNumber() + 1);
     }
 }
