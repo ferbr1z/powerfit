@@ -17,5 +17,6 @@ public interface FacturaProveedorDao extends JpaRepository<FacturaProveedorBean,
     Optional<FacturaProveedorBean>findByNroFacturaIgnoreCaseAndActiveTrue(String nroFactura);
     Optional<FacturaProveedorBean> findByIdAndActiveTrue(Long id);
     Page<FacturaProveedorBean> findAllByActiveTrue(Pageable pageable);
+    Page<FacturaProveedorBean> findAllByPagado(Pageable pageable, boolean pagado);
     boolean existsByNroFactura(String nroFactura);
 }
