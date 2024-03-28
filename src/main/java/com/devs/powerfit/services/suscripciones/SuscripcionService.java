@@ -116,6 +116,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Guardar el detalle de suscripcion en la base de datos
         SuscripcionBean savedSuscripcion = suscripcionDetalleDao.save(suscripcionDetalle);
         SuscripcionDto detalleCreado = mapper.toDto(savedSuscripcion);
+        detalleCreado.setActividadNombre(actividadDto.getNombre());
 
         // Retornar el detalle de suscripcion creado
         return detalleCreado;
