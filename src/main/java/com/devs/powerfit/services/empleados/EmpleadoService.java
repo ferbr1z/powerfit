@@ -177,4 +177,14 @@ public class EmpleadoService implements IEmpleadoService {
                 empleadosDto.getTotalElements(),
                 empleadosDto.getNumber() + 1);
     }
+
+    @Override
+    public EmpleadoDto getByEmail(String email) {
+        Optional<EmpleadoBean> empleado = empleadoDao.findByEmailAndActiveIsTrue(email);
+        if(empleado.isPresent()){
+            return mapper.toDto(empleado.get());
+        }else {
+            throw new NotFoundException("Empleado no encontrado");
+        }
+    }
 }
