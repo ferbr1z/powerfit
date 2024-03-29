@@ -1,7 +1,9 @@
 package com.devs.powerfit.services.facturas;
 
+import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
+import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
 import com.devs.powerfit.exceptions.BadRequestException;
@@ -139,6 +141,28 @@ public class FacturaProveedorService implements IFacturaProveedorService {
                 facturaDtoPage.getTotalPages(),
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
+    }
+    public FacturaProveedorDto actualizarSaldo(Long id, double nuevoSaldo) {
+        // Verificar si la factura con el ID proporcionado existe
+        FacturaProveedorBean factura = facturaDao.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
+        // Actualizar el saldo de la factura
+        factura.setSaldo(nuevoSaldo);
+        // Guardar los cambios en la base de datos
+        FacturaProveedorBean facturaActualizada = facturaDao.save(factura);
+        // Retornar la factura actualizada
+        return mapper.toDto(facturaActualizada);
+    }
+    public FacturaProveedorDto modificarPagado(Long id, boolean pagado) {
+        // Verificar si la factura con el ID proporcionado existe
+        FacturaProveedorBean factura = facturaDao.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
+        // Actualizar el estado de pago de la factura
+        factura.setPagado(pagado);
+        // Guardar los cambios en la base de datos
+        FacturaProveedorBean facturaActualizada = facturaDao.save(factura);
+        // Retornar la factura actualizada
+        return mapper.toDto(facturaActualizada);
     }
 
     @Override
