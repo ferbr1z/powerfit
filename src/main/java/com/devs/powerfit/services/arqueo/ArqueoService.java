@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +101,29 @@ public class ArqueoService implements IArqueoService {
                 arqueosDto.getTotalElements(),
                 arqueosDto.getNumber() + 1);
     }
+
+    @Override
+    public PageResponse<ArqueoDto> getAllByFecha(Date fecha, int page) {
+        PageRequest pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<ArqueoBean> arqueos = arqueoDao.findAllByFechaAndActiveTrue(sumarDiaAfecha(fecha), pag);
+        if (arqueos.isEmpty()){
+            throw new NotFoundException("No hay arqueos en la lista");
+        }
+        Page<ArqueoDto> arqueosDto = arqueos.map(arqueo -> {
+            ArqueoDto arqueoDto = mapper.toDto(arqueo);
+            List<ArqueoDetalleBean> detalles = arqueoDetalleDao.findByArqueo_IdAndActiveIsTrue(arqueo.getId());
+            List<ArqueoDetalleDto> detallesDto = detalles.stream()
+                    .map(detalleMapper::toDto)
+                    .collect(Collectors.toList());
+            arqueoDto.setDetalles(detallesDto);
+            return arqueoDto;
+        });
+        return new PageResponse<>(arqueosDto.getContent(),
+                arqueosDto.getTotalPages(),
+                arqueosDto.getTotalElements(),
+                arqueosDto.getNumber() + 1);
+    }
+
 
 
     /*
@@ -191,5 +216,11 @@ Se crea un nuevo Arqueo y se setean los datos
                     .sum();
         }
         return 0.0;
+    }
+    private Date sumarDiaAfecha(Date fecha){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(fecha);
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        return calendar.getTime();
     }
 }
