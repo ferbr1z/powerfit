@@ -18,6 +18,7 @@ import java.util.Date;
 public class SuscripcionDto extends AbstractDto {
     private Long clienteId;
     private Long actividadId;
+    private String actividadNombre;
     private String estado;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fechaInicio;

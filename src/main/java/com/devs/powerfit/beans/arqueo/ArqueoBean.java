@@ -33,6 +33,23 @@ public class ArqueoBean extends AbstractBean {
 
     @Column
     private Double montoTotal;
+    @Column
+    private Double totalEntradaTarjeta;
+
+    @Column
+    private Double totalEntradaEfectivo;
+
+    @Column
+    private Double totalEntradaTransferencia;
+
+    @Column
+    private Double totalSalidaTarjeta;
+
+    @Column
+    private Double totalSalidaEfectivo;
+
+    @Column
+    private Double totalSalidaTransferencia;
 
     @OneToMany(mappedBy = "arqueo", cascade = CascadeType.ALL)
     private List<ArqueoDetalleBean> detalles;

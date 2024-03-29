@@ -94,8 +94,8 @@ public class MovimientoService implements IMovimientoService {
         // Verificar si es una entrada o salida
         if (movimientoDto.isEntrada()) {
             // Verificar que facturaId sea válido y facturaProveedorId sea nulo
-            if (movimientoDto.getFacturaId() == null || movimientoDto.getFacturaProveedorId() != null) {
-                throw new BadRequestException("FacturaId debe ser válido y FacturaProveedorId debe ser nulo para una entrada.");
+            if (movimientoDto.getFacturaId() ==null) {
+                throw new BadRequestException("FacturaId debe ser válido para una entrada.");
             }
             FacturaDto factura = facturaService.getById(movimientoDto.getFacturaId());
             if (factura == null) {
@@ -126,14 +126,18 @@ public class MovimientoService implements IMovimientoService {
             return mapper.toDto(creado);
 
         } else {
+            System.out.println("Salida");
             // Verificar que facturaProveedorId sea válido y facturaId sea nulo
-            if (movimientoDto.getFacturaProveedorId() == null || movimientoDto.getFacturaId() != null) {
+            if (movimientoDto.getFacturaProveedorId() ==null ) {
                 throw new BadRequestException("FacturaProveedorId debe ser válido y FacturaId debe ser nulo para una salida.");
             }
+            System.out.println("Verifica");
             FacturaProveedorDto facturaProveedor = facturaProveedorService.getById(movimientoDto.getFacturaProveedorId());
+            System.out.println(facturaProveedor);
             if (facturaProveedor == null) {
                 throw new BadRequestException("La factura del proveedor no existe");
             }
+            System.out.println("Verifica la factura proveedor");
             if (facturaProveedor.getSaldo() < movimientoDto.getTotal()) {
                 throw new BadRequestException("El saldo es menor al total del movimiento");
             }
@@ -145,14 +149,20 @@ public class MovimientoService implements IMovimientoService {
             movimiento.setEntrada(movimientoDto.isEntrada());
             // Restar el total del movimiento al saldo de la factura del proveedor
             facturaProveedor.setSaldo(facturaProveedor.getSaldo() - movimientoDto.getTotal());
-            if (facturaProveedor.getSaldo() == 0) {
-                facturaProveedor.setPagado(true);
+            if(facturaProveedor.getSaldo()==0){
+                facturaProveedorService.modificarPagado(facturaProveedor.getId(),true);
             }
-            FacturaProveedorDto facturaProveedorActualizada = facturaProveedorService.update(facturaProveedor.getId(), facturaProveedor);
+            System.out.println(facturaProveedor);
+            FacturaProveedorDto facturaProveedorActualizada = facturaProveedorService.actualizarSaldo(facturaProveedor.getId(),facturaProveedor.getSaldo());
+            System.out.println("actualizado");
             movimiento.setFacturaProveedor(facturaProveedorMapper.toBean(facturaProveedorActualizada));
+            System.out.println("Actualiza factura proveedor");
             movimiento.setSesion(sesion.get());
+            System.out.println("sesion");
             movimiento.setFactura(null);
+            System.out.println("factura null");
             MovimientoBean creado = dao.save(movimiento);
+            System.out.println("guarda");
             return mapper.toDto(creado);
         }
     }
