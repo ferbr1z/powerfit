@@ -7,13 +7,16 @@ import com.devs.powerfit.daos.movimientos.MovimientoDetalleDao;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
 import com.devs.powerfit.dtos.tiposDePagos.TipoDePagoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.movimientos.IMovimientoDetalleService;
 import com.devs.powerfit.services.tiposDePago.TipoDePagoService;
+import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.movimientoMappers.MovimientoDetalleMapper;
 import com.devs.powerfit.utils.mappers.movimientoMappers.MovimientoMapper;
 import com.devs.powerfit.utils.mappers.tiposDePagoMapper.TipoDePagoMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,27 +73,56 @@ public class MovimientoDetalleService implements IMovimientoDetalleService {
 
     @Override
     public MovimientoDetalleDto getById(Long id) {
-        return null;
+        var movimiento = dao.findByIdAndActiveTrue(id);
+        if (movimiento.isPresent()) {
+            return mapper.toDto(movimiento.get());
+        }
+        throw new NotFoundException("Movimiento no encontrado");
     }
 
     @Override
     public PageResponse<MovimientoDetalleDto> getAll(int page) {
-        return null;
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var movimientoPage = dao.findAllByActiveTrue(pageRequest);
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
     }
 
     @Override
     public MovimientoDetalleDto update(Long id, MovimientoDetalleDto movimientoDetalleDto) {
+        //No se debe poder modificar un movimiento detalle
         return null;
     }
 
     @Override
     public boolean delete(Long id) {
+        //No se debe eliminar un movimiento detalle;
         return false;
     }
 
     @Override
     public PageResponse<MovimientoDetalleDto> findAllByMovimiento(int page, Long movimientoId) {
-        return null;
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var movimientoBean = movimientoDao.findByIdAndActiveTrue(movimientoId);
+        if (movimientoBean.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        var movimientoPage = dao.findAllByMovimientoAndActiveTrue(pageRequest,movimientoBean.get());
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
+
     }
 
     @Override
@@ -106,12 +138,32 @@ public class MovimientoDetalleService implements IMovimientoDetalleService {
     }
 
     @Override
-    public PageResponse<MovimientoDetalleDto> findAllByTipoDePago(int page, Long movimientoId) {
-        return null;
+    public PageResponse<MovimientoDetalleDto> findAllByTipoDePago(int page, Long tipoDePagoId) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var sesion = tipoDePagoService.getById(tipoDePagoId);
+        if (sesion==null) {
+            throw new BadRequestException("No existe tipo de pago con ese Id");
+        }
+        var movimientoPage = dao.findAllByTipoDePagoAndActiveTrue(pageRequest,tipoDePagoMapper.toBean(sesion));
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
     }
 
     @Override
-    public List<MovimientoDetalleDto> findAllByTipoDePago(Long movimientoId) {
-        return null;
+    public List<MovimientoDetalleDto> findAllByTipoDePago(Long tipoDePagoId) {
+        var sesion = tipoDePagoService.getById(tipoDePagoId);
+        if (sesion==null) {
+            throw new BadRequestException("No existe tipo de pago con ese Id");
+        }
+        var movimientos = dao.findAllByTipoDePagoAndActiveTrue(tipoDePagoMapper.toBean(sesion));
+        return movimientos.stream()
+                .map(movimientoBean -> mapper.toDto(movimientoBean))
+                .collect(Collectors.toList());
     }
 }

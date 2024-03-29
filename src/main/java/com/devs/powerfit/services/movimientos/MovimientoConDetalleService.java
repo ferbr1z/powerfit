@@ -1,4 +1,5 @@
 package com.devs.powerfit.services.movimientos;
+
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
@@ -55,12 +56,30 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
 
     @Override
     public MovimientoConDetalleDto getById(Long id) {
-        return null;
+        // Obtener la movimiento principal por su ID
+        MovimientoDto movimientoDto = movimientoService.getById(id);
+        // Obtener los detalles de la movimiento por el ID de la movimiento principal
+        List<MovimientoDetalleDto> detallesDto = movimientoDetalleService.findAllByMovimiento(id);
+        MovimientoConDetalleDto nuevo = new MovimientoConDetalleDto();
+        nuevo.setMovimiento(movimientoDto);
+        nuevo.setDetalles(detallesDto);
+        // Devolver la movimiento con los detalles
+        return nuevo;
     }
 
     @Override
     public PageResponse<MovimientoConDetalleDto> getAll(int page) {
-        return null;
+        // Obtener todas las movimientos principales
+        PageResponse<MovimientoDto> movimientoPage = movimientoService.getAll(page);
+
+        // Para cada movimiento, obtener sus detalles
+        List<MovimientoConDetalleDto> movimientoConDetallesList = movimientoPage.getItems().stream()
+                .map(movimientoDto -> getById(movimientoDto.getId())) // Obtener la movimiento con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de movimientos con detalles
+        return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+
     }
 
     @Override
@@ -96,5 +115,19 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
             movimientosConDetalle.add(item);
         }
         return movimientosConDetalle;
+    }
+    @Override
+    public PageResponse<MovimientoConDetalleDto> getAllBySesionId(int page,Long sesionId) {
+        // Obtener todas las movimientos principales
+        PageResponse<MovimientoDto> movimientoPage = movimientoService.searchBySesionId(sesionId,page);
+
+        // Para cada movimiento, obtener sus detalles
+        List<MovimientoConDetalleDto> movimientoConDetallesList = movimientoPage.getItems().stream()
+                .map(movimientoDto -> getById(movimientoDto.getId())) // Obtener la movimiento con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de movimientos con detalles
+        return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+
     }
 }

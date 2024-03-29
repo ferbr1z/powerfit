@@ -4,21 +4,22 @@ import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
-import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
+import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.movimientos.IMovimientoService;
-import com.devs.powerfit.services.cajas.SesionCajaService;
 import com.devs.powerfit.services.facturas.FacturaProveedorService;
 import com.devs.powerfit.services.facturas.FacturaService;
+import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.SesionCajaMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaProveedorMapper;
 import com.devs.powerfit.utils.mappers.movimientoMappers.MovimientoMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -106,7 +107,7 @@ public class MovimientoService implements IMovimientoService {
             if (factura.getSaldo() < movimientoDto.getTotal()) {
                 throw new BadRequestException("El saldo es menor al total del movimiento");
             }
-            MovimientoBean movimiento=new MovimientoBean();
+            MovimientoBean movimiento = new MovimientoBean();
             movimiento.setActive(true);
             movimiento.setHora(movimientoDto.getHora());
             movimiento.setFecha(movimientoDto.getFecha());
@@ -114,14 +115,14 @@ public class MovimientoService implements IMovimientoService {
             movimiento.setEntrada(movimientoDto.isEntrada());
             // Restar el total del movimiento al saldo de la factura
             factura.setSaldo(factura.getSaldo() - movimientoDto.getTotal());
-            FacturaDto facturaActualizada= facturaService.actualizarSaldo(factura.getId(),factura.getSaldo());
+            FacturaDto facturaActualizada = facturaService.actualizarSaldo(factura.getId(), factura.getSaldo());
             if (factura.getSaldo() == 0) {
-                facturaActualizada= facturaService.modificarPagado(factura.getId(),true);
+                facturaActualizada = facturaService.modificarPagado(factura.getId(), true);
             }
             movimiento.setFactura(facturaMapper.toBean(facturaActualizada));
             movimiento.setSesion(sesion.get());
             movimiento.setFacturaProveedor(null);
-            MovimientoBean creado= dao.save(movimiento);
+            MovimientoBean creado = dao.save(movimiento);
             return mapper.toDto(creado);
 
         } else {
@@ -136,7 +137,7 @@ public class MovimientoService implements IMovimientoService {
             if (facturaProveedor.getSaldo() < movimientoDto.getTotal()) {
                 throw new BadRequestException("El saldo es menor al total del movimiento");
             }
-            MovimientoBean movimiento=new MovimientoBean();
+            MovimientoBean movimiento = new MovimientoBean();
             movimiento.setActive(true);
             movimiento.setHora(movimientoDto.getHora());
             movimiento.setFecha(movimientoDto.getFecha());
@@ -144,7 +145,7 @@ public class MovimientoService implements IMovimientoService {
             movimiento.setEntrada(movimientoDto.isEntrada());
             // Restar el total del movimiento al saldo de la factura del proveedor
             facturaProveedor.setSaldo(facturaProveedor.getSaldo() - movimientoDto.getTotal());
-            if(facturaProveedor.getSaldo()==0){
+            if (facturaProveedor.getSaldo() == 0) {
                 facturaProveedor.setPagado(true);
             }
             FacturaProveedorDto facturaProveedorActualizada = facturaProveedorService.update(facturaProveedor.getId(), facturaProveedor);
@@ -157,39 +158,65 @@ public class MovimientoService implements IMovimientoService {
     }
 
 
-
     @Override
     public MovimientoDto getById(Long id) {
-        return null;
+        var movimiento = dao.findByIdAndActiveTrue(id);
+        if (movimiento.isPresent()) {
+            return mapper.toDto(movimiento.get());
+        }
+        throw new NotFoundException("Movimiento no encontrado");
     }
 
     @Override
     public PageResponse<MovimientoDto> getAll(int page) {
-        return null;
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var movimientoPage = dao.findAllByActiveTrue(pageRequest);
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
     }
 
     @Override
     public MovimientoDto update(Long id, MovimientoDto movimientoDto) {
+        //No se debe actualizar un movimiento.
         return null;
     }
 
     @Override
     public boolean delete(Long id) {
+        //No se debe eliminar un movimiento
         return false;
     }
-
     @Override
     public PageResponse<MovimientoDto> searchBySesionId(Long sesionId, int page) {
-        return null;
-    }
-
-    @Override
-    public List<MovimientoDto> getAllBySesionId(Long sesionId) {
-        var sesion=sesionCajaDao.findByIdAndActiveTrue(sesionId);
-        if (sesion.isEmpty()){
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var sesion = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesion.isEmpty()) {
             throw new BadRequestException("No existe sesion con ese Id");
         }
-        var movimientos=dao.findAllBySesionAndActiveTrue(sesion.get());
+        var movimientoPage = dao.findAllBySesionAndActiveTrue(pageRequest,sesion.get());
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
+
+    }
+    @Override
+    public List<MovimientoDto> getAllBySesionId(Long sesionId) {
+        var sesion = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesion.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        var movimientos = dao.findAllBySesionAndActiveTrue(sesion.get());
         return movimientos.stream()
                 .map(movimientoBean -> mapper.toDto(movimientoBean))
                 .collect(Collectors.toList());
@@ -198,38 +225,50 @@ public class MovimientoService implements IMovimientoService {
 
 
 
+
+
     @Override
-    public PageResponse<MovimientoDto> searchBySesion(int page, Date fechaMenor, Date fechaMayor) {
-        return null;
+    public PageResponse<MovimientoDto> searchByFecha(int page, Date fechaMenor, Date fechaMayor) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var movimientoPage = dao.findAllByFechaBetween(pageRequest,fechaMenor,fechaMayor);
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
     }
 
     @Override
     public PageResponse<MovimientoDto> searchBySesionAndEntrada(int page, Long sesionId, boolean entrada) {
-        return null;
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var sesion = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesion.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        var movimientoPage = dao.findAllBySesionAndEntradaAndActiveTrue(pageRequest,sesion.get(),entrada);
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
     }
 
     @Override
     public List<MovimientoDto> getAllBySesionAndEntrada(Long sesionId, boolean entrada) {
-        return null;
+        var sesion = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesion.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        var movimientos = dao.findAllBySesionAndEntradaAndActiveTrue(sesion.get(),entrada);
+        return movimientos.stream()
+                .map(movimientoBean -> mapper.toDto(movimientoBean))
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public PageResponse<MovimientoDto> searchByFactura(int page, FacturaDto factura) {
-        return null;
-    }
-
-    @Override
-    public List<MovimientoDto> getAllByFactura(FacturaDto factura) {
-        return null;
-    }
-
-    @Override
-    public PageResponse<MovimientoDto> searchByFacturaProveedor(int page, FacturaProveedorDto facturaProveedor) {
-        return null;
-    }
-
-    @Override
-    public List<MovimientoDto> getAllByFacturaProveedor(FacturaProveedorDto facturaProveedor) {
-        return null;
-    }
 }
