@@ -1,7 +1,9 @@
 package com.devs.powerfit.controllers.arqueo;
 
+
 import com.devs.powerfit.dtos.arqueo.ArqueoDto;
 import com.devs.powerfit.interfaces.arqueo.IArqueoService;
+import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,15 @@ public class ArqueoController {
     private IArqueoService arqueoService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @PostMapping("/generar")
-    public ResponseEntity<ArqueoDto> generarArqueo(@RequestBody ArqueoDto arqueoDto) {
-        ArqueoDto arqueoGenerado = arqueoService.generarArqueo(arqueoDto);
-        return new ResponseEntity<>(arqueoGenerado, HttpStatus.CREATED);
+    @PostMapping("/{id}")
+    ResponseEntity<ArqueoDto> generarArqueo(@PathVariable Long id) {
+        return new ResponseEntity<>(arqueoService.realizarArqueo(id), HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/page/{page}")
+    ResponseEntity<PageResponse<ArqueoDto>> getAll(@PathVariable int page) {
+        return new ResponseEntity<>(arqueoService.getAll(page), HttpStatus.OK);
     }
 
 
