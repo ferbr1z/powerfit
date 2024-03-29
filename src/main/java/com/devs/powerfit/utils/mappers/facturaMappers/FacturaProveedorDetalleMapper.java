@@ -14,6 +14,10 @@ public class FacturaProveedorDetalleMapper extends AbstractMapper<FacturaProveed
 
     @Override
     public FacturaProveedorDetalleDto toDto(FacturaProveedorDetalleBean bean) {
-        return modelMapper.map(bean, FacturaProveedorDetalleDto.class);
+        FacturaProveedorDetalleDto dto = modelMapper.map(bean, FacturaProveedorDetalleDto.class);
+        if (bean.getProducto() != null) {
+            dto.setProductoNombre(bean.getProducto().getNombre());
+        }
+        return dto;
     }
 }
