@@ -33,4 +33,5 @@ public class SuscripcionBean extends AbstractBean {
     private Date fechaInicio;
     @Column
     Date fechaFin;
+    boolean finalizado;
 }
