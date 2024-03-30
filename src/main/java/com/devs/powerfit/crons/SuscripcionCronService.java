@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SuscripcionCronService {
@@ -22,8 +23,10 @@ public class SuscripcionCronService {
 
     @Scheduled(cron = "0 0 0 * * *") // Se ejecuta todos los días a la medianoche
     public void generarNuevasSuscripciones() {
-        // Obtener las suscripciones existentes que ya están pagadas
-        List<SuscripcionDto> suscripcionesPagadas = suscripcionService.obtenerSuscripcionesPagadas();
+        // Obtener las suscripciones existentes que ya están pagadas y cuya fecha de fin ha pasado
+        List<SuscripcionDto> suscripcionesPagadas = suscripcionService.obtenerSuscripcionesPagadas().stream()
+                .filter(suscripcion -> suscripcion.getFechaFin().before(new Date())) // Filtrar por fecha de fin pasada
+                .collect(Collectors.toList());
 
         // Procesar cada suscripción existente para generar nuevas suscripciones si es necesario
         for (SuscripcionDto suscripcionPagada : suscripcionesPagadas) {
