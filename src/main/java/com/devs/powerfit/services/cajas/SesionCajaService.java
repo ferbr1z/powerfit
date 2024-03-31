@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -26,13 +27,13 @@ public class SesionCajaService implements ISesionCajaService {
     private SesionCajaMapper sesionCajaMapper;
     private SesionCajaDao sesionCajaDao;
     private CajaDao cajaDao;
-    private UsuarioDao usuarioDao;
+    private EmpleadoDao empleadoDao;
     @Autowired
-    public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
+    public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, EmpleadoDao empleadoDao) {
         this.cajaDao = cajaDao;
-        this.usuarioDao = usuarioDao;
         this.sesionCajaMapper = mapper;
         this.sesionCajaDao = sesionCajaDao;
+        this.empleadoDao = empleadoDao;
     }
 
     @Override
@@ -48,8 +49,8 @@ public class SesionCajaService implements ISesionCajaService {
         }
 
         // Verificar si la caja y el usuario están presentes
-        if (sesionCajaDto.getIdCaja() == null || sesionCajaDto.getIdUsuario() == null) {
-            throw new BadRequestException("La caja y el usuario son obligatorios.");
+        if (sesionCajaDto.getIdCaja() == null || sesionCajaDto.getIdEmpleado() == null) {
+            throw new BadRequestException("La caja y el empleado son obligatorios.");
         }
 
         // Setear el active a true antes de guardar
@@ -60,8 +61,8 @@ public class SesionCajaService implements ISesionCajaService {
         sesionCaja.setActive(true);
         sesionCaja.setCaja(cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja())
                 .orElseThrow(() -> new NotFoundException("Caja no encontrada")));
-        sesionCaja.setUsuario(usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
+        sesionCaja.setEmpleado(empleadoDao.findByIdAndActiveIsTrue(sesionCajaDto.getIdEmpleado())
+                .orElseThrow(() -> new NotFoundException("Empleado no encontrado")));
         sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
 
         // Formatear cadena de fecha a objeto Date
@@ -152,10 +153,10 @@ public class SesionCajaService implements ISesionCajaService {
         }
 
         // Obtener el usuario del DTO si está presente y establecerlo en la sesión de caja existente
-        if (sesionCajaDto.getIdUsuario() != null) {
-            var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
-                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado con el ID proporcionado: " + sesionCajaDto.getIdUsuario()));
-            sesionCajaExistente.setUsuario(usuario);
+        if (sesionCajaDto.getIdEmpleado() != null) {
+            var usuario = empleadoDao.findByIdAndActiveIsTrue(sesionCajaDto.getIdEmpleado())
+                    .orElseThrow(() -> new NotFoundException("Empleado no encontrado con el ID proporcionado: " + sesionCajaDto.getIdEmpleado()));
+            sesionCajaExistente.setEmpleado(usuario);
         }
 
         // Actualizar el monto inicial si se proporciona en el DTO
@@ -175,6 +176,10 @@ public class SesionCajaService implements ISesionCajaService {
         // Actualizar la hora de cierre si se proporciona en el DTO
         if (sesionCajaDto.getHoraCierre() != null) {
             sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
+            var caja=cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
+            var cajaBean=caja.get();
+            cajaBean.setMonto(sesionCajaExistente.getMontoFinal());
+            sesionCajaExistente.setCaja(cajaDao.save(cajaBean));
         }
 
         // Actualizar la fecha si se proporciona en el DTO

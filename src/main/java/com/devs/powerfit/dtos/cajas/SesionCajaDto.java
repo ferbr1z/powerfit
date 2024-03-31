@@ -8,7 +8,7 @@ import java.util.Date;
 @Data
 public class SesionCajaDto extends AbstractDto {
     private Long idCaja;
-    private Long idUsuario;
+    private Long idEmpleado;
     private Double montoInicial;
     private Double montoFinal;
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -2,6 +2,7 @@ package com.devs.powerfit.beans.cajas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,8 +22,8 @@ public class SesionCajaBean extends AbstractBean {
     @JoinColumn(name = "id_caja")
     private CajaBean caja;
     @ManyToOne
-    @JoinColumn(name = "id_usuario")
-    private UsuarioBean usuario;
+    @JoinColumn(name = "id_empleado")
+    private EmpleadoBean empleado;
     @Column
     private Double montoInicial;
     @Column
