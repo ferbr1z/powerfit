@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/actividades")
 public class ActividadController {
@@ -63,5 +65,20 @@ public class ActividadController {
     public ResponseEntity<PageResponse<ActividadDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(actividadService.searchByNombre(nombre,page), HttpStatus.OK);
     }
+
+//    @PostMapping("/asignar-entrenador/{idActividad}")
+//    public ResponseEntity<ActividadDto> asignarEntrenadores(@PathVariable Long idActividad, @RequestBody List<Long> idsEntrenadores) {
+//        return new ResponseEntity<>(actividadService.asignarEntrenadores(idActividad,idsEntrenadores ), HttpStatus.OK);
+//    }
+//
+//    @PutMapping("/actualizar-asignacion/{idActividad}")
+//    public ResponseEntity<ActividadDto> actualizarAsignacionEntrenadores(@PathVariable Long idActividad, @RequestBody List<Long> idsEntrenadores) {
+//        return new ResponseEntity<>(actividadService.actualizarAsignacionEntrenadores(idActividad,idsEntrenadores ), HttpStatus.OK);
+//    }
+//
+//    @DeleteMapping("eliminar-asignacion/actividad/{idActividad}/entrenador/{idEntrenador}")
+//    public ResponseEntity<ActividadDto> eliminarEntrenadorDeActividad(@PathVariable Long idActividad, @PathVariable Long idEntrenador) {
+//        return new ResponseEntity<>(actividadService.eliminarEntrenadorDeActividad(idActividad, idEntrenador), HttpStatus.OK);
+//    }
 }
 

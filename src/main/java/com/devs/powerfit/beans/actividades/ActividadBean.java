@@ -1,13 +1,15 @@
 package com.devs.powerfit.beans.actividades;
 
 import com.devs.powerfit.abstracts.AbstractBean;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.devs.powerfit.beans.empleados.EmpleadoBean;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -24,4 +26,8 @@ public class ActividadBean extends AbstractBean {
     private Double costoMensual;
     @Column
     private Double costoSemanal;
+
+    @ManyToOne
+    @JoinColumn(name = "entrenador_id")
+    private EmpleadoBean entrenador;
 }
