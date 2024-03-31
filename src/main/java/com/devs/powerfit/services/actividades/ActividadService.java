@@ -141,7 +141,6 @@ public class ActividadService implements IActividadService  {
         if (actividad.isPresent()) {
             var actividadBean = actividad.get();
             EmpleadoDto empleadoDto = empleadoService.getById(actividadDto.getEntrenador());
-
             if (actividadDto.getNombre() != null) actividadBean.setNombre(actividadDto.getNombre());
             if (actividadDto.getCostoMensual() != null) actividadBean.setCostoMensual(actividadDto.getCostoMensual());
             if (actividadDto.getCostoSemanal() != null) actividadBean.setCostoSemanal(actividadDto.getCostoSemanal());
@@ -150,6 +149,8 @@ public class ActividadService implements IActividadService  {
             actividadDao.save(actividadBean);
 
             ActividadDto newActividad =new ActividadDto();
+            newActividad.setId(actividadBean.getId());
+            newActividad.setActive(true);
             newActividad.setDescripcion(actividadBean.getDescripcion());
             newActividad.setCostoSemanal(actividadBean.getCostoSemanal());
             newActividad.setCostoMensual(actividadBean.getCostoMensual());
