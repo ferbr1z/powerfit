@@ -2,7 +2,10 @@ package com.devs.powerfit.dtos.empleados;
 
 import com.devs.powerfit.abstracts.AbstractDto;
 
+import com.devs.powerfit.dtos.actividades.ActividadDto;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 public class EmpleadoDto extends AbstractDto {

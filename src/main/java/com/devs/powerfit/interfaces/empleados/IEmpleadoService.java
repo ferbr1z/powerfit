@@ -9,4 +9,6 @@ public interface IEmpleadoService extends IService<EmpleadoDto> {
     PageResponse<EmpleadoDto> searchByRolId(Long id, int page);
 
     public EmpleadoDto getByEmail(String email);
+
+    PageResponse<EmpleadoDto> getAllEntrenadores(int page);
 }
