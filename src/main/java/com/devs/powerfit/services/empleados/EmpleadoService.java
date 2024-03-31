@@ -187,4 +187,20 @@ public class EmpleadoService implements IEmpleadoService {
             throw new NotFoundException("Empleado no encontrado");
         }
     }
+
+
+    @Override
+    public PageResponse<EmpleadoDto> getAllEntrenadores(int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Long rolEntrenador = 4L;
+        Page<EmpleadoBean> empleados = empleadoDao.findAllByRolAndActiveIsTrue(pag, rolEntrenador);
+        if (empleados.isEmpty()){
+            throw new NotFoundException("No hay empleados en la lista");
+        }
+        var empleadosDto = empleados.map(empleado -> mapper.toDto(empleado));
+        return new PageResponse<EmpleadoDto>(empleadosDto.getContent(),
+                empleadosDto.getTotalPages(),
+                empleadosDto.getTotalElements(),
+                empleadosDto.getNumber() + 1);
+    }
 }

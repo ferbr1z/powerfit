@@ -58,5 +58,17 @@ public class EmpleadoController {
     ResponseEntity<PageResponse<EmpleadoDto>> searchByRolId(@PathVariable int page, @PathVariable Long id){
         return new ResponseEntity<>(empleadoService.searchByRolId(id,page), HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/getAllEntrenadores/page/{page}")
+    ResponseEntity<PageResponse<EmpleadoDto>> getAllEntrenador(@PathVariable int page){
+        return new ResponseEntity<>(empleadoService.getAllEntrenadores(page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/getByEmail/{email}")
+    ResponseEntity<EmpleadoDto> getByEmail (@PathVariable String email){
+        return new ResponseEntity<>(empleadoService.getByEmail(email), HttpStatus.OK);
+    }
+
+
 
 }
