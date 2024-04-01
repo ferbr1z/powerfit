@@ -7,4 +7,7 @@ import com.devs.powerfit.utils.responses.PageResponse;
 public interface IFacturaConDetallesService extends IService<FacturaConDetallesDto> {
     PageResponse<FacturaConDetallesDto> getAllByNombreCliente(String nombre, int page);
     PageResponse<FacturaConDetallesDto> getAllByRucCliente(String ruc, int page);
+    FacturaConDetallesDto getByNumeroFactura(String numero);
+    PageResponse<FacturaConDetallesDto> searchByPagado(int page);
+    PageResponse<FacturaConDetallesDto> searchByPendiente(int page);
 }

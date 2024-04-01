@@ -62,18 +62,18 @@ public class FacturaController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/estado/pagado/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByPagado( @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByPagado( page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByPagado( @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.searchByPagado( page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/estado/pendiente/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByPendiente( @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByPendiente( page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByPendiente( @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.searchByPendiente( page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/numero/{numeroFactura}")
-    public ResponseEntity<FacturaDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
-        return new ResponseEntity<>(facturaService.searchByNumeroFactura(numeroFactura), HttpStatus.OK);
+    public ResponseEntity<FacturaConDetallesDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
+        return new ResponseEntity<>(facturaConDetallesService.getByNumeroFactura(numeroFactura), HttpStatus.OK);
     }
 }
 
