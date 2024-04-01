@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,16 +48,81 @@ public class ActividadService implements IActividadService  {
 
 
 
+    @Override
+    public ActividadDto create(ActividadDto actividadDto) {
 
+        // Crear la actividad
+        var actividad = mapper.toBean(actividadDto);
+        List<EmpleadoBean> entredadores = new ArrayList<>();
+        for(Long id: actividadDto.getEntrenadores()){
+            EmpleadoDto empleadoDto = empleadoService.getById(id);
+            entredadores.add(empleadoMapper.toBean(empleadoDto));
+        }
+        actividad.setEntrenadores(entredadores);
+        actividad.setActive(true);
+        actividadDao.save(actividad);
+
+        return getActividadDto(actividad, entredadores);
+    }
 
 
     @Override
-    public ActividadDto create(ActividadDto actividadDto) {
-        // Verificar si el nombre de la actividad está presente y otros campos obligatorios
-        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty() || actividadDto.getCostoMensual() == null || actividadDto.getCostoSemanal() == null ){
-            throw new BadRequestException("El nombre, costo mensual y semanal de la actividad no pueden estar vacíos.");
+    public ActividadDto getById(Long id) {
+        var actividadOptional = actividadDao.findByIdAndActiveTrue(id);
+        if (actividadOptional.isPresent()) {
+            ActividadBean actividad = actividadOptional.get();
+            ActividadDto actividadDto = new ActividadDto();
+            actividadDto.setId(actividad.getId());
+            actividadDto.setNombre(actividad.getNombre());
+            actividadDto.setDescripcion(actividad.getDescripcion());
+            actividadDto.setCostoMensual(actividad.getCostoMensual());
+            actividadDto.setCostoSemanal(actividad.getCostoSemanal());
+
+            List<Long> entrenadoresIds = actividad.getEntrenadores().stream()
+                    .map(EmpleadoBean::getId)
+                    .collect(Collectors.toList());
+            actividadDto.setEntrenadores(entrenadoresIds);
+
+            return actividadDto;
+        } else {
+            throw new NotFoundException("Actividad no encontrada");
+        }
+    }
+
+    @Override
+    public PageResponse<ActividadDto> getAll(int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var actividades = actividadDao.findAllByActiveTrue(pag);
+        if (actividades.isEmpty()) {
+            throw new NotFoundException("No hay actividades en la lista");
         }
 
+        List<ActividadDto> actividadesDto = new ArrayList<>();
+        for (ActividadBean actividad : actividades) {
+            ActividadDto actividadDto = new ActividadDto();
+            actividadDto.setId(actividad.getId());
+            actividadDto.setNombre(actividad.getNombre());
+            actividadDto.setDescripcion(actividad.getDescripcion());
+            actividadDto.setCostoMensual(actividad.getCostoMensual());
+            actividadDto.setCostoSemanal(actividad.getCostoSemanal());
+
+            List<Long> entrenadoresIds = actividad.getEntrenadores().stream()
+                    .map(EmpleadoBean::getId)
+                    .collect(Collectors.toList());
+            actividadDto.setEntrenadores(entrenadoresIds);
+
+            actividadesDto.add(actividadDto);
+        }
+
+        return new PageResponse<>(actividadesDto,
+                actividades.getTotalPages(),
+                actividades.getTotalElements(),
+                actividades.getNumber() + 1);
+    }
+
+
+    @Override
+    public ActividadDto update(Long id, ActividadDto actividadDto) {
         // Verificar si el costo mensual es válido (mayor o igual a 0)
         if (actividadDto.getCostoMensual() < 0) {
             throw new BadRequestException("El costo mensual de la actividad no puede ser negativo." );
@@ -69,99 +133,43 @@ public class ActividadService implements IActividadService  {
             throw new BadRequestException("El costo semanal de la actividad no puede ser negativo.");
         }
 
-        EmpleadoDto empleado = empleadoService.getById(actividadDto.getEntrenador());
+        var actividadOptional = actividadDao.findByIdAndActiveTrue(id);
+        if (actividadOptional.isPresent()) {
+            ActividadBean actividad = actividadOptional.get();
 
-        // Crear la actividad sin los entrenadores
-        ActividadBean actividad = mapper.toBean(actividadDto);
-        actividad.setActive(true);
-        actividad.setEntrenador(empleadoMapper.toBean(empleado));
+            // Verificar y actualizar los campos proporcionados en el DTO
+            if (actividadDto.getNombre() != null) {
+                actividad.setNombre(actividadDto.getNombre());
+            }
+            if (actividadDto.getDescripcion() != null) {
+                actividad.setDescripcion(actividadDto.getDescripcion());
+            }
+            if (actividadDto.getCostoMensual() != null) {
+                actividad.setCostoMensual(actividadDto.getCostoMensual());
+            }
+            if (actividadDto.getCostoSemanal() != null) {
+                actividad.setCostoSemanal(actividadDto.getCostoSemanal());
+            }
+            List<EmpleadoBean> entrenadores = new ArrayList<>();
+            // Actualizar la lista de entrenadores si se proporciona en el DTO
+            if (actividadDto.getEntrenadores() != null) {
+                for (Long entrenadorId : actividadDto.getEntrenadores()) {
+                    EmpleadoBean entrenador = empleadoDao.findByIdAndActiveIsTrue(entrenadorId)
+                            .orElseThrow(() -> new NotFoundException("Entrenador con ID " + entrenadorId + " no encontrado"));
+                    entrenadores.add(entrenador);
+                }
+                actividad.setEntrenadores(entrenadores);
+            }
 
+            // Guardar los cambios en la base de datos
+            actividadDao.save(actividad);
 
-        // Guardar la actividad en la base de datos
-        actividadDao.save(actividad);
-
-        ActividadDto newActividad =new ActividadDto();
-        newActividad.setId(actividad.getId());
-        newActividad.setDescripcion(actividad.getDescripcion());
-        newActividad.setCostoSemanal(actividad.getCostoSemanal());
-        newActividad.setCostoMensual(actividad.getCostoMensual());
-        newActividad.setNombre(actividad.getNombre());
-        newActividad.setEntrenador(actividad.getEntrenador().getId());
-
-        // Convertir la actividad guardada a DTO y retornarla
-        return newActividad;
+            return getActividadDto(actividad,entrenadores);
+        } else {
+            throw new NotFoundException("Actividad no encontrada");
+        }
     }
 
-
-
-
-
-
-
-    @Override
-    public ActividadDto getById(Long id) {
-        var actividad = actividadDao.findByIdAndActiveTrue(id);
-        if (actividad.isPresent()) {
-            return mapper.toDto(actividad.get());
-        }
-        throw new NotFoundException("actividad no encontrada");
-
-    }
-
-    @Override
-    public PageResponse<ActividadDto> getAll(int page) {
-        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var actividades = actividadDao.findAllByActiveTrue(pag);
-        if (actividades.isEmpty()) {
-            throw new NotFoundException("No hay actividades en la lista");
-        }
-        var actividadesDto = actividades.map(mapper::toDto);
-        return new PageResponse<>(actividadesDto.getContent(),
-                actividadesDto.getTotalPages(),
-                actividadesDto.getTotalElements(),
-                actividadesDto.getNumber() + 1);
-    }
-    @Override
-    public ActividadDto update(Long id, ActividadDto actividadDto) {
-        // Verificar si el nombre de la actividad está presente
-        if (actividadDto.getNombre() == null || actividadDto.getNombre().isEmpty() || actividadDto.getCostoMensual() == null || actividadDto.getCostoSemanal() == null ){
-            throw new BadRequestException("El nombre, costo mensual y semanal de la actividad no pueden estar vacíos.");
-        }
-
-        // Verificar si el costo mensual es válido (mayor o igual a 0)
-        if (actividadDto.getCostoMensual() < 0) {
-            throw new BadRequestException("El costo mensual de la actividad no puede ser negativo.");
-        }
-
-        // Verificar si el costo semanal es válido (mayor o igual a 0)
-        if (actividadDto.getCostoSemanal() < 0)  {
-            throw new BadRequestException("El costo semanal de la actividad no puede ser negativo.");
-        }
-        var actividad = actividadDao.findByIdAndActiveTrue(id);
-        if (actividad.isPresent()) {
-            var actividadBean = actividad.get();
-            EmpleadoDto empleadoDto = empleadoService.getById(actividadDto.getEntrenador());
-            if (actividadDto.getNombre() != null) actividadBean.setNombre(actividadDto.getNombre());
-            if (actividadDto.getCostoMensual() != null) actividadBean.setCostoMensual(actividadDto.getCostoMensual());
-            if (actividadDto.getCostoSemanal() != null) actividadBean.setCostoSemanal(actividadDto.getCostoSemanal());
-            if (actividadDto.getDescripcion() != null) actividadBean.setDescripcion(actividadDto.getDescripcion());
-            if (actividadDto.getEntrenador() != null) actividadBean.setEntrenador(empleadoMapper.toBean(empleadoDto));
-            actividadDao.save(actividadBean);
-
-            ActividadDto newActividad =new ActividadDto();
-            newActividad.setId(actividadBean.getId());
-            newActividad.setActive(true);
-            newActividad.setDescripcion(actividadBean.getDescripcion());
-            newActividad.setCostoSemanal(actividadBean.getCostoSemanal());
-            newActividad.setCostoMensual(actividadBean.getCostoMensual());
-            newActividad.setNombre(actividadBean.getNombre());
-            newActividad.setEntrenador(actividadBean.getEntrenador().getId());
-
-            // Convertir la actividad guardada a DTO y retornarla
-            return newActividad;
-        }
-        throw new NotFoundException("actividad no encontrada");
-    }
     @Override
     public boolean delete(Long id) {
         var actividad = actividadDao.findByIdAndActiveTrue(id);
@@ -182,12 +190,44 @@ public class ActividadService implements IActividadService  {
             throw new NotFoundException("No hay actividades en la lista");
         }
 
-        var actividadesDto = actividades.map(mapper::toDto);
-        return new PageResponse<>(
-                actividadesDto.getContent(),
-                actividadesDto.getTotalPages(),
-                actividadesDto.getTotalElements(),
-                actividadesDto.getNumber() + 1);
+        List<ActividadDto> actividadesDto = new ArrayList<>();
+        for (ActividadBean actividad : actividades) {
+            ActividadDto actividadDto = new ActividadDto();
+            actividadDto.setId(actividad.getId());
+            actividadDto.setNombre(actividad.getNombre());
+            actividadDto.setDescripcion(actividad.getDescripcion());
+            actividadDto.setCostoMensual(actividad.getCostoMensual());
+            actividadDto.setCostoSemanal(actividad.getCostoSemanal());
+
+            List<Long> entrenadoresIds = actividad.getEntrenadores().stream()
+                    .map(EmpleadoBean::getId)
+                    .collect(Collectors.toList());
+            actividadDto.setEntrenadores(entrenadoresIds);
+
+            actividadesDto.add(actividadDto);
+        }
+
+        return new PageResponse<>(actividadesDto,
+                actividades.getTotalPages(),
+                actividades.getTotalElements(),
+                actividades.getNumber() + 1);
+    }
+
+
+    private static ActividadDto getActividadDto(ActividadBean actividad, List<EmpleadoBean> entredadores) {
+        ActividadDto newActivididad = new ActividadDto();
+        newActivididad.setId(actividad.getId());
+        newActivididad.setNombre(actividad.getNombre());
+        newActivididad.setDescripcion(actividad.getDescripcion());
+        newActivididad.setCostoMensual(actividad.getCostoMensual());
+        newActivididad.setCostoSemanal(actividad.getCostoSemanal());
+        newActivididad.setActive(true);
+        List<Long> entrenadoresIds = new ArrayList<>();
+        for (EmpleadoBean entrenador: entredadores){
+            entrenadoresIds.add(entrenador.getId());
+        }
+        newActivididad.setEntrenadores(entrenadoresIds);
+        return newActivididad;
     }
 
 

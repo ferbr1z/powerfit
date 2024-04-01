@@ -14,5 +14,5 @@ public class ActividadDto extends AbstractDto {
     private String descripcion;
     private Double costoMensual;
     private Double costoSemanal;
-    private Long entrenador;
+    private List<Long> entrenadores;
 }

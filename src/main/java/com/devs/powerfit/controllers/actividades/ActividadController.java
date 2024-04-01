@@ -6,6 +6,7 @@ import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.services.actividades.ActividadConClientesService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class ActividadController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PostMapping
-    public ResponseEntity<ActividadDto> create(@RequestBody ActividadDto actividadDto) {
+    public ResponseEntity<ActividadDto> create(@Valid @RequestBody ActividadDto actividadDto) {
         return new ResponseEntity<>(actividadService.create(actividadDto), HttpStatus.CREATED);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -52,7 +53,7 @@ public class ActividadController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ActividadDto> update(@PathVariable Long id, @RequestBody ActividadDto actividadDto) {
+    public ResponseEntity<ActividadDto> update(@PathVariable Long id,@Valid @RequestBody ActividadDto actividadDto) {
         return new ResponseEntity<>(actividadService.update(id, actividadDto), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -66,19 +67,5 @@ public class ActividadController {
         return new ResponseEntity<>(actividadService.searchByNombre(nombre,page), HttpStatus.OK);
     }
 
-//    @PostMapping("/asignar-entrenador/{idActividad}")
-//    public ResponseEntity<ActividadDto> asignarEntrenadores(@PathVariable Long idActividad, @RequestBody List<Long> idsEntrenadores) {
-//        return new ResponseEntity<>(actividadService.asignarEntrenadores(idActividad,idsEntrenadores ), HttpStatus.OK);
-//    }
-//
-//    @PutMapping("/actualizar-asignacion/{idActividad}")
-//    public ResponseEntity<ActividadDto> actualizarAsignacionEntrenadores(@PathVariable Long idActividad, @RequestBody List<Long> idsEntrenadores) {
-//        return new ResponseEntity<>(actividadService.actualizarAsignacionEntrenadores(idActividad,idsEntrenadores ), HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("eliminar-asignacion/actividad/{idActividad}/entrenador/{idEntrenador}")
-//    public ResponseEntity<ActividadDto> eliminarEntrenadorDeActividad(@PathVariable Long idActividad, @PathVariable Long idEntrenador) {
-//        return new ResponseEntity<>(actividadService.eliminarEntrenadorDeActividad(idActividad, idEntrenador), HttpStatus.OK);
-//    }
 }
 
