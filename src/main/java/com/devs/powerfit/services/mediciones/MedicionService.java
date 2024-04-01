@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -68,6 +65,7 @@ public class MedicionService implements IMedicionService {
 
         // Formatear la fecha como yyyy-MM-dd
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         String fechaFormateada = sdf.format(fecha);
 
         // Convertir la fecha formateada de vuelta a un objeto Date

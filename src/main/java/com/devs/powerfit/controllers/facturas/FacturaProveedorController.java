@@ -5,6 +5,9 @@ import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorConDetallesDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.interfaces.facturas.*;
+import com.devs.powerfit.services.facturas.FacturaProveedorConDetallesService;
+import com.devs.powerfit.services.facturas.FacturaProveedorDetalleService;
+import com.devs.powerfit.services.facturas.FacturaProveedorService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,13 +18,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/facturas-proveedores")
 public class FacturaProveedorController {
-    private final IFacturaProveedorDetalleService facturaDetalleService;
+    private final FacturaProveedorDetalleService facturaDetalleService;
 
-    private final IFacturaProveedorService facturaService;
-    private IFacturaProveedorConDetallesService facturaConDetallesService;
+    private final FacturaProveedorService facturaService;
+    private FacturaProveedorConDetallesService facturaConDetallesService;
 
     @Autowired
-    public FacturaProveedorController(IFacturaProveedorDetalleService facturaDetalleService, IFacturaProveedorService facturaService, IFacturaProveedorConDetallesService facturaConDetallesService) {
+    public FacturaProveedorController(FacturaProveedorDetalleService facturaDetalleService, FacturaProveedorService facturaService, FacturaProveedorConDetallesService facturaConDetallesService) {
         this.facturaDetalleService = facturaDetalleService;
         this.facturaService = facturaService;
         this.facturaConDetallesService = facturaConDetallesService;
@@ -56,6 +59,16 @@ public class FacturaProveedorController {
     @GetMapping("/ruc/{ruc}/page/{page}")
     public ResponseEntity<PageResponse<FacturaProveedorDto>> searchByRucCliente(@PathVariable String ruc, @PathVariable int page) {
         return new ResponseEntity<>(facturaService.searchByRucProveedor(ruc, page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/estado/pendiente/page/{page}")
+    public ResponseEntity<PageResponse<FacturaProveedorDto>> searchByPendiente( @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByPendiente( page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/estado/pagado/page/{page}")
+    public ResponseEntity<PageResponse<FacturaProveedorDto>> searchByPagado( @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByPagado( page), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")

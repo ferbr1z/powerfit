@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -30,9 +32,9 @@ public class SesionCajaService implements ISesionCajaService {
     @Autowired
     public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
         this.cajaDao = cajaDao;
-        this.usuarioDao = usuarioDao;
         this.sesionCajaMapper = mapper;
         this.sesionCajaDao = sesionCajaDao;
+        this.usuarioDao = usuarioDao;
     }
 
     @Override
@@ -65,7 +67,8 @@ public class SesionCajaService implements ISesionCajaService {
         sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
 
         // Formatear cadena de fecha a objeto Date
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
+        sdfFecha.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             String fechaFormateada = sdfFecha.format(sesionCajaDto.getFecha());
             sesionCaja.setFecha(sdfFecha.parse(fechaFormateada));
@@ -175,6 +178,10 @@ public class SesionCajaService implements ISesionCajaService {
         // Actualizar la hora de cierre si se proporciona en el DTO
         if (sesionCajaDto.getHoraCierre() != null) {
             sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
+            var caja=cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
+            var cajaBean=caja.get();
+            cajaBean.setMonto(sesionCajaExistente.getMontoFinal());
+            sesionCajaExistente.setCaja(cajaDao.save(cajaBean));
         }
 
         // Actualizar la fecha si se proporciona en el DTO

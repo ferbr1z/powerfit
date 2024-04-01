@@ -7,4 +7,6 @@ import lombok.Data;
 public class CajaDto extends AbstractDto {
     private String nombre;
     private Double monto;
+    private Long numeroCaja;
+    private Long numeroFactura;
 }

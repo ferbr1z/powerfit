@@ -12,10 +12,12 @@ import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
+@Transactional
 public class TipoDePagoService implements ITipoDePagoService {
     private final TipoDePagoDao dao;
     private final TipoDePagoMapper mapper;

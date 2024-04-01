@@ -2,6 +2,7 @@ package com.devs.powerfit.beans.cajas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
+import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -8,6 +8,7 @@ public class FacturaDetalleDto extends AbstractDto {
     private Long facturaId;
     private Long productoId;
     private Long suscripcionId;
+    private String productoNombre;
     private Double precioUnitario;
     private Integer cantidad;
     private Double subtotal;

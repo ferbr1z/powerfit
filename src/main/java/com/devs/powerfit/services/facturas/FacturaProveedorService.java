@@ -1,7 +1,9 @@
 package com.devs.powerfit.services.facturas;
 
+import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
+import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
 import com.devs.powerfit.exceptions.BadRequestException;
@@ -140,6 +142,28 @@ public class FacturaProveedorService implements IFacturaProveedorService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
+    public FacturaProveedorDto actualizarSaldo(Long id, double nuevoSaldo) {
+        // Verificar si la factura con el ID proporcionado existe
+        FacturaProveedorBean factura = facturaDao.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
+        // Actualizar el saldo de la factura
+        factura.setSaldo(nuevoSaldo);
+        // Guardar los cambios en la base de datos
+        FacturaProveedorBean facturaActualizada = facturaDao.save(factura);
+        // Retornar la factura actualizada
+        return mapper.toDto(facturaActualizada);
+    }
+    public FacturaProveedorDto modificarPagado(Long id, boolean pagado) {
+        // Verificar si la factura con el ID proporcionado existe
+        FacturaProveedorBean factura = facturaDao.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
+        // Actualizar el estado de pago de la factura
+        factura.setPagado(pagado);
+        // Guardar los cambios en la base de datos
+        FacturaProveedorBean facturaActualizada = facturaDao.save(factura);
+        // Retornar la factura actualizada
+        return mapper.toDto(facturaActualizada);
+    }
 
     @Override
     public PageResponse<FacturaProveedorDto> searchByRucProveedor(String ruc, int page) {
@@ -154,7 +178,30 @@ public class FacturaProveedorService implements IFacturaProveedorService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
-
+    public PageResponse<FacturaProveedorDto> searchByPendiente( int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByPagado(pageRequest,false );
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
+    public PageResponse<FacturaProveedorDto> searchByPagado( int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByPagado(pageRequest,true );
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
     @Override
     public FacturaProveedorDto searchByNumeroFactura(String numeroFactura) {
         var factura = facturaDao.findByNroFacturaIgnoreCaseAndActiveTrue(numeroFactura);
