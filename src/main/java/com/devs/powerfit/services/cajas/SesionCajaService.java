@@ -27,13 +27,13 @@ public class SesionCajaService implements ISesionCajaService {
     private SesionCajaMapper sesionCajaMapper;
     private SesionCajaDao sesionCajaDao;
     private CajaDao cajaDao;
-    private EmpleadoDao empleadoDao;
+    private UsuarioDao usuarioDao;
     @Autowired
-    public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, EmpleadoDao empleadoDao) {
+    public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
         this.cajaDao = cajaDao;
         this.sesionCajaMapper = mapper;
         this.sesionCajaDao = sesionCajaDao;
-        this.empleadoDao = empleadoDao;
+        this.usuarioDao = usuarioDao;
     }
 
     @Override
@@ -49,8 +49,8 @@ public class SesionCajaService implements ISesionCajaService {
         }
 
         // Verificar si la caja y el usuario están presentes
-        if (sesionCajaDto.getIdCaja() == null || sesionCajaDto.getIdEmpleado() == null) {
-            throw new BadRequestException("La caja y el empleado son obligatorios.");
+        if (sesionCajaDto.getIdCaja() == null || sesionCajaDto.getIdUsuario() == null) {
+            throw new BadRequestException("La caja y el usuario son obligatorios.");
         }
 
         // Setear el active a true antes de guardar
@@ -61,8 +61,8 @@ public class SesionCajaService implements ISesionCajaService {
         sesionCaja.setActive(true);
         sesionCaja.setCaja(cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja())
                 .orElseThrow(() -> new NotFoundException("Caja no encontrada")));
-        sesionCaja.setEmpleado(empleadoDao.findByIdAndActiveIsTrue(sesionCajaDto.getIdEmpleado())
-                .orElseThrow(() -> new NotFoundException("Empleado no encontrado")));
+        sesionCaja.setUsuario(usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
         sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
 
         // Formatear cadena de fecha a objeto Date
@@ -153,10 +153,10 @@ public class SesionCajaService implements ISesionCajaService {
         }
 
         // Obtener el usuario del DTO si está presente y establecerlo en la sesión de caja existente
-        if (sesionCajaDto.getIdEmpleado() != null) {
-            var usuario = empleadoDao.findByIdAndActiveIsTrue(sesionCajaDto.getIdEmpleado())
-                    .orElseThrow(() -> new NotFoundException("Empleado no encontrado con el ID proporcionado: " + sesionCajaDto.getIdEmpleado()));
-            sesionCajaExistente.setEmpleado(usuario);
+        if (sesionCajaDto.getIdUsuario() != null) {
+            var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado con el ID proporcionado: " + sesionCajaDto.getIdUsuario()));
+            sesionCajaExistente.setUsuario(usuario);
         }
 
         // Actualizar el monto inicial si se proporciona en el DTO
