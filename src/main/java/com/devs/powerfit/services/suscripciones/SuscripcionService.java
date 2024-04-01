@@ -73,6 +73,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Obtener la fecha de inicio
         Date fechaInicio;
