@@ -17,6 +17,9 @@ public class SuscripcionMapper extends AbstractMapper<SuscripcionBean, Suscripci
         SuscripcionDto dto = modelMapper.map(bean, SuscripcionDto.class);
         if (bean.getActividad() != null) {
             dto.setActividadNombre(bean.getActividad().getNombre());
+            dto.setCostoMensual(bean.getActividad().getCostoMensual());
+            dto.setCostoSemanal(bean.getActividad().getCostoSemanal());
+            dto.setDescripcion(bean.getActividad().getDescripcion());
         }
         return dto;
     }
