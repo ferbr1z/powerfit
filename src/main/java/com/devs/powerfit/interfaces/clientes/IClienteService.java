@@ -8,4 +8,6 @@ import com.devs.powerfit.utils.responses.PageResponse;
 public interface IClienteService extends IService<ClienteDto> {
     PageResponse<ClienteDto> searchByNombre(String nombre, int page);
     PageResponse<ClienteDto> searchByCi(String ci, int page);
+
+    PageResponse<ClienteDto> searchByRuc(String ruc, int page);
 }

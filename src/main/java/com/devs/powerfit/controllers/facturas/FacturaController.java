@@ -51,14 +51,14 @@ public class FacturaController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/cliente/{nombre}/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByNombreCliente(@PathVariable String nombre, @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByNombreCliente(nombre, page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByNombreCliente(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.getAllByNombreCliente(nombre, page), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/ruc/{ruc}/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByRucCliente(@PathVariable String ruc, @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByRucCliente(ruc, page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByRucCliente(@PathVariable String ruc, @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.getAllByRucCliente(ruc, page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/estado/pagado/page/{page}")

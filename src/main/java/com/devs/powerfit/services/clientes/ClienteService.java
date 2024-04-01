@@ -225,4 +225,22 @@ public class ClienteService implements IClienteService {
 
         return pageResponse;
     }
+
+    @Override
+    public PageResponse<ClienteDto> searchByRuc(String ruc, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var clientes = clienteDao.findAllByRucAndActiveTrue(ruc,pag);
+
+        if(clientes.isEmpty()){
+            throw new NotFoundException("No hay clientes con ese ruc");
+        }
+        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
+        var pageResponse = new PageResponse<ClienteDto>(
+                clientesDto.getContent(),
+                clientesDto.getTotalPages(),
+                clientesDto.getTotalElements(),
+                clientesDto.getNumber() + 1);
+
+        return pageResponse;
+    }
 }

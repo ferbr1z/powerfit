@@ -91,4 +91,30 @@ public class FacturaConDetallesService implements IFacturaConDetallesService {
     public boolean delete(Long id) {
         return false;
     }
+    public PageResponse<FacturaConDetallesDto> getAllByNombreCliente(String nombre,int page) {
+        // Obtener todas las facturas principales
+        PageResponse<FacturaDto> facturaPage = facturaService.searchByNombreCliente(nombre,page);
+
+        // Para cada factura, obtener sus detalles
+        List<FacturaConDetallesDto> facturaConDetallesList = facturaPage.getItems().stream()
+                .map(facturaDto -> getById(facturaDto.getId())) // Obtener la factura con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de facturas con detalles
+        return new PageResponse<>(facturaConDetallesList, facturaPage.getTotalPages(), facturaPage.getTotalItems(), facturaPage.getCurrentPage());
+    }
+
+    @Override
+    public PageResponse<FacturaConDetallesDto> getAllByRucCliente(String ruc, int page) {
+        // Obtener todas las facturas principales
+        PageResponse<FacturaDto> facturaPage = facturaService.searchByRucCliente(ruc,page);
+
+        // Para cada factura, obtener sus detalles
+        List<FacturaConDetallesDto> facturaConDetallesList = facturaPage.getItems().stream()
+                .map(facturaDto -> getById(facturaDto.getId())) // Obtener la factura con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de facturas con detalles
+        return new PageResponse<>(facturaConDetallesList, facturaPage.getTotalPages(), facturaPage.getTotalItems(), facturaPage.getCurrentPage());
+    }
 }

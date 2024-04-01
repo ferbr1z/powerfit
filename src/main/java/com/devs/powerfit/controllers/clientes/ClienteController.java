@@ -61,5 +61,10 @@ public class ClienteController {
     public ResponseEntity<PageResponse<ClienteDto>> searchByCi(@PathVariable int page,@PathVariable String ci) {
         return new ResponseEntity<>(clienteService.searchByCi(ci,page), HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/searchByRuc/{ruc}/page/{page}")
+    public ResponseEntity<PageResponse<ClienteDto>> searchByRuc(@PathVariable int page,@PathVariable String ruc) {
+        return new ResponseEntity<>(clienteService.searchByRuc(ruc,page), HttpStatus.OK);
+    }
 
 }
