@@ -6,11 +6,14 @@ import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.services.actividades.ActividadConClientesService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/actividades")
@@ -25,7 +28,7 @@ public class ActividadController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PostMapping
-    public ResponseEntity<ActividadDto> create(@RequestBody ActividadDto actividadDto) {
+    public ResponseEntity<ActividadDto> create(@Valid @RequestBody ActividadDto actividadDto) {
         return new ResponseEntity<>(actividadService.create(actividadDto), HttpStatus.CREATED);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -50,7 +53,7 @@ public class ActividadController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PutMapping("/{id}")
-    public ResponseEntity<ActividadDto> update(@PathVariable Long id, @RequestBody ActividadDto actividadDto) {
+    public ResponseEntity<ActividadDto> update(@PathVariable Long id,@Valid @RequestBody ActividadDto actividadDto) {
         return new ResponseEntity<>(actividadService.update(id, actividadDto), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -63,5 +66,6 @@ public class ActividadController {
     public ResponseEntity<PageResponse<ActividadDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(actividadService.searchByNombre(nombre,page), HttpStatus.OK);
     }
+
 }
 
