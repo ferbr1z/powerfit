@@ -22,8 +22,8 @@ public class SesionCajaBean extends AbstractBean {
     @JoinColumn(name = "id_caja")
     private CajaBean caja;
     @ManyToOne
-    @JoinColumn(name = "id_empleado")
-    private EmpleadoBean empleado;
+    @JoinColumn(name = "id_usuario")
+    private UsuarioBean usuario;
     @Column
     private Double montoInicial;
     @Column
