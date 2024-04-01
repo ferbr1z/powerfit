@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -66,7 +67,8 @@ public class SesionCajaService implements ISesionCajaService {
         sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
 
         // Formatear cadena de fecha a objeto Date
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
+        sdfFecha.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             String fechaFormateada = sdfFecha.format(sesionCajaDto.getFecha());
             sesionCaja.setFecha(sdfFecha.parse(fechaFormateada));

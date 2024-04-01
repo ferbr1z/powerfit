@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -82,6 +83,7 @@ public class FacturaService implements IFacturaService {
         Date fecha;
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             fecha = facturaDto.getFecha() != null ? dateFormat.parse(dateFormat.format(facturaDto.getFecha())) : new Date();
         } catch (ParseException e) {
             throw new BadRequestException("Error al convertir la fecha");
