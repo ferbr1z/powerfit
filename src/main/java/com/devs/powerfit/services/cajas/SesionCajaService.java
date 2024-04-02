@@ -178,10 +178,6 @@ public class SesionCajaService implements ISesionCajaService {
         // Actualizar la hora de cierre si se proporciona en el DTO
         if (sesionCajaDto.getHoraCierre() != null) {
             sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
-            var caja=cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
-            var cajaBean=caja.get();
-            cajaBean.setMonto(sesionCajaExistente.getMontoFinal());
-            sesionCajaExistente.setCaja(cajaDao.save(cajaBean));
         }
 
         // Actualizar la fecha si se proporciona en el DTO
