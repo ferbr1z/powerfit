@@ -143,6 +143,15 @@ public class ProveedorService implements IProveedorService {
                 proveedoresDto.getNumber() + 1);
     }
 
+    @Override
+    public ProveedorDto getByRuc(String ruc) {
+        Optional<ProveedorBean> proveedor = proveedorDao.findByRucAndActiveIsTrue(ruc);
+        if(proveedor.isPresent()){
+            return mapper.toDto(proveedor.get());
+        }
+        throw new NotFoundException("Proveedor no encontrado");
+
+    }
 
 
     // Método para verificar si algún dato del proveedor ya está siendo utilizado por otro proveedor

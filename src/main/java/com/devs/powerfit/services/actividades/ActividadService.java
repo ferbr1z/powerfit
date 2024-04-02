@@ -50,20 +50,24 @@ public class ActividadService implements IActividadService  {
 
     @Override
     public ActividadDto create(ActividadDto actividadDto) {
-
         // Crear la actividad
-        var actividad = mapper.toBean(actividadDto);
-        List<EmpleadoBean> entredadores = new ArrayList<>();
-        for(Long id: actividadDto.getEntrenadores()){
-            EmpleadoDto empleadoDto = empleadoService.getById(id);
-            entredadores.add(empleadoMapper.toBean(empleadoDto));
-        }
-        actividad.setEntrenadores(entredadores);
-        actividad.setActive(true);
-        actividadDao.save(actividad);
+        var actividad = mapper.toBean(actividadDto); // Convertir el DTO a bean
 
-        return getActividadDto(actividad, entredadores);
+        // Obtener la lista de entrenadores a partir de IDs y mapearlos a beans
+        List<EmpleadoBean> entrenadores = actividadDto.getEntrenadores().stream()
+                .map(empleadoService::getById)
+                .map(empleadoMapper::toBean)
+                .collect(Collectors.toList());
+
+        actividad.setEntrenadores(entrenadores); // Establecer los entrenadores en la actividad
+        actividad.setActive(true); // Establecer el estado activo
+
+        actividadDao.save(actividad); // Guardar la actividad en la base de datos
+
+        // Convertir la actividad bean a DTO y devolverla
+        return getActividadDto(actividad, entrenadores);
     }
+
 
 
     @Override
