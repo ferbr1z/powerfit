@@ -106,7 +106,7 @@ public class FacturaController {
         return new ResponseEntity<>(facturaService.searchByNombreClienteAndPagado(nombre, page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/cabecera/estado/pagado/cliente/{nombre}/page/{page}")
+    @GetMapping("/cabecera/estado/pendiente/cliente/{nombre}/page/{page}")
     public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByNombreAndPendiente(@PathVariable String nombre, @PathVariable int page) {
         return new ResponseEntity<>(facturaService.searchByNombreClienteAndPendiente(nombre, page), HttpStatus.OK);
     }
