@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -73,9 +76,8 @@ public class MovimientoService implements IMovimientoService {
 
         // Generar la hora actual si no se proporciona
         if (movimientoDto.getHora() == null) {
-            movimientoDto.setHora(new Date());
+            movimientoDto.setHora(Date.from(LocalTime.now().atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant()));
         }
-
         // Validar y formatear la fecha
         SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
         try {
