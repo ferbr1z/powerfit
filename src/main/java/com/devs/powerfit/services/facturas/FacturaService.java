@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaDetalleBean;
+import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.facturas.FacturaDao;
@@ -314,13 +315,17 @@ public class FacturaService implements IFacturaService {
         // Obtener los detalles de la factura
         List<FacturaDetalleBean> detalles = detalleDao.findAllByFacturaIdAndActiveTrue(factura.getId());
 
-        // Iterar sobre cada detalle y actualizar el estado de la suscripción
+        // Iterar sobre cada detalle y actualizar el estado de la suscripción (si existe)
         for (FacturaDetalleBean detalle : detalles) {
-            detalle.setSuscripcion(suscripcionMapper.toBean(suscripcionService.actualizarEstado(detalle.getSuscripcion().getId())));
-            detalleDao.save(detalle);
+            SuscripcionBean suscripcion = detalle.getSuscripcion();
+            if (suscripcion != null) { // Verificar si existe una suscripción en el detalle
+                detalle.setSuscripcion(suscripcionMapper.toBean(suscripcionService.actualizarEstado(suscripcion.getId())));
+                detalleDao.save(detalle);
+            }
         }
         return true;
     }
+
     public FacturaDto actualizarSaldo(Long id, double nuevoSaldo) {
         // Verificar si la factura con el ID proporcionado existe
         FacturaBean factura = facturaDao.findByIdAndActiveTrue(id)
