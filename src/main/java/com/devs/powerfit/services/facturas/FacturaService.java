@@ -327,6 +327,11 @@ public class FacturaService implements IFacturaService {
                 .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
         // Actualizar el saldo de la factura
         factura.setSaldo(nuevoSaldo);
+        if(nuevoSaldo==0){
+            if(actualizarSuscripcion(id)){
+                System.out.println("Se actualizo correctamente la suscripcion");
+            }
+        }
         // Guardar los cambios en la base de datos
         FacturaBean facturaActualizada = facturaDao.save(factura);
 
