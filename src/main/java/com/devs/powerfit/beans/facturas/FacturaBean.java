@@ -59,6 +59,4 @@ public class FacturaBean extends AbstractBean {
     private Double ivaTotal;
     @Column
     private boolean pagado;
-    @Positive(message = "El numero de caja debe ser positivo")
-    private Long numeroCaja;
 }
