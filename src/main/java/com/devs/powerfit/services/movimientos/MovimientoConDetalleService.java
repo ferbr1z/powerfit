@@ -31,6 +31,9 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
 
     @Override
     public MovimientoConDetalleDto create(MovimientoConDetalleDto movimientoConDetalleDto) {
+        if(movimientoConDetalleDto.getDetalles()==null||movimientoConDetalleDto.getDetalles().isEmpty()){
+            throw new BadRequestException("Los detalles no pueden estar vacios");
+        }
         MovimientoDto movimientoDto=movimientoConDetalleDto.getMovimiento();
         List<MovimientoDetalleDto> detalles=movimientoConDetalleDto.getDetalles();
         if (!comprobarTotal(movimientoDto,detalles)){

@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaDetalleBean;
+import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.facturas.FacturaDao;
@@ -67,6 +68,11 @@ public class FacturaService implements IFacturaService {
         if (clienteDto == null) {
             throw new NotFoundException("El cliente con ID " + facturaDto.getClienteId() + " no existe");
         }
+        var sesionOptional= sesionCajaDao.findByIdAndActiveTrue(facturaDto.getSesionId());
+        if(sesionOptional.isEmpty()){
+            throw new BadRequestException("No existe sesion con ese id");
+        }
+        SesionCajaBean sesion=sesionOptional.get();
         String numeroFacturaCompleto=obtenerNumeroFacturaCompleto(facturaDto.getSesionId());
         // Calcular el ivaTotal si no se proporciona explícitamente
         double ivaTotal = facturaDto.getIvaTotal() != null ? facturaDto.getIvaTotal() : facturaDto.getIva5() + facturaDto.getIva10();
@@ -90,6 +96,7 @@ public class FacturaService implements IFacturaService {
         }
         // Crear una instancia de Factura desde FacturaDto
         FacturaBean factura = new FacturaBean();
+        factura.setSesion(sesion);
         factura.setCliente(clienteMapper.toBean(clienteDto));
         factura.setTimbrado(facturaDto.getTimbrado());
         factura.setDireccion(facturaDto.getDireccion());
@@ -235,6 +242,30 @@ public class FacturaService implements IFacturaService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
+    public PageResponse<FacturaDto> searchByNombreClienteAndPagado(String nombre, int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByNombreClienteContainingIgnoreCaseAndPagado(pageRequest,nombre,true);
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
+    public PageResponse<FacturaDto> searchByNombreClienteAndPendiente(String nombre, int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByNombreClienteContainingIgnoreCaseAndPagado(pageRequest,nombre,false);
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
 
     @Override
     public PageResponse<FacturaDto> searchByRucCliente(String ruc, int page) {
@@ -290,19 +321,28 @@ public class FacturaService implements IFacturaService {
         // Obtener los detalles de la factura
         List<FacturaDetalleBean> detalles = detalleDao.findAllByFacturaIdAndActiveTrue(factura.getId());
 
-        // Iterar sobre cada detalle y actualizar el estado de la suscripción
+        // Iterar sobre cada detalle y actualizar el estado de la suscripción (si existe)
         for (FacturaDetalleBean detalle : detalles) {
-            detalle.setSuscripcion(suscripcionMapper.toBean(suscripcionService.actualizarEstado(detalle.getSuscripcion().getId())));
-            detalleDao.save(detalle);
+            SuscripcionBean suscripcion = detalle.getSuscripcion();
+            if (suscripcion != null) { // Verificar si existe una suscripción en el detalle
+                detalle.setSuscripcion(suscripcionMapper.toBean(suscripcionService.actualizarEstado(suscripcion.getId())));
+                detalleDao.save(detalle);
+            }
         }
         return true;
     }
+
     public FacturaDto actualizarSaldo(Long id, double nuevoSaldo) {
         // Verificar si la factura con el ID proporcionado existe
         FacturaBean factura = facturaDao.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new NotFoundException("La factura con ID " + id + " no existe"));
         // Actualizar el saldo de la factura
         factura.setSaldo(nuevoSaldo);
+        if(nuevoSaldo==0){
+            if(actualizarSuscripcion(id)){
+                System.out.println("Se actualizo correctamente la suscripcion");
+            }
+        }
         // Guardar los cambios en la base de datos
         FacturaBean facturaActualizada = facturaDao.save(factura);
 
