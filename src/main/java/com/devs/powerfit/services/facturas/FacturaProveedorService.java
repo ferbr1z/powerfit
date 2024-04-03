@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 @Service
 @Transactional
@@ -54,9 +55,6 @@ public class FacturaProveedorService implements IFacturaProveedorService {
         if (facturaProveedorDto.getIvaTotal() != null && facturaProveedorDto.getIvaTotal() != ivaTotal) {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
-        if (facturaDao.existsByNroFactura(facturaProveedorDto.getNroFactura())) {
-            throw new BadRequestException("Ya existe una factura con el número " + facturaProveedorDto.getNroFactura());
-        }
 
         double total = facturaProveedorDto.getTotal() != null ? facturaProveedorDto.getTotal() : facturaProveedorDto.getSubTotal() + ivaTotal;
 
@@ -75,7 +73,7 @@ public class FacturaProveedorService implements IFacturaProveedorService {
         FacturaProveedorBean factura = new FacturaProveedorBean();
         factura.setProveedor(proveedorMapper.toBean(proveedorDto));
         factura.setTimbrado(facturaProveedorDto.getTimbrado());
-        factura.setNroFactura(facturaProveedorDto.getNroFactura());
+        factura.setNroFactura(this.generarNumeroFactura());
         factura.setNombreProveedor(facturaProveedorDto.getNombreProveedor());
         factura.setRucProveedor(facturaProveedorDto.getRucProveedor());
         factura.setFecha(fecha);
@@ -209,5 +207,23 @@ public class FacturaProveedorService implements IFacturaProveedorService {
             return mapper.toDto(factura.get());
         }
         throw new NotFoundException("Factura no encontrada");
+    }
+    private String generarNumeroFactura() {
+        Random random = new Random();
+
+        // Generar el primer trío de dígitos aleatorios (limitado hasta 10)
+        int primerTrio = random.nextInt(10) + 1; // Aseguramos que el número no sea cero
+        String primerTrioStr = String.format("%03d", primerTrio);
+
+        // Generar los dos siguientes tríos de dígitos aleatorios
+        int segundoTrio = random.nextInt(999) + 1; // Aseguramos que el número no sea cero
+        String segundoTrioStr = String.format("%03d", segundoTrio);
+
+        // Generar el número octal aleatorio
+        int octal = random.nextInt(99999999) + 1; // Aseguramos que el número no sea cero
+        String octalStr = String.format("%08o", octal);
+
+        // Construir el número de factura con el formato especificado
+        return primerTrioStr + "-" + segundoTrioStr + "-" + octalStr;
     }
 }
