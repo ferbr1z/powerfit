@@ -3,6 +3,7 @@ package com.devs.powerfit.services.facturas;
 import com.devs.powerfit.dtos.facturas.FacturaConDetallesDto;
 import com.devs.powerfit.dtos.facturas.FacturaDetalleDto;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
+import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.interfaces.facturas.IFacturaConDetallesService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,13 @@ public class FacturaConDetallesService implements IFacturaConDetallesService {
 
     @Override
     public FacturaConDetallesDto create(FacturaConDetallesDto facturaConDetallesDto) {
+        // Verificar si la lista de detalles está vacía
+        if (facturaConDetallesDto.getDetalles() == null || facturaConDetallesDto.getDetalles().isEmpty()) {
+            // Puedes manejar esta situación de acuerdo a tus requerimientos, como lanzar una excepción, enviar un mensaje de error, etc.
+            // Por ejemplo, lanzar una excepción:
+            throw new BadRequestException("La lista de detalles de la factura está vacía.");
+        }
+
         // Crear la factura principal
         FacturaDto facturaCreada = facturaService.create(facturaConDetallesDto.getFactura());
 
@@ -42,6 +50,7 @@ public class FacturaConDetallesService implements IFacturaConDetallesService {
         // Devolver la factura con los detalles creados
         return nuevo;
     }
+
 
     @Override
     public FacturaConDetallesDto getById(Long id) {
