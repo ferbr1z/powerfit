@@ -1,6 +1,7 @@
 package com.devs.powerfit.services.facturas;
 
 import com.devs.powerfit.dtos.facturas.*;
+import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.interfaces.facturas.IFacturaProveedorConDetallesService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class FacturaProveedorConDetallesService implements IFacturaProveedorConD
 
     @Override
     public FacturaProveedorConDetallesDto create(FacturaProveedorConDetallesDto facturaProveedorConDetallesDto) {
+        if (facturaProveedorConDetallesDto.getDetalles() == null || facturaProveedorConDetallesDto.getDetalles().isEmpty()) {
+            // Puedes manejar esta situación de acuerdo a tus requerimientos, como lanzar una excepción, enviar un mensaje de error, etc.
+            // Por ejemplo, lanzar una excepción:
+            throw new BadRequestException("La lista de detalles de la factura está vacía.");
+        }
         // Crear la factura principal
         FacturaProveedorDto facturaCreada = facturaProveedorService.create(facturaProveedorConDetallesDto.getFactura());
 
