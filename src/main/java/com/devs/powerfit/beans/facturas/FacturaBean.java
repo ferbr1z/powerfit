@@ -1,6 +1,7 @@
 package com.devs.powerfit.beans.facturas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
+import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
@@ -24,6 +25,9 @@ public class FacturaBean extends AbstractBean {
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private ClienteBean cliente;
+    @ManyToOne
+    @JoinColumn(name = "sesion_id")
+    private SesionCajaBean sesion;
     @Column
     @NotNullAndNotBlank(message = "El timbrado no puede ser null ni en blanco")
     private String timbrado;
