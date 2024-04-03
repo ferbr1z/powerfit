@@ -68,6 +68,11 @@ public class FacturaService implements IFacturaService {
         if (clienteDto == null) {
             throw new NotFoundException("El cliente con ID " + facturaDto.getClienteId() + " no existe");
         }
+        var sesionOptional= sesionCajaDao.findByIdAndActiveTrue(facturaDto.getSesionId());
+        if(sesionOptional.isEmpty()){
+            throw new BadRequestException("No existe sesion con ese id");
+        }
+        SesionCajaBean sesion=sesionOptional.get();
         String numeroFacturaCompleto=obtenerNumeroFacturaCompleto(facturaDto.getSesionId());
         // Calcular el ivaTotal si no se proporciona explícitamente
         double ivaTotal = facturaDto.getIvaTotal() != null ? facturaDto.getIvaTotal() : facturaDto.getIva5() + facturaDto.getIva10();
@@ -91,6 +96,7 @@ public class FacturaService implements IFacturaService {
         }
         // Crear una instancia de Factura desde FacturaDto
         FacturaBean factura = new FacturaBean();
+        factura.setSesion(sesion);
         factura.setCliente(clienteMapper.toBean(clienteDto));
         factura.setTimbrado(facturaDto.getTimbrado());
         factura.setDireccion(facturaDto.getDireccion());
