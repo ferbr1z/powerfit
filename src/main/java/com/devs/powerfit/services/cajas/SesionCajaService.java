@@ -25,10 +25,11 @@ import java.util.TimeZone;
 @Service
 @Transactional
 public class SesionCajaService implements ISesionCajaService {
-    private SesionCajaMapper sesionCajaMapper;
-    private SesionCajaDao sesionCajaDao;
-    private CajaDao cajaDao;
-    private UsuarioDao usuarioDao;
+    private final SesionCajaMapper sesionCajaMapper;
+    private final SesionCajaDao sesionCajaDao;
+    private final CajaDao cajaDao;
+    private final UsuarioDao usuarioDao;
+
     @Autowired
     public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
         this.cajaDao = cajaDao;
@@ -39,9 +40,6 @@ public class SesionCajaService implements ISesionCajaService {
 
     @Override
     public SesionCajaDto create(SesionCajaDto sesionCajaDto) {
-        if (sesionCajaDto.getMontoInicial() ==null) {
-            throw new BadRequestException("El monto inicial no puede ser null");
-        }
 
         // Verificar si la fecha y la hora de apertura son válidas (no nulas)
         if (sesionCajaDto.getFecha() == null || sesionCajaDto.getHoraApertura() == null) {
@@ -59,27 +57,21 @@ public class SesionCajaService implements ISesionCajaService {
         // Realizar la apertura de la caja
         SesionCajaBean sesionCaja = new SesionCajaBean();
         sesionCaja.setActive(true);
-        var caja=cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
-        if(caja.isEmpty()){
-            throw new NotFoundException("No se encontro caja con ese id");
+        var caja = cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
+        if (caja.isEmpty()) {
+            throw new NotFoundException("No se encontró caja con ese id");
         }
-        CajaBean cajaExistente=caja.get();
+        CajaBean cajaExistente = caja.get();
         sesionCaja.setCaja(cajaExistente);
-        var usuario=usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario());
-        if (usuario.isEmpty()){
-            throw new NotFoundException("No se encontro usuario con ese id");
+        var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario());
+        if (usuario.isEmpty()) {
+            throw new NotFoundException("No se encontró usuario con ese id");
         }
-        var usuarioExistente=usuario.get();
+        var usuarioExistente = usuario.get();
         sesionCaja.setUsuario(usuarioExistente);
         // Obtener el monto actual de la caja
         double montoCaja = cajaExistente.getMonto();
-        System.out.println("Monto de la caja existente: " + montoCaja);
-
-// Verificar si el monto inicial proporcionado coincide con el monto actual de la caja
-        if (montoCaja != sesionCajaDto.getMontoInicial()) {
-            throw new BadRequestException("No coinciden el monto inicial con el monto actual de caja");
-        }
-        sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
+        sesionCaja.setMontoInicial(montoCaja);
 
         // Formatear cadena de fecha a objeto Date
         SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
@@ -105,10 +97,6 @@ public class SesionCajaService implements ISesionCajaService {
 
         return sesionCajaMapper.toDto(sesionCaja);
     }
-
-
-
-
 
 
     @Override
@@ -140,7 +128,7 @@ public class SesionCajaService implements ISesionCajaService {
             throw new NotFoundException("No hay sesiones de caja en la lista");
         }
 
-        // Mapear las sesiones de caja a DTOs y devolver la respuesta de página
+        // Mapear las sesiones de caja a DTO y devolver la respuesta de página
         var sesionesCajaDto = sesionesCaja.map(sesionCajaMapper::toDto);
         return new PageResponse<>(
                 sesionesCajaDto.getContent(),
@@ -212,24 +200,26 @@ public class SesionCajaService implements ISesionCajaService {
     public boolean delete(Long id) {
         return false;
     }
-    public boolean aumentarMontoCaja(Long id,Double monto){
+
+    public boolean aumentarMontoCaja(Long id, Double monto) {
         Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
-        if(sesionCajaExistente.isEmpty()){
+        if (sesionCajaExistente.isEmpty()) {
             return false;
         }
-        var caja= sesionCajaExistente.get().getCaja();
-        caja.setMonto(caja.getMonto()+monto);
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() + monto);
         cajaDao.save(caja);
         return true;
 
     }
-    public boolean disminuirMontoCaja(Long id,Double monto){
+
+    public boolean disminuirMontoCaja(Long id, Double monto) {
         Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
-        if(sesionCajaExistente.isEmpty()){
+        if (sesionCajaExistente.isEmpty()) {
             return false;
         }
-        var caja= sesionCajaExistente.get().getCaja();
-        caja.setMonto(caja.getMonto()-monto);
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() - monto);
         cajaDao.save(caja);
         return true;
 
