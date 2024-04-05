@@ -9,6 +9,6 @@ import java.util.List;
 public interface IMovimientoDetalleService extends IService<MovimientoDetalleDto> {
     PageResponse<MovimientoDetalleDto> findAllByMovimiento(int page, Long movimientoId);
     List<MovimientoDetalleDto> findAllByMovimiento(Long movimientoId);
-    PageResponse<MovimientoDetalleDto> findAllByTipoDePago(int page, Long movimientoId);
-    List<MovimientoDetalleDto> findAllByTipoDePago(Long movimientoId);
+    PageResponse<MovimientoDetalleDto> findAllByTipoDePago(int page, Long tipoDePagoId);
+    List<MovimientoDetalleDto> findAllByTipoDePago(Long tipoDePagoId);
 }

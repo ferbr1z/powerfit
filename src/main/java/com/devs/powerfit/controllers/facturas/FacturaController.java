@@ -51,29 +51,70 @@ public class FacturaController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/cliente/{nombre}/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByNombreCliente(@PathVariable String nombre, @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByNombreCliente(nombre, page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByNombreCliente(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.getAllByNombreCliente(nombre, page), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/ruc/{ruc}/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByRucCliente(@PathVariable String ruc, @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByRucCliente(ruc, page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByRucCliente(@PathVariable String ruc, @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.getAllByRucCliente(ruc, page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/estado/pagado/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByPagado( @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByPagado( page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByPagado( @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.searchByPagado( page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/estado/pendiente/page/{page}")
-    public ResponseEntity<PageResponse<FacturaDto>> searchByPendiente( @PathVariable int page) {
-        return new ResponseEntity<>(facturaService.searchByPendiente( page), HttpStatus.OK);
+    public ResponseEntity<PageResponse<FacturaConDetallesDto>> searchByPendiente( @PathVariable int page) {
+        return new ResponseEntity<>(facturaConDetallesService.searchByPendiente( page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/numero/{numeroFactura}")
-    public ResponseEntity<FacturaDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
+    public ResponseEntity<FacturaConDetallesDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
+        return new ResponseEntity<>(facturaConDetallesService.getByNumeroFactura(numeroFactura), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/numero/{numeroFactura}")
+    public ResponseEntity<FacturaDto> searchCabeceraByNumeroFactura(@PathVariable String numeroFactura) {
         return new ResponseEntity<>(facturaService.searchByNumeroFactura(numeroFactura), HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/estado/pagado/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByPagado( @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByPagado( page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/estado/pendiente/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByPendiente( @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByPendiente( page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/cliente/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByNombreCliente(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByNombreCliente(nombre, page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/ruc/{ruc}/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByRucCliente(@PathVariable String ruc, @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByRucCliente(ruc, page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/estado/pagado/cliente/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByNombreAndPagado(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByNombreClienteAndPagado(nombre, page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/estado/pendiente/cliente/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> searchCabeceraByNombreAndPendiente(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(facturaService.searchByNombreClienteAndPendiente(nombre, page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/cabecera/page/{page}")
+    public ResponseEntity<PageResponse<FacturaDto>> getAllCabecera(@PathVariable int page) {
+        return new ResponseEntity<>(facturaService.getAll(page), HttpStatus.OK);
+    }
+
 }
 

@@ -2,6 +2,7 @@ package com.devs.powerfit.daos.movimientos;
 
 import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.beans.movimientos.MovimientoDetalleBean;
+import com.devs.powerfit.beans.tipoDePagos.TipoDePagoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +17,7 @@ public interface MovimientoDetalleDao extends JpaRepository<MovimientoDetalleBea
     Page<MovimientoDetalleBean> findAllByActiveTrue(Pageable pageable);
     Page<MovimientoDetalleBean>findAllByMovimientoAndActiveTrue(Pageable pageable, MovimientoBean movimiento);
     List<MovimientoDetalleBean> findAllByMovimientoAndActiveTrue(MovimientoBean movimiento);
-    Page<MovimientoDetalleBean>findAllByTipoDePagoAndActiveTrue(Pageable pageable, MovimientoBean movimiento);
-    List<MovimientoDetalleBean> findAllByTipoDePagoAndActiveTrue(MovimientoBean movimiento);
+    Page<MovimientoDetalleBean>findAllByTipoDePagoAndActiveTrue(Pageable pageable, TipoDePagoBean tipoDePagoBean);
+    List<MovimientoDetalleBean> findAllByTipoDePagoAndActiveTrue(TipoDePagoBean tipoDePagoBean);
 
 }

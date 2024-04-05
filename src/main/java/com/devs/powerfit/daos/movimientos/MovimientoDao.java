@@ -19,6 +19,7 @@ public interface MovimientoDao extends JpaRepository<MovimientoBean,Long> {
     Page<MovimientoBean> findAllByActiveTrue(Pageable pageable);
     List<MovimientoBean> findAllBySesionAndActiveTrue(SesionCajaBean sesion);
     Page<MovimientoBean> findAllBySesionAndActiveTrue(Pageable pageable,SesionCajaBean sesion);
+    Page<MovimientoBean> findAllByFechaBetween(Pageable pageable,Date fechaInferior,Date fechaSuperior);
     List<MovimientoBean> findAllByEntradaAndActiveTrue(boolean entrada);
     Page<MovimientoBean> findAllByEntradaAndActiveTrue(Pageable pageable,boolean entrada);
     Page<MovimientoBean>findAllBySesionAndEntradaAndActiveTrue(Pageable pageable, SesionCajaBean sesion, boolean entrada);

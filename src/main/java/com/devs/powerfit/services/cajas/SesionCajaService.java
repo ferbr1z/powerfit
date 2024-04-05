@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.cajas;
 
+import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
@@ -19,28 +20,26 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Service
 @Transactional
 public class SesionCajaService implements ISesionCajaService {
-    private SesionCajaMapper sesionCajaMapper;
-    private SesionCajaDao sesionCajaDao;
-    private CajaDao cajaDao;
-    private UsuarioDao usuarioDao;
+    private final SesionCajaMapper sesionCajaMapper;
+    private final SesionCajaDao sesionCajaDao;
+    private final CajaDao cajaDao;
+    private final UsuarioDao usuarioDao;
+
     @Autowired
     public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
         this.cajaDao = cajaDao;
-        this.usuarioDao = usuarioDao;
         this.sesionCajaMapper = mapper;
         this.sesionCajaDao = sesionCajaDao;
+        this.usuarioDao = usuarioDao;
     }
 
     @Override
     public SesionCajaDto create(SesionCajaDto sesionCajaDto) {
-        // Verificar si el monto inicial es válido (mayor o igual a 0)
-        if (sesionCajaDto.getMontoInicial() < 0) {
-            throw new BadRequestException("El monto inicial no puede ser negativo.");
-        }
 
         // Verificar si la fecha y la hora de apertura son válidas (no nulas)
         if (sesionCajaDto.getFecha() == null || sesionCajaDto.getHoraApertura() == null) {
@@ -58,14 +57,25 @@ public class SesionCajaService implements ISesionCajaService {
         // Realizar la apertura de la caja
         SesionCajaBean sesionCaja = new SesionCajaBean();
         sesionCaja.setActive(true);
-        sesionCaja.setCaja(cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja())
-                .orElseThrow(() -> new NotFoundException("Caja no encontrada")));
-        sesionCaja.setUsuario(usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario())
-                .orElseThrow(() -> new NotFoundException("Usuario no encontrado")));
-        sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
+        var caja = cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
+        if (caja.isEmpty()) {
+            throw new NotFoundException("No se encontró caja con ese id");
+        }
+        CajaBean cajaExistente = caja.get();
+        sesionCaja.setCaja(cajaExistente);
+        var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario());
+        if (usuario.isEmpty()) {
+            throw new NotFoundException("No se encontró usuario con ese id");
+        }
+        var usuarioExistente = usuario.get();
+        sesionCaja.setUsuario(usuarioExistente);
+        // Obtener el monto actual de la caja
+        double montoCaja = cajaExistente.getMonto();
+        sesionCaja.setMontoInicial(montoCaja);
 
         // Formatear cadena de fecha a objeto Date
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
+        sdfFecha.setTimeZone(TimeZone.getTimeZone("UTC"));
         try {
             String fechaFormateada = sdfFecha.format(sesionCajaDto.getFecha());
             sesionCaja.setFecha(sdfFecha.parse(fechaFormateada));
@@ -87,10 +97,6 @@ public class SesionCajaService implements ISesionCajaService {
 
         return sesionCajaMapper.toDto(sesionCaja);
     }
-
-
-
-
 
 
     @Override
@@ -122,7 +128,7 @@ public class SesionCajaService implements ISesionCajaService {
             throw new NotFoundException("No hay sesiones de caja en la lista");
         }
 
-        // Mapear las sesiones de caja a DTOs y devolver la respuesta de página
+        // Mapear las sesiones de caja a DTO y devolver la respuesta de página
         var sesionesCajaDto = sesionesCaja.map(sesionCajaMapper::toDto);
         return new PageResponse<>(
                 sesionesCajaDto.getContent(),
@@ -158,25 +164,10 @@ public class SesionCajaService implements ISesionCajaService {
             sesionCajaExistente.setUsuario(usuario);
         }
 
-        // Actualizar el monto inicial si se proporciona en el DTO
-        if (sesionCajaDto.getMontoInicial() != null) {
-            // Verificar si el monto inicial es válido (mayor o igual a 0)
-            if (sesionCajaDto.getMontoInicial() < 0) {
-                throw new BadRequestException("El monto inicial no puede ser negativo.");
-            }
-            sesionCajaExistente.setMontoInicial(sesionCajaDto.getMontoInicial());
-        }
-
-        // Actualizar el campo montoFinal si se proporciona en el DTO
-        if (sesionCajaDto.getMontoFinal() != null) {
-            sesionCajaExistente.setMontoFinal(sesionCajaDto.getMontoFinal());
-        }
-
         // Actualizar la hora de cierre si se proporciona en el DTO
         if (sesionCajaDto.getHoraCierre() != null) {
             sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
         }
-
         // Actualizar la fecha si se proporciona en el DTO
         if (sesionCajaDto.getFecha() != null) {
             // Verificar si la fecha proporcionada tiene el formato correcto
@@ -198,9 +189,9 @@ public class SesionCajaService implements ISesionCajaService {
                 throw new BadRequestException("Formato de hora de apertura inválido: " + sesionCajaDto.getHoraApertura());
             }
         }
-
-        // Guardar la sesión de caja actualizada
+        sesionCajaExistente.setMontoFinal(sesionCajaExistente.getCaja().getMonto());
         SesionCajaBean sesionCajaActualizada = sesionCajaDao.save(sesionCajaExistente);
+
 
         return sesionCajaMapper.toDto(sesionCajaActualizada);
     }
@@ -208,6 +199,30 @@ public class SesionCajaService implements ISesionCajaService {
     @Override
     public boolean delete(Long id) {
         return false;
+    }
+
+    public boolean aumentarMontoCaja(Long id, Double monto) {
+        Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
+        if (sesionCajaExistente.isEmpty()) {
+            return false;
+        }
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() + monto);
+        cajaDao.save(caja);
+        return true;
+
+    }
+
+    public boolean disminuirMontoCaja(Long id, Double monto) {
+        Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
+        if (sesionCajaExistente.isEmpty()) {
+            return false;
+        }
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() - monto);
+        cajaDao.save(caja);
+        return true;
+
     }
 
 }

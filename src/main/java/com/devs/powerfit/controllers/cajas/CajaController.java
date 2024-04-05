@@ -1,5 +1,6 @@
 package com.devs.powerfit.controllers.cajas;
 
+import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.interfaces.cajas.ICajaService;
@@ -28,6 +29,11 @@ public class CajaController {
     @PostMapping
     public ResponseEntity<CajaDto> create(@RequestBody CajaDto cajaDto) {
         return new ResponseEntity<>(cajaService.create(cajaDto), HttpStatus.CREATED);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/search/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<CajaDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
+        return new ResponseEntity<>(cajaService.searchByNombre(nombre,page), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -79,5 +85,6 @@ public class CajaController {
     public ResponseEntity<SesionCajaDto> updateSesionCaja(@PathVariable Long id, @RequestBody SesionCajaDto sesionCajaDto) {
         return new ResponseEntity<>(sesionCajaService.update(id, sesionCajaDto), HttpStatus.OK);
     }
+
 
 }

@@ -14,6 +14,13 @@ public class SuscripcionMapper extends AbstractMapper<SuscripcionBean, Suscripci
 
     @Override
     public SuscripcionDto toDto(SuscripcionBean bean) {
-        return modelMapper.map(bean, SuscripcionDto.class);
+        SuscripcionDto dto = modelMapper.map(bean, SuscripcionDto.class);
+        if (bean.getActividad() != null) {
+            dto.setActividadNombre(bean.getActividad().getNombre());
+            dto.setCostoMensual(bean.getActividad().getCostoMensual());
+            dto.setCostoSemanal(bean.getActividad().getCostoSemanal());
+            dto.setDescripcion(bean.getActividad().getDescripcion());
+        }
+        return dto;
     }
 }

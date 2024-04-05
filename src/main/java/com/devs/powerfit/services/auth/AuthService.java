@@ -153,14 +153,13 @@ public class AuthService implements IAuthService {
             );
             final UsuarioBean user = (UsuarioBean) authentication.getPrincipal();
             final String accessToken = jwtService.generateToken(user);
-            Optional<RolBean> rolName = rolDao.findByIdAndActiveTrue(user.getRol().getId());
             Optional<EmpleadoBean> empleadoBean = empleadoDao.findByEmailAndActiveIsTrue(request.getEmail());
             Optional<ClienteBean> clienteBean = clienteDao.findByEmail(request.getEmail());
             if (user.getRol().getId() == 2){
-                final AuthResponse responseCliente = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre(), clienteBean.get().getId());
+                final AuthResponse responseCliente = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), clienteBean.get().getId());
                 return ResponseEntity.ok().body(responseCliente);
             }
-            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, rolName.get().getNombre(), user.getNombre(), empleadoBean.get().getId());
+            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), empleadoBean.get().getId());
             return ResponseEntity.ok().body(response);
 
         } catch (BadCredentialsException ex) {

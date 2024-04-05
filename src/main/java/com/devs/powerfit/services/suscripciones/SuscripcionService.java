@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -72,6 +73,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Obtener la fecha de inicio
         Date fechaInicio;
@@ -92,6 +94,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         suscripcionDetalle.setEstado(EEstado.valueOf(suscripcionDto.getEstado()));
         suscripcionDetalle.setModalidad(modalidad);
         suscripcionDetalle.setFechaInicio(fechaInicio);
+        suscripcionDetalle.setFinalizado(false);
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(fechaInicio);
@@ -116,7 +119,6 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Guardar el detalle de suscripcion en la base de datos
         SuscripcionBean savedSuscripcion = suscripcionDetalleDao.save(suscripcionDetalle);
         SuscripcionDto detalleCreado = mapper.toDto(savedSuscripcion);
-
         // Retornar el detalle de suscripcion creado
         return detalleCreado;
     }
@@ -310,5 +312,40 @@ public class SuscripcionService implements ISuscripcionDetalleService {
                 suscripcionesDto.getNumber() + 1);
 
         return pageResponse;
+    }
+    public SuscripcionDto actualizarEstado(Long id){
+        var suscripcionOptional= suscripcionDetalleDao.findByIdAndActiveTrue(id);
+        if(suscripcionOptional.isEmpty()){
+            throw new BadRequestException("No existe dicha suscripcion");
+        }
+        var suscripcion=suscripcionOptional.get();
+        if (suscripcion.getEstado()==EEstado.PENDIENTE){
+            suscripcion.setEstado(EEstado.PAGADO);
+            var actualizado=suscripcionDetalleDao.save(suscripcion);
+            return mapper.toDto(actualizado);
+        }else {
+            return mapper.toDto(suscripcion);
+        }
+    }
+    public SuscripcionDto actualizarFinalizado(Long id){
+        var suscripcionOptional= suscripcionDetalleDao.findByIdAndActiveTrue(id);
+        if(suscripcionOptional.isEmpty()){
+            throw new BadRequestException("No existe dicha suscripcion");
+        }
+        var suscripcion=suscripcionOptional.get();
+        if (suscripcion.isFinalizado()){
+            return mapper.toDto(suscripcion);
+        }else {
+            suscripcion.setFinalizado(true);
+            var actualizado= suscripcionDetalleDao.save(suscripcion);
+            return mapper.toDto(actualizado);
+        }
+    }
+
+    public List<SuscripcionDto> obtenerSuscripcionesPagadas() {
+        List<SuscripcionBean> suscripcionesPagadas = suscripcionDetalleDao.findAllByEstadoAndActiveTrueAndFinalizadoFalse(EEstado.PAGADO);
+        return suscripcionesPagadas.stream()
+                .map(mapper::toDto) // Convertir cada entidad a DTO usando el método mapper.toDto
+                .collect(Collectors.toList()); // Recolectar los DTOs en una lista y devolverla
     }
 }
