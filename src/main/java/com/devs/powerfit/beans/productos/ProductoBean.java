@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Table(name = "productos")
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductoBean extends AbstractBean {
 
     @Column
