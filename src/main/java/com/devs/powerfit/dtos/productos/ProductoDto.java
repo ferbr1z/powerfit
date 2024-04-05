@@ -1,9 +1,13 @@
 package com.devs.powerfit.dtos.productos;
 
 import com.devs.powerfit.abstracts.AbstractDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductoDto extends AbstractDto{
 
     private String nombre;
@@ -19,5 +23,6 @@ public class ProductoDto extends AbstractDto{
     private Double precio;
 
     private Double iva;
+
 
 }
