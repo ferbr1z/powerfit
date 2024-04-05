@@ -18,11 +18,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TipoDePagoBean extends AbstractBean {
-    @NotNullAndNotBlank
-    @Size(max = 50)
+    @NotNullAndNotBlank(message = "El nombre no puede ser nulo ni estar en blanco")
+    @Size(max = 50,message = "El máximo de caracteres es 50")
     @Column(unique = true)
     private String nombre;
-    @NotNullAndNotBlank
-    @Size(max = 200)
+    @NotNullAndNotBlank(message = "La descripción no puede ser nula ni estar en blanco")
+    @Size(max = 200,message = "El máximo de caracteres es 200")
     private String descripcion;
 }
