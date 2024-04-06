@@ -19,22 +19,22 @@ public class MovimientoController {
         this.service = service;
     }
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     public ResponseEntity<MovimientoConDetalleDto> create(@RequestBody MovimientoConDetalleDto movimientoConDetalleDto) {
         return new ResponseEntity<>(service.create(movimientoConDetalleDto), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/{id}")
     ResponseEntity<MovimientoConDetalleDto> getById(@PathVariable Long id){
         return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/page/{page}")
     ResponseEntity<PageResponse<MovimientoConDetalleDto>> getAll(@PathVariable int page){
         return new ResponseEntity<>(service.getAll(page), HttpStatus.OK);
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/sesion/{id}/page/{page}")
     ResponseEntity<PageResponse<MovimientoConDetalleDto>> getAll(@PathVariable Long id,@PathVariable int page){
         return new ResponseEntity<>(service.getAllBySesionId(page,id), HttpStatus.OK);

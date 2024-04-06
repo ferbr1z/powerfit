@@ -1,10 +1,12 @@
 package com.devs.powerfit.services.facturas;
 
+import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.cajas.CajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaDetalleBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
+import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.facturas.FacturaDao;
@@ -45,8 +47,9 @@ public class FacturaService implements IFacturaService {
     private final FacturaDetalleDao detalleDao;
     private final SuscripcionService suscripcionService;
     private final SuscripcionMapper suscripcionMapper;
+    private final UsuarioDao usuarioDao;
     @Autowired
-    public FacturaService(FacturaDao facturaDao, FacturaMapper mapper, ClienteService clienteService, ClienteMapper clienteMapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, FacturaDetalleDao detalleDao, SuscripcionService suscripcionService, SuscripcionMapper suscripcionMapper) {
+    public FacturaService(FacturaDao facturaDao, FacturaMapper mapper, ClienteService clienteService, ClienteMapper clienteMapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, FacturaDetalleDao detalleDao, SuscripcionService suscripcionService, SuscripcionMapper suscripcionMapper, UsuarioDao usuarioDao) {
         this.facturaDao = facturaDao;
         this.mapper = mapper;
         this.clienteService = clienteService;
@@ -56,6 +59,7 @@ public class FacturaService implements IFacturaService {
         this.detalleDao = detalleDao;
         this.suscripcionService = suscripcionService;
         this.suscripcionMapper = suscripcionMapper;
+        this.usuarioDao = usuarioDao;
     }
     @Override
     public FacturaDto create(FacturaDto facturaDto) {
@@ -110,8 +114,10 @@ public class FacturaService implements IFacturaService {
         factura.setIva5(facturaDto.getIva5() != null ? facturaDto.getIva5() : 0.0);
         factura.setIva10(facturaDto.getIva10() != null ? facturaDto.getIva10() : 0.0);
         factura.setIvaTotal(ivaTotal);
-        factura.setPagado(facturaDto.isPagado());
+        factura.setPagado(false);
         factura.setActive(true);
+        factura.setNombreCaja(obtenerNombreDeCaja(sesion.getId()));
+        factura.setNombreEmpleado(obtenerNombreDeEmpleado(sesion.getId()));
 
         // Guardar la factura en la base de datos
         FacturaBean savedFactura = facturaDao.save(factura);
@@ -209,6 +215,7 @@ public class FacturaService implements IFacturaService {
         existingFactura.setIva10(facturaDto.getIva10() != null ? facturaDto.getIva10() : 0.0);
         existingFactura.setIvaTotal(ivaTotal);
         existingFactura.setPagado(facturaDto.isPagado());
+
 
         // Guardar los cambios en la base de datos
         FacturaBean updatedFactura = facturaDao.save(existingFactura);
@@ -384,6 +391,36 @@ public class FacturaService implements IFacturaService {
                 cajaDao.save(cajaBean);
 
                 return numeroFacturaCompleto;
+            } else {
+                throw new BadRequestException("La caja asociada a la sesión no fue encontrada.");
+            }
+        } else {
+            throw new BadRequestException("La sesión no fue encontrada.");
+        }
+    }
+    private String obtenerNombreDeCaja(Long sesionId) {
+        Optional<SesionCajaBean> sesionOptional = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesionOptional.isPresent()) {
+            SesionCajaBean sesionBean = sesionOptional.get();
+            Optional<CajaBean> cajaOptional = cajaDao.findByIdAndActiveTrue(sesionBean.getCaja().getId());
+            if (cajaOptional.isPresent()) {
+                CajaBean cajaBean = cajaOptional.get();
+                return cajaBean.getNombre();
+            } else {
+                throw new BadRequestException("La caja asociada a la sesión no fue encontrada.");
+            }
+        } else {
+            throw new BadRequestException("La sesión no fue encontrada.");
+        }
+    }
+    private String obtenerNombreDeEmpleado(Long sesionId) {
+        Optional<SesionCajaBean> sesionOptional = sesionCajaDao.findByIdAndActiveTrue(sesionId);
+        if (sesionOptional.isPresent()) {
+            SesionCajaBean sesionBean = sesionOptional.get();
+            Optional<UsuarioBean> cajaOptional = usuarioDao.findByIdAndActiveTrue(sesionBean.getUsuario().getId());
+            if (cajaOptional.isPresent()) {
+                UsuarioBean usuarioBean = cajaOptional.get();
+                return usuarioBean.getNombre();
             } else {
                 throw new BadRequestException("La caja asociada a la sesión no fue encontrada.");
             }

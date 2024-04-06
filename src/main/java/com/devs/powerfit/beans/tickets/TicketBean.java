@@ -1,50 +1,37 @@
-package com.devs.powerfit.beans.facturas;
+package com.devs.powerfit.beans.tickets;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
-import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Data
 @Entity
-@Table(name = "facturas")
+@Data
+@Table(name = "tickets")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FacturaBean extends AbstractBean {
-    @ManyToOne
-    @JoinColumn(name = "cliente_id")
-    private ClienteBean cliente;
+public class TicketBean extends AbstractBean {
     @ManyToOne
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
-    @Column
-    @NotNullAndNotBlank(message = "El timbrado no puede ser null ni en blanco")
-    private String timbrado;
-    private String direccion;
     @NotNullAndNotBlank(message = "El nombre de caja no puede ser nulo ni en blanco")
     private String nombreCaja;
     @NotNullAndNotBlank(message = "El nombre de empleado no puede ser nulo ni en blanco")
     private String nombreEmpleado;
     @Column
-    @NotNullAndNotBlank(message = "El numero de factura no puede ser null ni en blanco")
-    private String nroFactura;
+    @NotNullAndNotBlank(message = "El timbrado no puede ser null ni en blanco")
+    private String timbrado;
     @Column
-    @NotNullAndNotBlank(message = "El nombre del cliente no puede ser null ni en blanco")
-    private String nombreCliente;
-    @Column
-    @NotNullAndNotBlank(message = "El ruc del cliente no puede ser null ni en blanco")
-    private String rucCliente;
+    @NotNullAndNotBlank(message = "El numero de ticket no puede ser null ni en blanco")
+    private String nroTicket;
     @Column
     private Date fecha;
     @Column

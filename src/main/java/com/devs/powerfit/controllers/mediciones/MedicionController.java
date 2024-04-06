@@ -23,53 +23,53 @@ public class MedicionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<MedicionDto> create(@RequestBody MedicionDto medicionDto) {
         return new ResponseEntity<>(medicionService.create(medicionDto), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<MedicionDto> getById(@PathVariable Long id) {
         MedicionDto medicionDto = medicionService.getById(id);
         return new ResponseEntity<>(medicionDto, HttpStatus.OK);
     }
 
     @GetMapping("/page/{page}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<PageResponse<MedicionDto>> getAll(@PathVariable int page) {
         PageResponse<MedicionDto> medicionesPage = medicionService.getAll(page);
         return new ResponseEntity<>(medicionesPage, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<MedicionDto> update(@PathVariable Long id, @RequestBody MedicionDto medicionDto) {
         MedicionDto updatedMedicion = medicionService.update(id, medicionDto);
         return new ResponseEntity<>(updatedMedicion, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         boolean deleted = medicionService.delete(id);
         return new ResponseEntity<>(deleted, HttpStatus.OK);
     }
 
     @GetMapping("/search/{nombre}/page/{page}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<PageResponse<MedicionDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(medicionService.searchByNombreCliente(nombre,page), HttpStatus.OK);
     }
 
     @GetMapping("/search/{ci}/page/{page}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<PageResponse<MedicionDto>> searchByCi(@PathVariable int page, @PathVariable int ci) {
         return new ResponseEntity<>(medicionService.searchByCiCliente(ci,page), HttpStatus.OK);
     }
 
     @GetMapping("/searchByClienteId/{id}/page/{page}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     public ResponseEntity<PageResponse<MedicionDto>> searchById(@PathVariable int page, @PathVariable Long id) {
         return new ResponseEntity<>(medicionService.searchByIdCliente(id,page), HttpStatus.OK);
     }
