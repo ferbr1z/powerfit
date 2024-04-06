@@ -4,6 +4,7 @@ import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
+import com.devs.powerfit.beans.tickets.TicketBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -30,6 +31,9 @@ public class MovimientoBean extends AbstractBean {
     @JoinColumn(name = "factura_proveedor_id")
     private FacturaProveedorBean facturaProveedor;
     @ManyToOne
+    @JoinColumn(name = "ticket_id")
+    private TicketBean ticket;
+    @ManyToOne
     @NotNull(message = "Sesion no puede ser null")
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
@@ -45,4 +49,8 @@ public class MovimientoBean extends AbstractBean {
     @Min(value = 1,message = "Total debe ser mayor a 0")
     private Double total;
     private boolean entrada;
+    @NotNullAndNotBlank(message = "El nombre de caja no puede ser nulo ni en blanco")
+    private String nombreCaja;
+    @NotNullAndNotBlank(message = "El nombre de empleado no puede ser nulo ni en blanco")
+    private String nombreEmpleado;
 }

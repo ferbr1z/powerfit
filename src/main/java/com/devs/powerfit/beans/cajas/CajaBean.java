@@ -24,4 +24,5 @@ public class CajaBean extends AbstractBean {
     @NotNull(message = "El número de caja no puede ser nulo")
     private Long numeroCaja;
     private Long numeroFactura;
+    private Long numeroTicket;
 }

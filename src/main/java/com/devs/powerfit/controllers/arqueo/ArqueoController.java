@@ -23,20 +23,20 @@ public class ArqueoController {
 
     private IArqueoService arqueoService;
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @PostMapping("/{id}")
     ResponseEntity<ArqueoDto> generarArqueo(@PathVariable Long id) {
         return new ResponseEntity<>(arqueoService.realizarArqueo(id), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/page/{page}")
     ResponseEntity<PageResponse<ArqueoDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(arqueoService.getAll(page), HttpStatus.OK);
     }
 
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/searchByFecha/{fecha}/page/{page}")
     ResponseEntity<PageResponse<ArqueoDto>> getAll(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fecha, @PathVariable int page) {
         return new ResponseEntity<>(arqueoService.getAllByFecha(fecha, page), HttpStatus.OK);

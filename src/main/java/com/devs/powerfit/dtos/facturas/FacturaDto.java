@@ -9,6 +9,8 @@ import java.util.Date;
 public class FacturaDto extends AbstractDto {
         private Long clienteId;
         private Long sesionId;
+        private String nombreCaja;
+        private String nombreEmpleado;
         private String timbrado;
         private String nroFactura;
         @JsonFormat(pattern = "yyyy-MM-dd")
