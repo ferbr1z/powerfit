@@ -88,7 +88,7 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
                     ProductoDto producto = getProductoById(entry.getKey());
                     // Crear un DTO para el producto más vendido
                     ProductoMasVendidoDTO productoMasVendidoDTO = new ProductoMasVendidoDTO();
-                    //productoMasVendidoDTO.setNombreProducto(producto.getNombre()); // Establecer el nombre del producto
+                    productoMasVendidoDTO.setNombreProducto(producto.getNombre()); // Establecer el nombre del producto
                     productoMasVendidoDTO.setCantidadVendida(entry.getValue()); // Establecer la cantidad vendida
                     return productoMasVendidoDTO; // Retornar el DTO del producto más vendido
                 })
