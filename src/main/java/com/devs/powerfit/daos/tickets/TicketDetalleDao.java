@@ -13,5 +13,7 @@ public interface TicketDetalleDao extends JpaRepository<TicketDetalleBean,Long> 
     Page<TicketDetalleBean> findAllByActiveTrue(Pageable pageable);
     List<TicketDetalleBean> findAllByTicketIdAndActiveTrue(Long id);
 
+    List<TicketDetalleBean> findAllByActiveIsTrue();
+
     boolean existsByTicketId(Long TicketId);
 }

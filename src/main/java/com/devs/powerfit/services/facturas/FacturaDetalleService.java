@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.facturas;
 
+import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaDetalleBean;
 import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.facturas.FacturaDetalleDao;
@@ -22,7 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -222,4 +225,27 @@ public class FacturaDetalleService implements IFacturaDetalleService {
         }
         return facturaDetalleBeanList.stream().map(mapper::toDto).toList();
     }
+
+
+    @Override
+    public List<FacturaDetalleDto> getAllDetalles() {
+        List<FacturaDetalleBean> detalles = facturaDetalleDao.findAllByActiveIsTrue();
+        return detalles.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<FacturaDetalleDto> getAllDetallesEntreFechas(Date fechaInicio, Date fechaFin) {
+        // Obtener todas las facturas dentro del rango de fechas
+        List<FacturaBean> facturasEnRango = facturaDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
+
+        // Obtener y concatenar todos los detalles de las facturas
+        List<FacturaDetalleDto> detalles = facturasEnRango.stream()
+                .map(factura -> facturaDetalleDao.findAllByFacturaIdAndActiveTrue(factura.getId()))
+                .flatMap(List::stream)
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+
+        return detalles;
+    }
+
 }

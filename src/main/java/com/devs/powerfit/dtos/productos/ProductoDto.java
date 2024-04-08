@@ -16,7 +16,7 @@ public class ProductoDto extends AbstractDto{
 
     private String codigo;
 
-    private Long cantidad;
+    private Integer cantidad;
 
     private Double costo;
 

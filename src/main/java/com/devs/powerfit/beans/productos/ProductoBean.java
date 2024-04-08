@@ -39,7 +39,7 @@ public class ProductoBean extends AbstractBean {
     @NotNullable
     @Column
     @Min(value = 0, message = "La cantidad debe ser mayor o igual que cero")
-    private Long cantidad;
+    private Integer cantidad;
 
     @NotNullable
     @Column
