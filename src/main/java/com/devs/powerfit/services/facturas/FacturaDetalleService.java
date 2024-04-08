@@ -229,7 +229,7 @@ public class FacturaDetalleService implements IFacturaDetalleService {
 
     @Override
     public List<FacturaDetalleDto> getAllDetalles() {
-        List<FacturaDetalleBean> detalles = facturaDetalleDao.findAllByActiveIsTrue();
+        List<FacturaDetalleBean> detalles = facturaDetalleDao.findAllByProductoIsNotNull();
         return detalles.stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
@@ -240,7 +240,7 @@ public class FacturaDetalleService implements IFacturaDetalleService {
 
         // Obtener y concatenar todos los detalles de las facturas
         List<FacturaDetalleDto> detalles = facturasEnRango.stream()
-                .map(factura -> facturaDetalleDao.findAllByFacturaIdAndActiveTrue(factura.getId()))
+                .map(factura -> facturaDetalleDao.findAllByFacturaIdAndProductoIsNotNullAndActiveTrue(factura.getId()))
                 .flatMap(List::stream)
                 .map(mapper::toDto)
                 .collect(Collectors.toList());

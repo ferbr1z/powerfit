@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -98,6 +99,29 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
     // Método privado para obtener un producto por su ID
     private ProductoDto getProductoById(Long productoId) {
         return productoService.getById(productoId); // Utilizar el servicio de producto para obtener el producto por su ID
+    }
+
+    private List<ProductoMasVendidoDTO> mergeProductosMasVendidos(List<ProductoMasVendidoDTO> productosFactura, List<ProductoMasVendidoDTO> productosTicket) {
+        Map<String, Integer> ventasTotalesPorProducto = new HashMap<>();
+
+        // Sumar las cantidades vendidas de cada producto de las facturas
+        for (ProductoMasVendidoDTO producto : productosFactura) {
+            String nombreProducto = producto.getNombreProducto();
+            int cantidadVendida = producto.getCantidadVendida();
+            ventasTotalesPorProducto.put(nombreProducto, ventasTotalesPorProducto.getOrDefault(nombreProducto, 0) + cantidadVendida);
+        }
+
+        // Sumar las cantidades vendidas de cada producto de los tickets
+        for (ProductoMasVendidoDTO producto : productosFactura) {
+            String nombreProducto = producto.getNombreProducto();
+            int cantidadVendida = producto.getCantidadVendida();
+            ventasTotalesPorProducto.put(nombreProducto, ventasTotalesPorProducto.getOrDefault(nombreProducto, 0) + cantidadVendida);
+        }
+
+        // Convertir el mapa de ventas totales por producto a una lista de DTOs
+        return ventasTotalesPorProducto.entrySet().stream()
+                .map(entry -> new ProductoMasVendidoDTO(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 }
 

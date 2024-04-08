@@ -2,7 +2,6 @@ package com.devs.powerfit.controllers.reportes;
 
 import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
 import com.devs.powerfit.interfaces.reportes.IProductosMasVendidosService;
-import com.devs.powerfit.services.reportes.ProductoMasVendido;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -21,17 +20,12 @@ import java.util.List;
 public class ProductosMasVendidosController {
 
     private final IProductosMasVendidosService productosMasVendidosService;
-    private final ProductoMasVendido productoMasVendido;
+
 
     @Autowired
-    public ProductosMasVendidosController(IProductosMasVendidosService productosMasVendidosService, ProductoMasVendido productoMasVendido) {
+    public ProductosMasVendidosController(IProductosMasVendidosService productosMasVendidosService) {
         this.productosMasVendidosService = productosMasVendidosService;
-        this.productoMasVendido = productoMasVendido;
     }
-
-
-
-
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/productos-mas-vendidos")
