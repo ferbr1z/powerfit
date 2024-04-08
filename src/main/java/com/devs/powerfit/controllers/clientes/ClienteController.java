@@ -2,6 +2,7 @@ package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.services.clientes.ReportesClienteService;
@@ -39,6 +40,11 @@ public class ClienteController {
     @GetMapping("/reportes/cantidad-por-estado-suscripcion")
     public ResponseEntity<SuscripcionesEstadisticasDto> getCantidadClientesPorEstado() {
         return new ResponseEntity<>(reportesClienteService.cantidadClientesPorEstadoSuscripcion(), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/reportes/ganancias")
+    public ResponseEntity<SuscripcionGananciasDto> getGanancias() {
+        return new ResponseEntity<>(reportesClienteService.calcularGanancias(), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/page/{page}")

@@ -4,8 +4,10 @@ import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.exceptions.BadRequestException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,33 @@ public class ReportesClienteService {
         return suscripciones.stream()
                 .anyMatch(suscripcion -> suscripcion.getEstado() == EEstado.PENDIENTE);
     }
+    public SuscripcionGananciasDto calcularGanancias() {
+
+        List<SuscripcionBean> suscripcionBeans = suscripcionDao.findAll();
+        if(suscripcionBeans==null){
+            throw new BadRequestException("No existen suscripciones activas");
+        }
+        Double gananciasPotenciales = suscripcionBeans.stream()
+                .mapToDouble(SuscripcionBean::getMonto)
+                .sum();
+
+        Double gananciasPagadas = suscripcionBeans.stream()
+                .filter(suscripcion -> suscripcion.getEstado() == EEstado.PAGADO)
+                .mapToDouble(SuscripcionBean::getMonto)
+                .sum();
+
+        Double perdidasMorosos = suscripcionBeans.stream()
+                .filter(suscripcion -> suscripcion.getEstado() == EEstado.PENDIENTE)
+                .mapToDouble(SuscripcionBean::getMonto)
+                .sum();
+
+        SuscripcionGananciasDto dto=new SuscripcionGananciasDto();
+        dto.setGananciasPotenciales(gananciasPotenciales);
+        dto.setGananciaActual(gananciasPagadas);
+        dto.setPerdidasMorosos(perdidasMorosos);
+        return dto;
+    }
+
 }
 
 
