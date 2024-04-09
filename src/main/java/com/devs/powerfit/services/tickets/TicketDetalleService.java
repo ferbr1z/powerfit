@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.tickets;
 
+import com.devs.powerfit.beans.tickets.TicketBean;
 import com.devs.powerfit.beans.tickets.TicketDetalleBean;
 import com.devs.powerfit.daos.tickets.TicketDao;
 import com.devs.powerfit.daos.tickets.TicketDetalleDao;
@@ -19,7 +20,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -122,5 +125,22 @@ public class TicketDetalleService implements ITicketDetalleService {
             throw new NotFoundException("No hay tickets en la lista");
         }
         return ticketDetalleBeanList.stream().map(mapper::toDto).toList();
+    }
+
+    @Override
+    public List<TicketDetalleDto> getAllDetalles() {
+        List<TicketDetalleBean> detalles = ticketDetalleDao.findAllByProductoIsNotNull();
+        return detalles.stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TicketDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin) {
+        List<TicketBean> ticketsEnRango = ticketDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
+        List<TicketDetalleDto> detalles = ticketsEnRango.stream()
+                .map(ticket -> ticketDetalleDao.findAllByTicketIdAndProductoIsNotNullAndActiveTrue(ticket.getId()))
+                .flatMap(List::stream)
+                .map(mapper::toDto)
+                .toList();
+        return detalles;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 @Repository
 public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
@@ -19,4 +20,5 @@ public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
     boolean existsByNroFactura(String nroFactura);
     Page<FacturaBean>findAllByPagado(Pageable pageable,boolean pagado);
     Page<FacturaBean>findAllByNombreClienteContainingIgnoreCaseAndPagado(Pageable pageable,String nombre,boolean pagado);
+    List<FacturaBean> findAllByFechaBetweenAndActiveTrue(Date fechaInicio, Date fechaFin);
 }
