@@ -195,7 +195,6 @@ public class MovimientoService implements IMovimientoService {
                 throw new BadRequestException("El monto en caja es insuficiente para pagar la factura proveedor");
             }
             FacturaProveedorDto facturaProveedor = facturaProveedorService.getById(movimientoDto.getFacturaProveedorId());
-            System.out.println(facturaProveedor);
             if (facturaProveedor == null) {
                 throw new BadRequestException("La factura del proveedor no existe");
             }

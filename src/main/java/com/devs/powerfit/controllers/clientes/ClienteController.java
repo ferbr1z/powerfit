@@ -2,7 +2,9 @@ package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.dtos.clientes.PagoClienteDto;
 import com.devs.powerfit.services.clientes.ClienteListaService;
+import com.devs.powerfit.services.movimientos.MovimientoPorClienteService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class ClienteController {
     private final IClienteService clienteService;
     private final ClienteListaService clienteListaService;
+    private final MovimientoPorClienteService movimientoPorClienteService;
     @Autowired
-    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService) {
+    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService, MovimientoPorClienteService movimientoPorClienteService) {
         this.clienteService = clienteService;
         this.clienteListaService = clienteListaService;
+        this.movimientoPorClienteService = movimientoPorClienteService;
     }
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -30,6 +34,11 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(clienteService.getById(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO','CLIENTE')")
+    @GetMapping("/id/{id}/page/{page}")
+    public ResponseEntity<PageResponse<PagoClienteDto>> getAllPagosCliente(@PathVariable Long id , @PathVariable int page) {
+        return new ResponseEntity<>(movimientoPorClienteService.obtenerPagosPorCliente(id,page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/page/{page}")

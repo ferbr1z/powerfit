@@ -12,6 +12,5 @@ public class PagoClienteDto extends AbstractDto {
     private Double monto;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fecha;
-    private String tipoDePago;
-
+    private String nroFactura;
 }
