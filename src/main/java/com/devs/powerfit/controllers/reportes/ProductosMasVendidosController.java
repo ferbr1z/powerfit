@@ -28,15 +28,21 @@ public class ProductosMasVendidosController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    @GetMapping("/productos-mas-vendidos")
+    @GetMapping("/productos-mas-vendidos-general")
     ResponseEntity<List<ProductoMasVendidoDTO>> getAll(){
-        return new ResponseEntity<>(productosMasVendidosService.productosMasVendidos(), HttpStatus.OK);
+        return new ResponseEntity<>(productosMasVendidosService.productosMasVendidosTotal(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/productos-mas-vendidos/{fechaInicio}/{fechaFin}")
-    ResponseEntity<List<ProductoMasVendidoDTO>> getAllEntreFechas(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaFin){
+    ResponseEntity<List<ProductoMasVendidoDTO>> getAllBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaFin){
         return new ResponseEntity<>(productosMasVendidosService.productosMasVendidosBetween(fechaInicio, fechaFin), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/productos-mas-vendidos")
+    ResponseEntity<List<ProductoMasVendidoDTO>> getAllActual(){
+        return new ResponseEntity<>(productosMasVendidosService.productosMasVendidosActual(), HttpStatus.OK);
     }
 
 

@@ -234,7 +234,7 @@ public class FacturaDetalleService implements IFacturaDetalleService {
     }
 
     @Override
-    public List<FacturaDetalleDto> getAllDetallesEntreFechas(Date fechaInicio, Date fechaFin) {
+    public List<FacturaDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin) {
         // Obtener todas las facturas dentro del rango de fechas
         List<FacturaBean> facturasEnRango = facturaDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
 

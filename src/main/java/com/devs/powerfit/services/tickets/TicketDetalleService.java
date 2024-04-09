@@ -129,7 +129,7 @@ public class TicketDetalleService implements ITicketDetalleService {
 
     @Override
     public List<TicketDetalleDto> getAllDetalles() {
-        List<TicketDetalleBean> detalles = ticketDetalleDao.findAllByActiveIsTrue();
+        List<TicketDetalleBean> detalles = ticketDetalleDao.findAllByProductoIsNotNull();
         return detalles.stream().map(mapper::toDto).collect(Collectors.toList());
     }
 
@@ -137,7 +137,7 @@ public class TicketDetalleService implements ITicketDetalleService {
     public List<TicketDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin) {
         List<TicketBean> ticketsEnRango = ticketDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
         List<TicketDetalleDto> detalles = ticketsEnRango.stream()
-                .map(ticket -> ticketDetalleDao.findAllByTicketIdAndActiveTrue(ticket.getId()))
+                .map(ticket -> ticketDetalleDao.findAllByTicketIdAndProductoIsNotNullAndActiveTrue(ticket.getId()))
                 .flatMap(List::stream)
                 .map(mapper::toDto)
                 .toList();

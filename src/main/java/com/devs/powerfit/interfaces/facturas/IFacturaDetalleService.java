@@ -9,7 +9,7 @@ import java.util.List;
 public interface IFacturaDetalleService extends IService<FacturaDetalleDto> {
 
     List<FacturaDetalleDto> getAllDetalles();
-    public List<FacturaDetalleDto> getAllDetallesEntreFechas(Date fechaInicio, Date fechaFin);
+    public List<FacturaDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin);
 
 
 
