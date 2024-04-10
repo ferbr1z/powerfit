@@ -7,6 +7,7 @@ import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class MovimientoService implements IMovimientoService {
     private final MovimientoDao dao;
+    private final FacturaDao facturaDao;
     private final SesionCajaService sesionCajaService;
     private final FacturaService facturaService;
     private final FacturaMapper facturaMapper;
@@ -57,8 +59,9 @@ public class MovimientoService implements IMovimientoService {
     private final TicketMapper ticketMapper;
 
     @Autowired
-    public MovimientoService(MovimientoDao dao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao, TicketService ticketService, TicketMapper ticketMapper) {
+    public MovimientoService(MovimientoDao dao, FacturaDao facturaDao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao, TicketService ticketService, TicketMapper ticketMapper) {
         this.dao = dao;
+        this.facturaDao = facturaDao;
         this.sesionCajaService = sesionCajaService;
         this.facturaService = facturaService;
         this.facturaMapper = facturaMapper;
@@ -192,7 +195,6 @@ public class MovimientoService implements IMovimientoService {
                 throw new BadRequestException("El monto en caja es insuficiente para pagar la factura proveedor");
             }
             FacturaProveedorDto facturaProveedor = facturaProveedorService.getById(movimientoDto.getFacturaProveedorId());
-            System.out.println(facturaProveedor);
             if (facturaProveedor == null) {
                 throw new BadRequestException("La factura del proveedor no existe");
             }
@@ -277,6 +279,20 @@ public class MovimientoService implements IMovimientoService {
                 movimientoDtoPage.getTotalElements(),
                 movimientoDtoPage.getNumber() + 1);
 
+    }
+    public List<MovimientoDto> getByFacturaId(Long facturaId) {
+        var factura = facturaDao.findByIdAndActiveTrue(facturaId);
+        if (factura.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        List<MovimientoBean> movimientoBeanList = dao.findAllByFacturaAndActiveTrue(factura.get());
+        if (movimientoBeanList.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        List<MovimientoDto> movimientoDtoList = movimientoBeanList.stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+        return movimientoDtoList;
     }
     @Override
     public List<MovimientoDto> getAllBySesionId(Long sesionId) {

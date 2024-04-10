@@ -1,6 +1,7 @@
 package com.devs.powerfit.daos.facturas;
 
 import com.devs.powerfit.beans.actividades.ActividadBean;
+import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,5 @@ public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
     Page<FacturaBean>findAllByPagado(Pageable pageable,boolean pagado);
     Page<FacturaBean>findAllByNombreClienteContainingIgnoreCaseAndPagado(Pageable pageable,String nombre,boolean pagado);
     List<FacturaBean> findAllByFechaBetweenAndActiveTrue(Date fechaInicio, Date fechaFin);
+    Page<FacturaBean> findAllByClienteAndPagadoTrueAndActiveTrue(Pageable pageable, ClienteBean clienteBean);
 }
