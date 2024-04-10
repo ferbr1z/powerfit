@@ -191,7 +191,7 @@ public class FacturaService implements IFacturaService {
 
         // Convertir la fecha de String a Date
         LocalDate fecha;
-            fecha = facturaDto.getFecha() != null ? facturaDto.getFecha() : LocalDate.now();
+        fecha = facturaDto.getFecha() != null ? facturaDto.getFecha() : LocalDate.now();
 
 
         // Actualizar la factura con los nuevos valores
