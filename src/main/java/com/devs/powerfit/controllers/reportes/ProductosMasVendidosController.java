@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class ProductosMasVendidosController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/productos-mas-vendidos/{fechaInicio}/{fechaFin}")
-    ResponseEntity<List<ProductoMasVendidoDTO>> getAllBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fechaFin){
+    ResponseEntity<List<ProductoMasVendidoDTO>> getAllBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
         return new ResponseEntity<>(productosMasVendidosService.productosMasVendidosBetween(fechaInicio, fechaFin), HttpStatus.OK);
     }
 

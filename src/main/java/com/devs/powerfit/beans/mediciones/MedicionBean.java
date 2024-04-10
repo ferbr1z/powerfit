@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -21,7 +21,7 @@ import java.util.Date;
 public class MedicionBean extends AbstractBean {
     @Column
     @NotNull(message = "Fecha no puede ser null")
-    private Date fecha;
+    private LocalDate fecha;
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private ClienteBean cliente;

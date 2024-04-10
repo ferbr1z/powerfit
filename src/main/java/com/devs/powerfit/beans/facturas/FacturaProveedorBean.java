@@ -1,7 +1,6 @@
 package com.devs.powerfit.beans.facturas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
-import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.proveedores.ProveedorBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
@@ -14,7 +13,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -39,7 +38,7 @@ public class FacturaProveedorBean extends AbstractBean {
     private String rucProveedor;
     @Column
     @NotNull(message = "Fecha no puede ser nulo")
-    private Date fecha;
+    private LocalDate fecha;
     @Column
     @Positive(message = "El valor del total debe ser positivo mayor que 0")
     @Min(value = 1,message = "El total debe ser mayor a 0")

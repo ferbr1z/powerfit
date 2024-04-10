@@ -9,9 +9,11 @@ import com.devs.powerfit.interfaces.productos.IProductoService;
 import com.devs.powerfit.interfaces.reportes.IProductosMasVendidosService;
 import com.devs.powerfit.interfaces.tickets.ITicketDetalleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,9 +34,9 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
 
 
     @Override
-    public List<ProductoMasVendidoDTO> productosMasVendidosBetween(Date fechaInicio, Date fechaFin) {
+    public List<ProductoMasVendidoDTO> productosMasVendidosBetween(LocalDate fechaInicio, LocalDate fechaFin) {
         // Validación de las fechas
-        if (fechaInicio.after(fechaFin)) {
+        if (fechaInicio.isAfter(fechaFin)) {
             throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin.");
         }
         List<FacturaDetalleDto> detallesFactura = facturaDetalleService.getAllDetallesBetween(fechaInicio, fechaFin);
@@ -55,10 +57,10 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
     public List<ProductoMasVendidoDTO> productosMasVendidosActual() {
         // Establecer la fechaFin como la fecha actual
         Calendar calendar = Calendar.getInstance();
-        Date fechaFin = calendar.getTime();
+        LocalDate fechaFin = LocalDate.now();
         // Establecer la fechaInicio como una semana antes de la fecha actual
         calendar.add(Calendar.DATE, -7);
-        Date fechaInicio = calendar.getTime();
+        LocalDate fechaInicio = LocalDate.now().minusDays(7);
         return productosMasVendidosBetween(fechaInicio,fechaFin);
     }
 

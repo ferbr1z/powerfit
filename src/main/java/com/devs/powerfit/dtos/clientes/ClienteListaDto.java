@@ -5,7 +5,7 @@ import com.devs.powerfit.enums.EEstado;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 @Data
 public class ClienteListaDto extends AbstractDto {
     private String nombre;
@@ -15,6 +15,6 @@ public class ClienteListaDto extends AbstractDto {
     private String email;
     private String direccion;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fechaRegistro;
+    private LocalDate fechaRegistro;
     private EEstado estado;
 }

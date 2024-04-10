@@ -1,24 +1,18 @@
 package com.devs.powerfit.services.movimientos;
 
-import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.dtos.clientes.PagoClienteDto;
-import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
-import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
-import com.devs.powerfit.services.facturas.FacturaService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.responses.PageResponse;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +50,7 @@ public class MovimientoPorClienteService {
                             .sum();
 
                     // Obtener la fecha del primer movimiento
-                    Date fechaMovimiento = null;
+                    LocalDate fechaMovimiento = null;
                     if (!movimientos.isEmpty()) {
                         fechaMovimiento = movimientos.get(0).getFecha();
                     }

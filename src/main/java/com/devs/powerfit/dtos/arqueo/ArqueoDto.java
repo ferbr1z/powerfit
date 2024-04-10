@@ -2,10 +2,10 @@ package com.devs.powerfit.dtos.arqueo;
 
 import com.devs.powerfit.abstracts.AbstractDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
@@ -14,10 +14,10 @@ public class ArqueoDto extends AbstractDto {
     private Long sesionCajaId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fecha;
+    private LocalDate fecha;
 
     @JsonFormat(pattern = "HH:mm:ss")
-    private Date hora;
+    private LocalTime hora;
 
     private Double montoTotal;
 

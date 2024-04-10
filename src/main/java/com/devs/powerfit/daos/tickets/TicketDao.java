@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,5 +21,5 @@ public interface TicketDao extends JpaRepository<TicketBean,Long> {
     boolean existsByNroTicket(String nroTicket);
     Page<TicketBean>findAllByPagado(Pageable pageable,boolean pagado);
 
-    List<TicketBean> findAllByFechaBetweenAndActiveTrue(Date fechaInicio, Date fechaFin);
+    List<TicketBean> findAllByFechaBetweenAndActiveTrue(LocalDate fechaInicio, LocalDate fechaFin);
 }

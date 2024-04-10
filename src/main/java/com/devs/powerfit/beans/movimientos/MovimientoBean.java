@@ -15,7 +15,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -39,10 +40,10 @@ public class MovimientoBean extends AbstractBean {
     private SesionCajaBean sesion;
     @Column
     @NotNull(message = "Fecha no puede ser nula")
-    private Date fecha;
+    private LocalDate fecha;
     @Column
     @NotNull(message = "Hora no puede ser nula")
-    private Date hora;
+    private LocalTime hora;
     @Column
     @Positive(message = "El total debe ser positivo")
     @NotNull(message = "El total no puede ser nulo")

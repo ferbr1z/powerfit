@@ -31,11 +31,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -92,29 +89,12 @@ public class MovimientoService implements IMovimientoService {
 
         // Generar la fecha actual si no se proporciona
         if (movimientoDto.getFecha() == null) {
-            movimientoDto.setFecha(new Date());
+            movimientoDto.setFecha(LocalDate.now());
         }
 
         // Generar la hora actual si no se proporciona
         if (movimientoDto.getHora() == null) {
-            movimientoDto.setHora(Date.from(LocalTime.now().atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant()));
-        }
-        // Validar y formatear la fecha
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            Date fechaFormateada = sdfFecha.parse(sdfFecha.format(movimientoDto.getFecha()));
-            movimientoDto.setFecha(fechaFormateada);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + movimientoDto.getFecha());
-        }
-
-        // Validar y formatear la hora
-        SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
-        try {
-            Date horaFormateada = sdfHora.parse(sdfHora.format(movimientoDto.getHora()));
-            movimientoDto.setHora(horaFormateada);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de hora inválido: " + movimientoDto.getHora());
+            movimientoDto.setHora(LocalTime.now());
         }
 
         // Verificar si es una entrada o salida
