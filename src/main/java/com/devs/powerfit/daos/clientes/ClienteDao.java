@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @Repository
@@ -22,4 +23,5 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
 
     Page<ClienteBean> findAllByActiveTrue(Pageable pageable);
     List<ClienteBean> findAllByActiveTrue();
+    Long countClientesByFechaRegistroBetween(Date startOfMonth, Date endOfMonth);
 }

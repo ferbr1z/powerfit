@@ -2,20 +2,14 @@ package com.devs.powerfit.services.clientes;
 
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
-import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
-import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
+import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -243,4 +236,9 @@ public class ClienteService implements IClienteService {
 
         return pageResponse;
     }
+    public Long countNewClients(Date startOfMonth, Date endOfMonth) {
+
+        return clienteDao.countClientesByFechaRegistroBetween(startOfMonth, endOfMonth);
+    }
+
 }
