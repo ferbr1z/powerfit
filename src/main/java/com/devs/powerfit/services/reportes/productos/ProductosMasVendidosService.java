@@ -1,4 +1,4 @@
-package com.devs.powerfit.services.reportes;
+package com.devs.powerfit.services.reportes.productos;
 
 import com.devs.powerfit.dtos.facturas.FacturaDetalleDto;
 import com.devs.powerfit.dtos.productos.ProductoDto;
@@ -6,10 +6,9 @@ import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
 import com.devs.powerfit.dtos.tickets.TicketDetalleDto;
 import com.devs.powerfit.interfaces.facturas.IFacturaDetalleService;
 import com.devs.powerfit.interfaces.productos.IProductoService;
-import com.devs.powerfit.interfaces.reportes.IProductosMasVendidosService;
+import com.devs.powerfit.interfaces.reportes.productos.IProductosMasVendidosService;
 import com.devs.powerfit.interfaces.tickets.ITicketDetalleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,10 +55,7 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
     @Override
     public List<ProductoMasVendidoDTO> productosMasVendidosActual() {
         // Establecer la fechaFin como la fecha actual
-        Calendar calendar = Calendar.getInstance();
         LocalDate fechaFin = LocalDate.now();
-        // Establecer la fechaInicio como una semana antes de la fecha actual
-        calendar.add(Calendar.DATE, -7);
         LocalDate fechaInicio = LocalDate.now().minusDays(7);
         return productosMasVendidosBetween(fechaInicio,fechaFin);
     }
