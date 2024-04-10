@@ -20,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -134,7 +135,7 @@ public class TicketDetalleService implements ITicketDetalleService {
     }
 
     @Override
-    public List<TicketDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin) {
+    public List<TicketDetalleDto> getAllDetallesBetween(LocalDate fechaInicio, LocalDate fechaFin) {
         List<TicketBean> ticketsEnRango = ticketDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
         List<TicketDetalleDto> detalles = ticketsEnRango.stream()
                 .map(ticket -> ticketDetalleDao.findAllByTicketIdAndProductoIsNotNullAndActiveTrue(ticket.getId()))

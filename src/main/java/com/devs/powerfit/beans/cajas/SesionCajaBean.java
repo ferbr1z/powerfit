@@ -9,7 +9,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -31,10 +32,10 @@ public class SesionCajaBean extends AbstractBean {
     private Double montoFinal;
     @Column
     @NotNull(message = "La fecha no puede ser nula")
-    private Date fecha;
+    private LocalDate fecha;
     @Column
     @NotNull(message = "La hora de apertura no puede ser nula")
-    private Date horaApertura;
+    private LocalTime horaApertura;
     @Column
-    private Date horaCierre;
+    private LocalTime horaCierre;
 }

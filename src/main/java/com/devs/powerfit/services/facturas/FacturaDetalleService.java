@@ -19,10 +19,12 @@ import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.productoMapper.ProductoMapper;
 import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -234,7 +236,7 @@ public class FacturaDetalleService implements IFacturaDetalleService {
     }
 
     @Override
-    public List<FacturaDetalleDto> getAllDetallesBetween(Date fechaInicio, Date fechaFin) {
+    public List<FacturaDetalleDto> getAllDetallesBetween(LocalDate fechaInicio, LocalDate fechaFin) {
         // Obtener todas las facturas dentro del rango de fechas
         List<FacturaBean> facturasEnRango = facturaDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
 

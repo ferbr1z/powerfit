@@ -4,7 +4,8 @@ import com.devs.powerfit.abstracts.AbstractDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 @Data
 public class SesionCajaDto extends AbstractDto {
     private Long idCaja;
@@ -12,9 +13,9 @@ public class SesionCajaDto extends AbstractDto {
     private Double montoInicial;
     private Double montoFinal;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fecha;
+    private LocalDate fecha;
     @JsonFormat(pattern = "HH:mm:ss")
-    private Date horaApertura;
+    private LocalTime horaApertura;
     @JsonFormat(pattern = "HH:mm:ss")
-    private Date horaCierre;
+    private LocalTime horaCierre;
 }

@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Component
 @Builder
@@ -24,8 +24,8 @@ public class SuscripcionDto extends AbstractDto {
     private String descripcion;
     private String estado;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fechaInicio;
+    private LocalDate fechaInicio;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fechaFin;
+    private LocalDate fechaFin;
     private String modalidad;
 }

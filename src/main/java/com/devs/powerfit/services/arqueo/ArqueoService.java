@@ -9,10 +9,9 @@ import com.devs.powerfit.daos.arqueo.ArqueoDao;
 import com.devs.powerfit.daos.arqueo.ArqueoDetalleDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
-
 import com.devs.powerfit.daos.movimientos.MovimientoDetalleDao;
-import com.devs.powerfit.dtos.arqueo.ArqueoDto;
 import com.devs.powerfit.dtos.arqueo.ArqueoDetalleDto;
+import com.devs.powerfit.dtos.arqueo.ArqueoDto;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.arqueo.IArqueoService;
 import com.devs.powerfit.utils.Setting;
@@ -25,8 +24,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -144,8 +143,8 @@ Se crea un nuevo Arqueo y se setean los datos
         ArqueoBean arqueo = new ArqueoBean();
         arqueo.setActive(true);
         arqueo.setSesionCaja(sesionCaja);
-        arqueo.setFecha(new Date());
-        arqueo.setHora(new Date());
+        arqueo.setFecha(LocalDate.now());
+        arqueo.setHora(LocalTime.now());
         arqueo.setMontoTotal(0.0); // Inicializar el monto total
         return arqueo;
     }

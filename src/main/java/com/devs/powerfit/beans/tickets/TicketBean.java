@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -33,7 +33,7 @@ public class TicketBean extends AbstractBean {
     @NotNullAndNotBlank(message = "El numero de ticket no puede ser null ni en blanco")
     private String nroTicket;
     @Column
-    private Date fecha;
+    private LocalDate fecha;
     @Column
     @PositiveOrZero(message = "El total debe ser positivo o 0")
     private Double total;

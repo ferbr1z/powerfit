@@ -4,12 +4,12 @@ import com.devs.powerfit.abstracts.AbstractDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class MedicionDto extends AbstractDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fecha;
+    private LocalDate fecha;
     private Long clienteID;
     private Double peso;
     private Double altura;

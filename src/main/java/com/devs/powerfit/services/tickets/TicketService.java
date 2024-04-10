@@ -20,11 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -62,14 +59,7 @@ public class TicketService implements ITicketService {
         if(ticketDto.getTotal()!=null && ticketDto.getTotal()!=total){
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
-        Date fecha;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            fecha = ticketDto.getFecha() != null ? dateFormat.parse(dateFormat.format(ticketDto.getFecha())) : new Date();
-        } catch (ParseException e) {
-            throw new BadRequestException("Error al convertir la fecha");
-        }
+        LocalDate fecha = ticketDto.getFecha() != null ? ticketDto.getFecha() : LocalDate.now();
         TicketBean ticket= new TicketBean();
         ticket.setSesion(sesion);
         ticket.setTimbrado(ticketDto.getTimbrado());
@@ -139,20 +129,15 @@ public class TicketService implements ITicketService {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
 
-        double total = ticketDto.getTotal() != null ? ticketDto.getTotal() : ticketDto.getSubTotal() + ivaTotal;
+        double total =  ticketDto.getSubTotal() + ivaTotal;
 
-        if (ticketDto.getTotal() != null && ticketDto.getTotal() != total) {
+        if (ticketDto.getTotal() != total) {
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
 
         // Convertir la fecha de String a Date
-        Date fecha;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            fecha = ticketDto.getFecha() != null ? dateFormat.parse(dateFormat.format(ticketDto.getFecha())) : new Date();
-        } catch (ParseException e) {
-            throw new BadRequestException("Error al convertir la fecha");
-        }
+        LocalDate fecha = ticketDto.getFecha() != null ? ticketDto.getFecha() : LocalDate.now();
+
         existingTicket.setTimbrado(ticketDto.getTimbrado());
         existingTicket.setNroTicket(ticketDto.getNroTicket());
         existingTicket.setFecha(fecha);

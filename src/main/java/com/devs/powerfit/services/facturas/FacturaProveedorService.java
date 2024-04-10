@@ -1,9 +1,7 @@
 package com.devs.powerfit.services.facturas;
 
-import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
-import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
 import com.devs.powerfit.exceptions.BadRequestException;
@@ -19,9 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Random;
 
 @Service
@@ -62,13 +58,7 @@ public class FacturaProveedorService implements IFacturaProveedorService {
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
 
-        Date fecha;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            fecha = facturaProveedorDto.getFecha() != null ? dateFormat.parse(dateFormat.format(facturaProveedorDto.getFecha())) : new Date();
-        } catch (ParseException e) {
-            throw new BadRequestException("Error al convertir la fecha");
-        }
+        LocalDate fecha = facturaProveedorDto.getFecha() != null ? facturaProveedorDto.getFecha() :  LocalDate.now();
         // Crear una instancia de Factura desde FacturaDto
         FacturaProveedorBean factura = new FacturaProveedorBean();
         factura.setProveedor(proveedorMapper.toBean(proveedorDto));

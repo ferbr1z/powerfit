@@ -17,9 +17,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -59,23 +60,8 @@ public class MedicionService implements IMedicionService {
         if (peso <= 0 || altura <= 0) {
             throw new BadRequestException("El peso y la altura deben ser valores positivos y no pueden ser cero");
         }
-
         // Obtener la fecha actual o la fecha proporcionada
-        Date fecha = medicionDto.getFecha() != null ? medicionDto.getFecha() : new Date();
-
-        // Formatear la fecha como yyyy-MM-dd
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String fechaFormateada = sdf.format(fecha);
-
-        // Convertir la fecha formateada de vuelta a un objeto Date
-        Date fechaDate;
-        try {
-            fechaDate = sdf.parse(fechaFormateada);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + fechaFormateada);
-        }
-
+        LocalDate fecha = medicionDto.getFecha() != null ? medicionDto.getFecha() : LocalDate.now();
         // Verificar si el IMC es proporcionado o calcularlo
         Double imc = medicionDto.getImc();
         if (imc == null || imc == 0) {
@@ -93,7 +79,7 @@ public class MedicionService implements IMedicionService {
         // Crear una instancia de Medicion desde MedicionDto
         MedicionBean medicion = new MedicionBean();
         medicion.setCliente(clienteMapper.toBean(clienteDto));
-        medicion.setFecha(fechaDate);
+        medicion.setFecha(fecha);
         medicion.setPeso(peso);
         medicion.setAltura(altura);
         medicion.setImc(imc);

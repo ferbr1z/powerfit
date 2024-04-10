@@ -4,7 +4,7 @@ import com.devs.powerfit.abstracts.AbstractDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class FacturaProveedorDto extends AbstractDto {
@@ -12,7 +12,7 @@ public class FacturaProveedorDto extends AbstractDto {
     private String timbrado;
     private String nroFactura;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date fecha;
+    private LocalDate fecha;
     private String nombreProveedor;
     private String rucProveedor;
     private Double total;
