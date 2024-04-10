@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 @Repository
 public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
@@ -15,6 +16,7 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Page<ClienteBean> findAllByRucAndActiveTrue(String ruc,Pageable pageable);
     Optional<ClienteBean> findByCedula( String cedula);
     Optional<ClienteBean> findByEmail( String email);
+    Long countByFechaRegistroBetweenAndActiveTrue(LocalDate fechaInicio, LocalDate fechaFin);
 
     Page<ClienteBean> findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
     Page<ClienteBean>findByCedulaAndActiveIsTrue(Pageable pageable, String cedula);
