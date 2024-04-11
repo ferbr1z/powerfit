@@ -24,5 +24,7 @@ public class ProductoDto extends AbstractDto{
 
     private Double iva;
 
+    private Integer cantidadLimite;
+
 
 }

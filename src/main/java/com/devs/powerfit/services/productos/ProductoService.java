@@ -43,6 +43,7 @@ public class ProductoService implements IProductoService {
                 existingProductBean.setCosto(productoDto.getCosto());
                 existingProductBean.setPrecio(productoDto.getPrecio());
                 existingProductBean.setCantidad(productoDto.getCantidad());
+                existingProductBean.setCantidadLimite(productoDto.getCantidadLimite());
                 productoDao.save(existingProductBean);
                 return productoMapper.toDto(existingProductBean);
             }
@@ -103,6 +104,7 @@ public class ProductoService implements IProductoService {
             if (productoDto.getCosto() != null) productoBean.setCosto(productoDto.getCosto());
             if (productoDto.getPrecio() != null) productoBean.setPrecio(productoDto.getPrecio());
             if (productoDto.getCantidad() != null) productoBean.setCantidad(productoDto.getCantidad());
+            if (productoDto.getCantidadLimite() != null) productoBean.setCantidadLimite(productoDto.getCantidadLimite());
 
             productoDao.save(productoBean);
             return productoMapper.toDto(productoBean);
