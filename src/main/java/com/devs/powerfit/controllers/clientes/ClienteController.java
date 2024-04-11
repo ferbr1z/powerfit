@@ -2,16 +2,22 @@ package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
 import com.devs.powerfit.dtos.clientes.PagoClienteDto;
+import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
 import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.services.movimientos.MovimientoPorClienteService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
@@ -39,6 +45,11 @@ public class ClienteController {
     @GetMapping("/id/{id}/page/{page}")
     public ResponseEntity<PageResponse<PagoClienteDto>> getAllPagosCliente(@PathVariable Long id , @PathVariable int page) {
         return new ResponseEntity<>(movimientoPorClienteService.obtenerPagosPorCliente(id,page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/reportes/nuevos/{fechaInicio}/{fechaFin}")
+    ResponseEntity<NuevosClientesDto> countBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(clienteListaService.obtenerClientesNuevos(fechaInicio, fechaFin), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/page/{page}")
