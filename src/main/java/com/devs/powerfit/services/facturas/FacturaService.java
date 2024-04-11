@@ -183,9 +183,9 @@ public class FacturaService implements IFacturaService {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
 
-        double total = facturaDto.getTotal() != null ? facturaDto.getTotal() : facturaDto.getSubTotal() + ivaTotal;
+        double total =  facturaDto.getSubTotal() + ivaTotal;
 
-        if (facturaDto.getTotal() != null && facturaDto.getTotal() != total) {
+        if (facturaDto.getTotal() != total) {
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
 
