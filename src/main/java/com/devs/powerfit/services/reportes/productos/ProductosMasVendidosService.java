@@ -3,11 +3,9 @@ package com.devs.powerfit.services.reportes.productos;
 import com.devs.powerfit.dtos.facturas.FacturaDetalleDto;
 import com.devs.powerfit.dtos.productos.ProductoDto;
 import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
-import com.devs.powerfit.dtos.tickets.TicketDetalleDto;
 import com.devs.powerfit.interfaces.facturas.IFacturaDetalleService;
 import com.devs.powerfit.interfaces.productos.IProductoService;
 import com.devs.powerfit.interfaces.reportes.productos.IProductosMasVendidosService;
-import com.devs.powerfit.interfaces.tickets.ITicketDetalleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +20,11 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
 
     private final IFacturaDetalleService facturaDetalleService;
     private final IProductoService productoService;
-    private final ITicketDetalleService ticketDetalleService;
 
     @Autowired
-    public ProductosMasVendidosService(IFacturaDetalleService facturaDetalleService, IProductoService productoService,ITicketDetalleService ticketDetalleService) {
+    public ProductosMasVendidosService(IFacturaDetalleService facturaDetalleService, IProductoService productoService) {
         this.facturaDetalleService = facturaDetalleService;
         this.productoService = productoService;
-        this.ticketDetalleService = ticketDetalleService;
     }
 
 
@@ -39,17 +35,15 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
             throw new IllegalArgumentException("La fecha de inicio no puede ser posterior a la fecha de fin.");
         }
         List<FacturaDetalleDto> detallesFactura = facturaDetalleService.getAllDetallesBetween(fechaInicio, fechaFin);
-        List<TicketDetalleDto> detallesTicket = ticketDetalleService.getAllDetallesBetween(fechaInicio, fechaFin);
 
-        return obtenerProductosMasVendidos(detallesFactura, detallesTicket);
+        return obtenerProductosMasVendidos(detallesFactura);
     }
 
     @Override
     public List<ProductoMasVendidoDTO> productosMasVendidosTotal() {
         List<FacturaDetalleDto> detallesFactura = facturaDetalleService.getAllDetalles();
-        List<TicketDetalleDto> detallesTicket = ticketDetalleService.getAllDetalles();
 
-        return obtenerProductosMasVendidos(detallesFactura, detallesTicket);
+        return obtenerProductosMasVendidos(detallesFactura);
     }
 
     @Override
@@ -61,7 +55,7 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
     }
 
     // Método privado para mapear los detalles de factura y ticket por producto y cantidad vendida
-    private Map<Long, Integer> mapearVentasPorProducto(List<FacturaDetalleDto> detallesFactura, List<TicketDetalleDto> detallesTicket) {
+    private Map<Long, Integer> mapearVentasPorProducto(List<FacturaDetalleDto> detallesFactura) {
         Map<Long, Integer> ventasPorProducto = new HashMap<>();
 
         // Mapear detalles de factura
@@ -69,10 +63,6 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
                 ventasPorProducto.put(detalleFactura.getProductoId(),
                         ventasPorProducto.getOrDefault(detalleFactura.getProductoId(), 0) + detalleFactura.getCantidad()));
 
-        // Mapear detalles de ticket
-        detallesTicket.forEach(detalleTicket ->
-                ventasPorProducto.put(detalleTicket.getProductoId(),
-                        ventasPorProducto.getOrDefault(detalleTicket.getProductoId(), 0) + detalleTicket.getCantidad()));
 
 
         return ventasPorProducto;
@@ -113,8 +103,8 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
 
 
     // Método que encapsula la lógica común entre productosMasVendidosBetween y productosMasVendidosTotal
-    private List<ProductoMasVendidoDTO> obtenerProductosMasVendidos(List<FacturaDetalleDto> detallesFactura, List<TicketDetalleDto> detallesTicket) {
-        Map<Long, Integer> ventasPorProducto = mapearVentasPorProducto(detallesFactura, detallesTicket);
+    private List<ProductoMasVendidoDTO> obtenerProductosMasVendidos(List<FacturaDetalleDto> detallesFactura) {
+        Map<Long, Integer> ventasPorProducto = mapearVentasPorProducto(detallesFactura);
         List<Map.Entry<Long, Integer>> productosOrdenados = orderProductosByVentas(ventasPorProducto);
         List<Map.Entry<Long, Integer>> productosMasVendidos = limitarProductosMasVendidos(productosOrdenados);
 
