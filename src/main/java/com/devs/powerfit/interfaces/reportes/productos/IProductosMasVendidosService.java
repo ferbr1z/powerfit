@@ -1,4 +1,4 @@
-package com.devs.powerfit.interfaces.reportes;
+package com.devs.powerfit.interfaces.reportes.productos;
 
 import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
 
@@ -10,6 +10,5 @@ public interface IProductosMasVendidosService {
 //    public List<ProductoMasVendidoDTO> productosMasVendidos();
     public List<ProductoMasVendidoDTO> productosMasVendidosBetween(LocalDate fechaInicio, LocalDate fechaFin );
     public List<ProductoMasVendidoDTO> productosMasVendidosTotal();
-
     public List<ProductoMasVendidoDTO> productosMasVendidosActual();
 }
