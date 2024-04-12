@@ -2,10 +2,10 @@ package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
-import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
-import com.devs.powerfit.dtos.clientes.PagoClienteDto;
-import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.services.clientes.ClienteListaService;
+import com.devs.powerfit.services.clientes.ReportesClienteService;
 import com.devs.powerfit.services.movimientos.MovimientoPorClienteService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
@@ -24,12 +24,16 @@ import java.util.List;
 public class ClienteController {
     private final IClienteService clienteService;
     private final ClienteListaService clienteListaService;
+    private final ReportesClienteService reportesClienteService;
     private final MovimientoPorClienteService movimientoPorClienteService;
+
+
     @Autowired
-    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService, MovimientoPorClienteService movimientoPorClienteService) {
+    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService, MovimientoPorClienteService movimientoPorClienteService,ReportesClienteService reportesClienteService) {
         this.clienteService = clienteService;
         this.clienteListaService = clienteListaService;
         this.movimientoPorClienteService = movimientoPorClienteService;
+        this.reportesClienteService = reportesClienteService;
     }
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -50,6 +54,16 @@ public class ClienteController {
     @GetMapping("/reportes/nuevos/{fechaInicio}/{fechaFin}")
     ResponseEntity<NuevosClientesDto> countBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
         return new ResponseEntity<>(clienteListaService.obtenerClientesNuevos(fechaInicio, fechaFin), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/reportes/cantidad-por-estado-suscripcion")
+    public ResponseEntity<SuscripcionesEstadisticasDto> getCantidadClientesPorEstado() {
+        return new ResponseEntity<>(reportesClienteService.cantidadClientesPorEstadoSuscripcion(), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/reportes/ganancias")
+    public ResponseEntity<SuscripcionGananciasDto> getGanancias() {
+        return new ResponseEntity<>(reportesClienteService.calcularGanancias(), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/page/{page}")

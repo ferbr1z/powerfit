@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.suscripciones;
 
+import com.devs.powerfit.beans.actividades.ActividadBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
@@ -82,13 +83,14 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         suscripcionDetalle.setModalidad(modalidad);
         suscripcionDetalle.setFechaInicio(fechaInicio);
         suscripcionDetalle.setFinalizado(false);
-
         // Calcular la fecha de fin
         LocalDate fechaFin;
         if (modalidad == EModalidad.MENSUAL) {
             fechaFin = fechaInicio.plusMonths(1);
+            suscripcionDetalle.setMonto(actividadDto.getCostoMensual());
         } else {
             fechaFin = fechaInicio.plusWeeks(1);
+            suscripcionDetalle.setMonto(actividadDto.getCostoSemanal());
         }
         suscripcionDetalle.setFechaFin(fechaFin);
 
@@ -171,12 +173,21 @@ public class SuscripcionService implements ISuscripcionDetalleService {
                 // Asignar la actividad actualizada al detalle de suscripción
                 suscripcionDetalleBean.setActividad(actividadMapper.toBean(actividadDto));
             }
+            suscripcionDetalleBean.setMonto(getMonto(suscripcionDetalleBean.getModalidad(),suscripcionDetalleBean.getActividad()));
 
             suscripcionDetalleDao.save(suscripcionDetalleBean);
 
             return mapper.toDto(suscripcionDetalleBean);
         }
         throw new NotFoundException("Detalle de suscripción no encontrado");
+    }
+    private Double getMonto(EModalidad modalidad,ActividadBean actividadBean){
+        if(modalidad==EModalidad.MENSUAL){
+            return actividadBean.getCostoMensual();
+        }else {
+            return actividadBean.getCostoSemanal();
+        }
+
     }
 
 

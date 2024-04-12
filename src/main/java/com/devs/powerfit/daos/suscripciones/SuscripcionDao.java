@@ -26,7 +26,6 @@ public interface SuscripcionDao extends JpaRepository<SuscripcionBean,Long>{
     Page<SuscripcionBean> findAllByActividadAndActiveTrue(ActividadBean actividad,Pageable pageable);
     boolean existsByClienteAndEstadoAndActiveTrue(ClienteBean cliente, EEstado estado);
     List<SuscripcionBean> findAllByEstadoAndActiveTrueAndFinalizadoFalse(EEstado estado);
-
-
-    Long countByClienteAndEstadoAndActiveTrue(ClienteBean cliente, EEstado estado);
+    List<SuscripcionBean> findAllByClienteAndActiveTrue(ClienteBean cliente);
+    List<SuscripcionBean> findAllByActiveTrue();
 }
