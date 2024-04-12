@@ -2,6 +2,8 @@ package com.devs.powerfit.controllers.clientes;
 
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
+import com.devs.powerfit.dtos.clientes.PagoClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.services.clientes.ClienteListaService;

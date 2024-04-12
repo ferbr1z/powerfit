@@ -37,9 +37,6 @@ public class SuscripcionBean extends AbstractBean {
     @NotNull(message = "Modalidad no puede ser null")
     private EModalidad modalidad;
     @Column
-    @NotNull(message = "Fecha Inicio no puede ser null")
-    @Positive(message = "El monto debe ser positivo")
-    @Min(value=1,message = "El valor mínimo es 1")
     private Double monto;
     private LocalDate fechaInicio;
     @Column
