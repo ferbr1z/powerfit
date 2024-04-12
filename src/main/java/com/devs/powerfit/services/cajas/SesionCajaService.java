@@ -13,6 +13,7 @@ import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.SesionCajaMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -219,5 +220,23 @@ public class SesionCajaService implements ISesionCajaService {
         return true;
 
     }
+    public PageResponse<SesionCajaDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaFin.isBefore(fechaInicio)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var sesionCajaPage = sesionCajaDao.findAllByFechaBetweenAndActiveTrue(pageRequest, fechaInicio, fechaFin);
+        if (sesionCajaPage.isEmpty()) {
+            throw new NotFoundException("No hay sesiones de caja en la lista");
+        }
+        var sesionCajaDtoPage = sesionCajaPage.map(sesionCajaMapper::toDto);
+        return new PageResponse<>(sesionCajaDtoPage.getContent(),
+                sesionCajaDtoPage.getTotalPages(),
+                sesionCajaDtoPage.getTotalElements(),
+                sesionCajaDtoPage.getNumber() + 1);
+    }
+
 
 }

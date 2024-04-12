@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,6 +89,18 @@ public class FacturaProveedorConDetallesService implements IFacturaProveedorConD
 
         // Devolver la factura con los detalles actualizados
         return nuevo;
+    }
+    public PageResponse<FacturaProveedorConDetallesDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        PageResponse<FacturaProveedorDto> facturaPage = facturaProveedorService.searchByFecha(page,fechaInicio,fechaFin);
+
+        // Para cada factura, obtener sus detalles
+        List<FacturaProveedorConDetallesDto> facturaConDetallesList = facturaPage.getItems().stream()
+                .map(facturaDto -> getById(facturaDto.getId())) // Obtener la factura con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de facturas con detalles
+        return new PageResponse<>(facturaConDetallesList, facturaPage.getTotalPages(), facturaPage.getTotalItems(), facturaPage.getCurrentPage());
+
     }
 
     @Override

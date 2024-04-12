@@ -1,5 +1,6 @@
 package com.devs.powerfit.controllers.facturas;
 
+import com.devs.powerfit.dtos.cajas.SesionCajaDto;
 import com.devs.powerfit.dtos.facturas.FacturaConDetallesDto;
 import com.devs.powerfit.dtos.facturas.FacturaDetalleDto;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
@@ -11,10 +12,13 @@ import com.devs.powerfit.services.facturas.FacturaDetalleService;
 import com.devs.powerfit.services.facturas.FacturaService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/facturas")
@@ -47,6 +51,10 @@ public class FacturaController {
     @GetMapping("/page/{page}")
     public ResponseEntity<PageResponse<FacturaConDetallesDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(facturaConDetallesService.getAll(page), HttpStatus.OK);
+    }
+    @GetMapping("/{fechaInicio}/{fechaFin}/page/{page}")
+    ResponseEntity<PageResponse<FacturaConDetallesDto>> getAllBetween(@PathVariable int page, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(facturaConDetallesService.searchByFecha(page,fechaInicio, fechaFin), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")

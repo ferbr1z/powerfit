@@ -9,23 +9,18 @@ import com.devs.powerfit.dtos.productos.ProductoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.facturas.IFacturaDetalleService;
-import com.devs.powerfit.services.clientes.ClienteService;
 import com.devs.powerfit.services.productos.ProductoService;
 import com.devs.powerfit.services.suscripciones.SuscripcionService;
 import com.devs.powerfit.utils.Setting;
-import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaDetalleMapper;
-import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.productoMapper.ProductoMapper;
 import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,25 +28,19 @@ import java.util.stream.Collectors;
 @Transactional
 public class FacturaDetalleService implements IFacturaDetalleService {
     private final FacturaDao facturaDao;
-    private final ClienteService clienteService;
     private final FacturaDetalleDao facturaDetalleDao;
     private final SuscripcionService suscripcionService;
     private final ProductoService productoService;
-    private final FacturaMapper facturaMapper;
     private final FacturaDetalleMapper mapper;
-    private final ClienteMapper clienteMapper;
     private final ProductoMapper productoMapper;
     private final SuscripcionMapper suscripcionMapper;
 
-    public FacturaDetalleService(FacturaDao facturaDao, ClienteService clienteService, FacturaDetalleDao facturaDetalleDao, SuscripcionService suscripcionService, ProductoService productoService, FacturaMapper facturaMapper, FacturaDetalleMapper mapper, ClienteMapper clienteMapper, ProductoMapper productoMapper, SuscripcionMapper suscripcionMapper) {
+    public FacturaDetalleService(FacturaDao facturaDao, FacturaDetalleDao facturaDetalleDao, SuscripcionService suscripcionService, ProductoService productoService, FacturaDetalleMapper mapper, ProductoMapper productoMapper, SuscripcionMapper suscripcionMapper) {
         this.facturaDao = facturaDao;
-        this.clienteService = clienteService;
         this.facturaDetalleDao = facturaDetalleDao;
         this.suscripcionService = suscripcionService;
         this.productoService = productoService;
-        this.facturaMapper = facturaMapper;
         this.mapper = mapper;
-        this.clienteMapper = clienteMapper;
         this.productoMapper = productoMapper;
         this.suscripcionMapper = suscripcionMapper;
     }
@@ -109,6 +98,9 @@ public class FacturaDetalleService implements IFacturaDetalleService {
             // Retornar el FacturaDetalleDto creado
             return mapper.toDto(savedFacturaDetalle);
         } else if (facturaDetalleDto.getSuscripcionId() != null) {
+            if(facturaBean.get().getCliente()==null){
+                throw new BadRequestException("No se puede pagar la suscripcion en una factura sin cliente");
+            }
             // Verificar si ya existe un detalle de factura para esta suscripción en la misma factura principal
             boolean suscripcionExistente = facturaDetalleDao.existsByFacturaIdAndSuscripcionId(facturaDetalleDto.getFacturaId(), facturaDetalleDto.getSuscripcionId());
             if (suscripcionExistente) {
@@ -241,13 +233,12 @@ public class FacturaDetalleService implements IFacturaDetalleService {
         List<FacturaBean> facturasEnRango = facturaDao.findAllByFechaBetweenAndActiveTrue(fechaInicio, fechaFin);
 
         // Obtener y concatenar todos los detalles de las facturas
-        List<FacturaDetalleDto> detalles = facturasEnRango.stream()
+
+        return facturasEnRango.stream()
                 .map(factura -> facturaDetalleDao.findAllByFacturaIdAndProductoIsNotNullAndActiveTrue(factura.getId()))
                 .flatMap(List::stream)
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
-
-        return detalles;
     }
 
 }

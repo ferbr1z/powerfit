@@ -258,8 +258,13 @@ public class MovimientoService implements IMovimientoService {
 
     @Override
     public PageResponse<MovimientoDto> searchByFecha(int page, Date fechaMenor, Date fechaMayor) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaMayor.before(fechaMenor)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
         var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var movimientoPage = dao.findAllByFechaBetween(pageRequest,fechaMenor,fechaMayor);
+        var movimientoPage = dao.findAllByFechaBetween(pageRequest, fechaMenor, fechaMayor);
         if (movimientoPage.isEmpty()) {
             throw new NotFoundException("No hay movimientos en la lista");
         }

@@ -38,10 +38,8 @@ public class FacturaBean extends AbstractBean {
     @NotNullAndNotBlank(message = "El numero de factura no puede ser null ni en blanco")
     private String nroFactura;
     @Column
-    @NotNullAndNotBlank(message = "El nombre del cliente no puede ser null ni en blanco")
     private String nombreCliente;
     @Column
-    @NotNullAndNotBlank(message = "El ruc del cliente no puede ser null ni en blanco")
     private String rucCliente;
     @Column
     private LocalDate fecha;

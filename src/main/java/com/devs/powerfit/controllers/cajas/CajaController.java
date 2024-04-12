@@ -1,16 +1,20 @@
 package com.devs.powerfit.controllers.cajas;
 
-import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.dtos.cajas.SesionCajaDto;
+import com.devs.powerfit.dtos.cajas.TotalCajasDto;
 import com.devs.powerfit.interfaces.cajas.ICajaService;
 import com.devs.powerfit.interfaces.cajas.ISesionCajaService;
+import com.devs.powerfit.services.cajas.ReporteCajaService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/cajas")
@@ -18,11 +22,13 @@ public class CajaController {
 
     private final ICajaService cajaService;
     private final ISesionCajaService sesionCajaService;
+    private final ReporteCajaService reporteCajaService;
 
     @Autowired
-    public CajaController(ICajaService cajaService, ISesionCajaService sesionCajaService) {
+    public CajaController(ICajaService cajaService, ISesionCajaService sesionCajaService, ReporteCajaService reporteCajaService) {
         this.cajaService = cajaService;
         this.sesionCajaService = sesionCajaService;
+        this.reporteCajaService = reporteCajaService;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
@@ -40,6 +46,11 @@ public class CajaController {
     @GetMapping("/{id}")
     public ResponseEntity<CajaDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(cajaService.getById(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/reportes/total")
+    public ResponseEntity<TotalCajasDto> getTotalCajas() {
+        return new ResponseEntity<>(reporteCajaService.obtenerTotalDeCajas(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
@@ -77,6 +88,11 @@ public class CajaController {
     @GetMapping("/sesiones-caja/page/{page}")
     public ResponseEntity<PageResponse<SesionCajaDto>> getAllSesionesCaja(@PathVariable int page) {
         return new ResponseEntity<>(sesionCajaService.getAll(page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/sesiones-caja/{fechaInicio}/{fechaFin}/page/{page}")
+    ResponseEntity<PageResponse<SesionCajaDto>> getAllBetween(@PathVariable int page, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(sesionCajaService.searchByFecha(page,fechaInicio, fechaFin), HttpStatus.OK);
     }
 
     // Actualizar una sesión de caja
