@@ -9,6 +9,7 @@ import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -162,5 +163,19 @@ public class FacturaConDetallesService implements IFacturaConDetallesService {
 
         // Devolver la lista de facturas con detalles
         return new PageResponse<>(facturaConDetallesList, facturaPage.getTotalPages(), facturaPage.getTotalItems(), facturaPage.getCurrentPage());
+    }
+
+    @Override
+    public PageResponse<FacturaConDetallesDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        PageResponse<FacturaDto> facturaPage = facturaService.searchByFecha(page,fechaInicio,fechaFin);
+
+        // Para cada factura, obtener sus detalles
+        List<FacturaConDetallesDto> facturaConDetallesList = facturaPage.getItems().stream()
+                .map(facturaDto -> getById(facturaDto.getId())) // Obtener la factura con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de facturas con detalles
+        return new PageResponse<>(facturaConDetallesList, facturaPage.getTotalPages(), facturaPage.getTotalItems(), facturaPage.getCurrentPage());
+
     }
 }

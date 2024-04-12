@@ -28,12 +28,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -63,50 +60,55 @@ public class FacturaService implements IFacturaService {
     }
     @Override
     public FacturaDto create(FacturaDto facturaDto) {
-        // Verificar si los campos obligatorios no están incompletos
-        if (facturaDto.getClienteId() == null || facturaDto.getTimbrado() == null || facturaDto.getSesionId() == null  || facturaDto.getTotal() == null) {
-            throw new BadRequestException("Los campos clienteId, timbrado, SesionId y total son obligatorios para crear una nueva factura");
+        if ( facturaDto.getTimbrado() == null || facturaDto.getSesionId() == null || facturaDto.getTotal() == null) {
+            throw new BadRequestException("Los campos timbrado, SesionId y total son obligatorios para crear una nueva factura");
         }
-        // Verificar si el cliente existe
-        ClienteDto clienteDto = clienteService.getById(facturaDto.getClienteId());
-        if (clienteDto == null) {
-            throw new NotFoundException("El cliente con ID " + facturaDto.getClienteId() + " no existe");
+        ClienteDto clienteDto=null;
+        if(facturaDto.getClienteId()!=null){
+          clienteDto=clienteService.getById(facturaDto.getClienteId());
+            if (clienteDto == null) {
+                throw new NotFoundException("El cliente con ID " + facturaDto.getClienteId() + " no existe");
+            }
         }
-        var sesionOptional= sesionCajaDao.findByIdAndActiveTrue(facturaDto.getSesionId());
-        if(sesionOptional.isEmpty()){
-            throw new BadRequestException("No existe sesion con ese id");
+        Optional<SesionCajaBean> sesionOptional = sesionCajaDao.findByIdAndActiveTrue(facturaDto.getSesionId());
+        if (sesionOptional.isEmpty()) {
+            throw new BadRequestException("No existe sesión con ese ID");
         }
-        SesionCajaBean sesion=sesionOptional.get();
-        String numeroFacturaCompleto=obtenerNumeroFacturaCompleto(facturaDto.getSesionId());
+        SesionCajaBean sesion = sesionOptional.get();
+
         // Calcular el ivaTotal si no se proporciona explícitamente
         double ivaTotal = facturaDto.getIvaTotal() != null ? facturaDto.getIvaTotal() : facturaDto.getIva5() + facturaDto.getIva10();
+
         // Verificar si los datos de ivaTotal y total son correctos
         if (facturaDto.getIvaTotal() != null && facturaDto.getIvaTotal() != ivaTotal) {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
-        double total = facturaDto.getTotal() != null ? facturaDto.getTotal() : facturaDto.getSubTotal() + ivaTotal;
-        if (facturaDto.getTotal() != null && facturaDto.getTotal() != total) {
+
+        double total =  facturaDto.getSubTotal() + ivaTotal;
+        if (facturaDto.getTotal() != total) {
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
-        // Convertir la fecha de String a Date
-        // Convertir la fecha de String a Date
-        Date fecha;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            fecha = facturaDto.getFecha() != null ? dateFormat.parse(dateFormat.format(facturaDto.getFecha())) : new Date();
-        } catch (ParseException e) {
-            throw new BadRequestException("Error al convertir la fecha");
-        }
+
+        // Convertir la fecha de String a LocalDate
+        LocalDate fecha = facturaDto.getFecha() != null ? facturaDto.getFecha() : LocalDate.now();
+
+
         // Crear una instancia de Factura desde FacturaDto
         FacturaBean factura = new FacturaBean();
         factura.setSesion(sesion);
-        factura.setCliente(clienteMapper.toBean(clienteDto));
+        if (clienteDto==null){
+            factura.setCliente(null);
+            factura.setNombreCliente("Sin nombre");
+            factura.setRucCliente("Sin ruc");
+            factura.setDireccion("Sin direccion");
+        }else {
+            factura.setCliente(clienteMapper.toBean(clienteDto));
+            factura.setNombreCliente(facturaDto.getNombreCliente());
+            factura.setRucCliente(facturaDto.getRucCliente());
+            factura.setDireccion(facturaDto.getDireccion());
+        }
         factura.setTimbrado(facturaDto.getTimbrado());
-        factura.setDireccion(facturaDto.getDireccion());
-        factura.setNroFactura(numeroFacturaCompleto);
-        factura.setNombreCliente(facturaDto.getNombreCliente());
-        factura.setRucCliente(facturaDto.getRucCliente());
+        factura.setNroFactura(obtenerNumeroFacturaCompleto(facturaDto.getSesionId()));
         factura.setFecha(fecha);
         factura.setTotal(total);
         factura.setSubTotal(facturaDto.getSubTotal() != null ? facturaDto.getSubTotal() : total - ivaTotal);
@@ -125,6 +127,7 @@ public class FacturaService implements IFacturaService {
         // Retornar la FacturaDto creada
         return mapper.toDto(savedFactura);
     }
+
 
 
     @Override
@@ -185,20 +188,15 @@ public class FacturaService implements IFacturaService {
             throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
         }
 
-        double total = facturaDto.getTotal() != null ? facturaDto.getTotal() : facturaDto.getSubTotal() + ivaTotal;
+        double total =  facturaDto.getSubTotal() + ivaTotal;
 
-        if (facturaDto.getTotal() != null && facturaDto.getTotal() != total) {
+        if (facturaDto.getTotal() != total) {
             throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
         }
 
         // Convertir la fecha de String a Date
-        Date fecha;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            fecha = facturaDto.getFecha() != null ? dateFormat.parse(dateFormat.format(facturaDto.getFecha())) : new Date();
-        } catch (ParseException e) {
-            throw new BadRequestException("Error al convertir la fecha");
-        }
+        LocalDate fecha;
+        fecha = facturaDto.getFecha() != null ? facturaDto.getFecha() : LocalDate.now();
 
 
         // Actualizar la factura con los nuevos valores
@@ -428,6 +426,24 @@ public class FacturaService implements IFacturaService {
             throw new BadRequestException("La sesión no fue encontrada.");
         }
     }
+    public PageResponse<FacturaDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaFin.isBefore(fechaInicio)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByFechaBetween(pageRequest, fechaInicio, fechaFin);
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
+
 
 
 }

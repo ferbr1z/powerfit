@@ -3,6 +3,7 @@ package com.devs.powerfit.utils.mappers.productoMapper;
 import com.devs.powerfit.abstracts.AbstractMapper;
 import com.devs.powerfit.beans.productos.ProductoBean;
 import com.devs.powerfit.dtos.productos.ProductoDto;
+import com.devs.powerfit.dtos.reportes.ProductosSinStockDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,4 +16,5 @@ public class ProductoMapper extends AbstractMapper<ProductoBean, ProductoDto> {
     public ProductoDto toDto(ProductoBean bean) {
         return modelMapper.map(bean, ProductoDto.class);
     }
+
 }

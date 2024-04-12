@@ -6,13 +6,18 @@ import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.services.clientes.ReportesClienteService;
+import com.devs.powerfit.services.movimientos.MovimientoPorClienteService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
@@ -20,10 +25,14 @@ public class ClienteController {
     private final IClienteService clienteService;
     private final ClienteListaService clienteListaService;
     private final ReportesClienteService reportesClienteService;
+    private final MovimientoPorClienteService movimientoPorClienteService;
+
+
     @Autowired
-    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService, ReportesClienteService reportesClienteService) {
+    public ClienteController(IClienteService clienteService, ClienteListaService clienteListaService, MovimientoPorClienteService movimientoPorClienteService,ReportesClienteService reportesClienteService) {
         this.clienteService = clienteService;
         this.clienteListaService = clienteListaService;
+        this.movimientoPorClienteService = movimientoPorClienteService;
         this.reportesClienteService = reportesClienteService;
     }
     @PostMapping
@@ -35,6 +44,16 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ResponseEntity<ClienteDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(clienteService.getById(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO','CLIENTE')")
+    @GetMapping("/id/{id}/page/{page}")
+    public ResponseEntity<PageResponse<PagoClienteDto>> getAllPagosCliente(@PathVariable Long id , @PathVariable int page) {
+        return new ResponseEntity<>(movimientoPorClienteService.obtenerPagosPorCliente(id,page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @GetMapping("/reportes/nuevos/{fechaInicio}/{fechaFin}")
+    ResponseEntity<NuevosClientesDto> countBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(clienteListaService.obtenerClientesNuevos(fechaInicio, fechaFin), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @GetMapping("/reportes/cantidad-por-estado-suscripcion")

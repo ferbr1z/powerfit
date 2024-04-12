@@ -5,15 +5,13 @@ import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -40,13 +38,11 @@ public class FacturaBean extends AbstractBean {
     @NotNullAndNotBlank(message = "El numero de factura no puede ser null ni en blanco")
     private String nroFactura;
     @Column
-    @NotNullAndNotBlank(message = "El nombre del cliente no puede ser null ni en blanco")
     private String nombreCliente;
     @Column
-    @NotNullAndNotBlank(message = "El ruc del cliente no puede ser null ni en blanco")
     private String rucCliente;
     @Column
-    private Date fecha;
+    private LocalDate fecha;
     @Column
     @PositiveOrZero(message = "El total debe ser positivo o 0")
     private Double total;

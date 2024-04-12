@@ -13,13 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 @Transactional
@@ -67,7 +62,7 @@ public class ClienteService implements IClienteService {
                     // Si el cliente existe pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
                     ClienteBean nuevoCliente = mapper.toBean(clienteDto);
                     nuevoCliente.setActive(true);
-                    nuevoCliente.setFechaRegistro(Date.from(Instant.now()));
+                    nuevoCliente.setFechaRegistro(LocalDate.now());
                     clienteDao.save(nuevoCliente);
                     return mapper.toDto(nuevoCliente);
                 }
@@ -79,32 +74,14 @@ public class ClienteService implements IClienteService {
             }
         }
 
-        // Establecer la zona horaria en UTC
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        // Formatear la fecha en el formato yyyy-MM-dd
-        String fechaRegistroString = dateFormat.format(new Date());
-
-        // Si se proporciona una fecha, usar esa fecha; de lo contrario, usar la fecha actual
-        if (clienteDto.getFechaRegistro() != null) {
-            fechaRegistroString = dateFormat.format(clienteDto.getFechaRegistro());
-        }
-
-        Date fechaRegistro;
-        try {
-            fechaRegistro = dateFormat.parse(fechaRegistroString);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + fechaRegistroString);
-        }
-
         // Si no existe un cliente activo con la misma cédula o email, crear un nuevo cliente
         ClienteBean nuevoCliente = mapper.toBean(clienteDto);
         nuevoCliente.setActive(true);
-        nuevoCliente.setFechaRegistro(fechaRegistro); // Usa la fecha proporcionada o la fecha actual
+        nuevoCliente.setFechaRegistro(LocalDate.now());
         clienteDao.save(nuevoCliente);
         return mapper.toDto(nuevoCliente);
     }
+
 
 
     @Override
@@ -147,21 +124,6 @@ public class ClienteService implements IClienteService {
             if (clienteDto.getEmail() != null) clienteBean.setEmail(clienteDto.getEmail());
             if (clienteDto.getDireccion() != null) clienteBean.setDireccion(clienteDto.getDireccion());
 
-            // Establecer la zona horaria en UTC
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-            // Formatear la fecha en el formato yyyy-MM-dd
-            String fechaRegistroString = dateFormat.format(clienteDto.getFechaRegistro());
-
-            Date fechaRegistro;
-            try {
-                fechaRegistro = dateFormat.parse(fechaRegistroString);
-            } catch (ParseException e) {
-                throw new BadRequestException("Formato de fecha inválido: " + fechaRegistroString);
-            }
-
-            clienteBean.setFechaRegistro(fechaRegistro);
 
             clienteDao.save(clienteBean);
 
@@ -236,8 +198,10 @@ public class ClienteService implements IClienteService {
 
         return pageResponse;
     }
-    public Long countNewClients(Date startOfMonth, Date endOfMonth) {
-
+    public Long countNewClients(LocalDate startOfMonth, LocalDate endOfMonth) {
+        if(startOfMonth.isAfter(startOfMonth)){
+            throw new BadRequestException("La fecha de inicio no puede ser posterior a la fecha de fin");
+        }
         return clienteDao.countClientesByFechaRegistroBetween(startOfMonth, endOfMonth);
     }
 

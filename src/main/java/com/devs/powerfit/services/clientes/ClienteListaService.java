@@ -4,7 +4,9 @@ import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
+import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
 import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
 import com.devs.powerfit.utils.Setting;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,6 +80,19 @@ public class ClienteListaService {
         }
 
         return clienteListaDto;
+    }
+    public NuevosClientesDto obtenerClientesNuevos(LocalDate fechaInicio, LocalDate fechaFin) {
+        if (fechaInicio == null || fechaFin == null) {
+            throw new BadRequestException("Las fechas de inicio y fin deben ser especificadas.");
+        }
+
+        if (fechaInicio.isAfter(fechaFin)) {
+            throw new BadRequestException("La fecha de inicio debe ser anterior a la fecha de fin.");
+        }
+        NuevosClientesDto nuevos = new NuevosClientesDto();
+        nuevos.setCantidadNuevosClientes(clienteDao.countByFechaRegistroBetweenAndActiveTrue(fechaInicio, fechaFin));
+
+        return nuevos;
     }
 
 }

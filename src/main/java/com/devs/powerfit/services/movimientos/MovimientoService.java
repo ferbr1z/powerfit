@@ -7,34 +7,29 @@ import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
-import com.devs.powerfit.dtos.tickets.TicketDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.movimientos.IMovimientoService;
 import com.devs.powerfit.services.cajas.SesionCajaService;
 import com.devs.powerfit.services.facturas.FacturaProveedorService;
 import com.devs.powerfit.services.facturas.FacturaService;
-import com.devs.powerfit.services.tickets.TicketService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaProveedorMapper;
 import com.devs.powerfit.utils.mappers.movimientoMappers.MovimientoMapper;
-import com.devs.powerfit.utils.mappers.ticketMappers.TicketMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -44,6 +39,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class MovimientoService implements IMovimientoService {
     private final MovimientoDao dao;
+    private final FacturaDao facturaDao;
     private final SesionCajaService sesionCajaService;
     private final FacturaService facturaService;
     private final FacturaMapper facturaMapper;
@@ -53,12 +49,11 @@ public class MovimientoService implements IMovimientoService {
     private final MovimientoMapper mapper;
     private final UsuarioDao usuarioDao;
     private final CajaDao cajaDao;
-    private final TicketService ticketService;
-    private final TicketMapper ticketMapper;
 
     @Autowired
-    public MovimientoService(MovimientoDao dao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao, TicketService ticketService, TicketMapper ticketMapper) {
+    public MovimientoService(MovimientoDao dao, FacturaDao facturaDao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao) {
         this.dao = dao;
+        this.facturaDao = facturaDao;
         this.sesionCajaService = sesionCajaService;
         this.facturaService = facturaService;
         this.facturaMapper = facturaMapper;
@@ -68,8 +63,6 @@ public class MovimientoService implements IMovimientoService {
         this.mapper = mapper;
         this.usuarioDao = usuarioDao;
         this.cajaDao = cajaDao;
-        this.ticketService = ticketService;
-        this.ticketMapper = ticketMapper;
     }
 
     @Override
@@ -89,34 +82,17 @@ public class MovimientoService implements IMovimientoService {
 
         // Generar la fecha actual si no se proporciona
         if (movimientoDto.getFecha() == null) {
-            movimientoDto.setFecha(new Date());
+            movimientoDto.setFecha(LocalDate.now());
         }
 
         // Generar la hora actual si no se proporciona
         if (movimientoDto.getHora() == null) {
-            movimientoDto.setHora(Date.from(LocalTime.now().atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant()));
-        }
-        // Validar y formatear la fecha
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            Date fechaFormateada = sdfFecha.parse(sdfFecha.format(movimientoDto.getFecha()));
-            movimientoDto.setFecha(fechaFormateada);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + movimientoDto.getFecha());
-        }
-
-        // Validar y formatear la hora
-        SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
-        try {
-            Date horaFormateada = sdfHora.parse(sdfHora.format(movimientoDto.getHora()));
-            movimientoDto.setHora(horaFormateada);
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de hora inválido: " + movimientoDto.getHora());
+            movimientoDto.setHora(LocalTime.now());
         }
 
         // Verificar si es una entrada o salida
         if (movimientoDto.isEntrada()) {
-            if(movimientoDto.getFacturaId()!=null && movimientoDto.getTicketId()==null){
+            if(movimientoDto.getFacturaId()!=null){
                 FacturaDto factura = facturaService.getById(movimientoDto.getFacturaId());
                 if (factura == null) {
                     throw new BadRequestException("La factura no existe");
@@ -133,6 +109,10 @@ public class MovimientoService implements IMovimientoService {
                 movimiento.setFecha(movimientoDto.getFecha());
                 movimiento.setTotal(movimientoDto.getTotal());
                 movimiento.setEntrada(movimientoDto.isEntrada());
+                movimiento.setComprobanteNumero(factura.getNroFactura());
+                if(factura.getNombreCliente()!= null){
+                    movimiento.setComprobanteNombre(factura.getNombreCliente());
+                }
                 // Restar el total del movimiento al saldo de la factura
                 factura.setSaldo(factura.getSaldo() - movimientoDto.getTotal());
                 FacturaDto facturaActualizada = facturaService.actualizarSaldo(factura.getId(), factura.getSaldo());
@@ -140,39 +120,6 @@ public class MovimientoService implements IMovimientoService {
                     facturaActualizada = facturaService.modificarPagado(factura.getId(), true);
                 }
                 movimiento.setFactura(facturaMapper.toBean(facturaActualizada));
-                movimiento.setSesion(sesion.get());
-                if(!sesionCajaService.aumentarMontoCaja(movimiento.getSesion().getId(), movimiento.getTotal())){
-                    throw new BadRequestException("Ha ocurrido un error al momento de actualizar el monto de caja");
-                }
-                movimiento.setFacturaProveedor(null);
-                movimiento.setNombreCaja(nombreCaja);
-                movimiento.setNombreEmpleado(nombreEmpleado);
-                MovimientoBean creado = dao.save(movimiento);
-                return mapper.toDto(creado);
-            } else if (movimientoDto.getTicketId() != null && movimientoDto.getFacturaId() == null) {
-                TicketDto ticket = ticketService.getById(movimientoDto.getTicketId());
-                if (ticket == null) {
-                    throw new BadRequestException("La factura no existe");
-                }
-                if (ticket.isPagado()) {
-                    throw new BadRequestException("La factura ya está pagada");
-                }
-                if (ticket.getSaldo() < movimientoDto.getTotal()) {
-                    throw new BadRequestException("El saldo es menor al total del movimiento");
-                }
-                MovimientoBean movimiento = new MovimientoBean();
-                movimiento.setActive(true);
-                movimiento.setHora(movimientoDto.getHora());
-                movimiento.setFecha(movimientoDto.getFecha());
-                movimiento.setTotal(movimientoDto.getTotal());
-                movimiento.setEntrada(movimientoDto.isEntrada());
-                // Restar el total del movimiento al saldo de la factura
-                ticket.setSaldo(ticket.getSaldo() - movimientoDto.getTotal());
-                TicketDto ticketActualizado = ticketService.actualizarSaldo(ticket.getId(), ticket.getSaldo());
-                if (ticket.getSaldo() == 0) {
-                    ticketActualizado = ticketService.modificarPagado(ticket.getId(), true);
-                }
-                movimiento.setTicket(ticketMapper.toBean(ticketActualizado));
                 movimiento.setSesion(sesion.get());
                 if(!sesionCajaService.aumentarMontoCaja(movimiento.getSesion().getId(), movimiento.getTotal())){
                     throw new BadRequestException("Ha ocurrido un error al momento de actualizar el monto de caja");
@@ -192,7 +139,6 @@ public class MovimientoService implements IMovimientoService {
                 throw new BadRequestException("El monto en caja es insuficiente para pagar la factura proveedor");
             }
             FacturaProveedorDto facturaProveedor = facturaProveedorService.getById(movimientoDto.getFacturaProveedorId());
-            System.out.println(facturaProveedor);
             if (facturaProveedor == null) {
                 throw new BadRequestException("La factura del proveedor no existe");
             }
@@ -205,6 +151,8 @@ public class MovimientoService implements IMovimientoService {
             movimiento.setFecha(movimientoDto.getFecha());
             movimiento.setTotal(movimientoDto.getTotal());
             movimiento.setEntrada(movimientoDto.isEntrada());
+            movimiento.setComprobanteNumero(facturaProveedor.getNroFactura());
+            movimiento.setComprobanteNombre(facturaProveedor.getNombreProveedor());
             // Restar el total del movimiento al saldo de la factura del proveedor
             facturaProveedor.setSaldo(facturaProveedor.getSaldo() - movimientoDto.getTotal());
             if(facturaProveedor.getSaldo()==0){
@@ -278,6 +226,19 @@ public class MovimientoService implements IMovimientoService {
                 movimientoDtoPage.getNumber() + 1);
 
     }
+    public List<MovimientoDto> getByFacturaId(Long facturaId) {
+        var factura = facturaDao.findByIdAndActiveTrue(facturaId);
+        if (factura.isEmpty()) {
+            throw new BadRequestException("No existe sesion con ese Id");
+        }
+        List<MovimientoBean> movimientoBeanList = dao.findAllByFacturaAndActiveTrue(factura.get());
+        if (movimientoBeanList.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        return movimientoBeanList.stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
     @Override
     public List<MovimientoDto> getAllBySesionId(Long sesionId) {
         var sesion = sesionCajaDao.findByIdAndActiveTrue(sesionId);
@@ -297,8 +258,13 @@ public class MovimientoService implements IMovimientoService {
 
     @Override
     public PageResponse<MovimientoDto> searchByFecha(int page, Date fechaMenor, Date fechaMayor) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaMayor.before(fechaMenor)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
         var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        var movimientoPage = dao.findAllByFechaBetween(pageRequest,fechaMenor,fechaMayor);
+        var movimientoPage = dao.findAllByFechaBetween(pageRequest, fechaMenor, fechaMayor);
         if (movimientoPage.isEmpty()) {
             throw new NotFoundException("No hay movimientos en la lista");
         }

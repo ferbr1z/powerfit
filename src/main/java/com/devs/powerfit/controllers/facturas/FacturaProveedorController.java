@@ -10,10 +10,13 @@ import com.devs.powerfit.services.facturas.FacturaProveedorDetalleService;
 import com.devs.powerfit.services.facturas.FacturaProveedorService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/facturas-proveedores")
@@ -35,6 +38,11 @@ public class FacturaProveedorController {
     public ResponseEntity<FacturaProveedorConDetallesDto> create(@RequestBody FacturaProveedorConDetallesDto facturaDto) {
         return new ResponseEntity<>(facturaConDetallesService.create(facturaDto), HttpStatus.CREATED);
     }
+    @GetMapping("/{fechaInicio}/{fechaFin}/page/{page}")
+    ResponseEntity<PageResponse<FacturaProveedorConDetallesDto>> getAllBetween(@PathVariable int page, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(facturaConDetallesService.searchByFecha(page,fechaInicio, fechaFin), HttpStatus.OK);
+    }
+
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/{id}")

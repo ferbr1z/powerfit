@@ -8,7 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -25,11 +26,11 @@ public class ArqueoBean extends AbstractBean {
 
     @Column
     @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private LocalDate fecha;
 
     @Column
     @Temporal(TemporalType.TIME)
-    private Date hora;
+    private LocalTime hora;
 
     @Column
     private Double montoTotal;

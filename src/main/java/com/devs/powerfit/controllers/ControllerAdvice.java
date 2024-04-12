@@ -36,7 +36,7 @@ public class ControllerAdvice {
                 .map(violation -> {
                     String field = violation.getPropertyPath().toString();
                     String errorMessage = violation.getMessage();
-                    return "'" + field + "': " + errorMessage;
+                    return  field + ": " + errorMessage;
                 })
                 .collect(Collectors.joining("; "));
 
