@@ -54,22 +54,22 @@ public class ReportesClienteService {
     }
     public SuscripcionGananciasDto calcularGanancias() {
 
-        List<SuscripcionBean> suscripcionBeans = suscripcionDao.findAll();
+        List<SuscripcionBean> suscripcionBeans = suscripcionDao.findAllByActiveTrue();
         if(suscripcionBeans==null){
             throw new BadRequestException("No existen suscripciones activas");
         }
         Double gananciasPotenciales = suscripcionBeans.stream()
-                .mapToDouble(SuscripcionBean::getMonto)
+                .mapToDouble(suscripcion -> suscripcion.getMonto() != null ? suscripcion.getMonto() : 0)
                 .sum();
 
         Double gananciasPagadas = suscripcionBeans.stream()
                 .filter(suscripcion -> suscripcion.getEstado() == EEstado.PAGADO)
-                .mapToDouble(SuscripcionBean::getMonto)
+                .mapToDouble(suscripcion -> suscripcion.getMonto() != null ? suscripcion.getMonto() : 0)
                 .sum();
 
         Double perdidasMorosos = suscripcionBeans.stream()
                 .filter(suscripcion -> suscripcion.getEstado() == EEstado.PENDIENTE)
-                .mapToDouble(SuscripcionBean::getMonto)
+                .mapToDouble(suscripcion -> suscripcion.getMonto() != null ? suscripcion.getMonto() : 0)
                 .sum();
 
         SuscripcionGananciasDto dto=new SuscripcionGananciasDto();

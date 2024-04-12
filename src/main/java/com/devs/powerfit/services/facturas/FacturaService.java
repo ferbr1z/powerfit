@@ -103,9 +103,9 @@ public class FacturaService implements IFacturaService {
             factura.setDireccion("Sin direccion");
         }else {
             factura.setCliente(clienteMapper.toBean(clienteDto));
-            factura.setNombreCliente(facturaDto.getNombreCliente());
-            factura.setRucCliente(facturaDto.getRucCliente());
-            factura.setDireccion(facturaDto.getDireccion());
+            factura.setNombreCliente(clienteDto.getNombre());
+            factura.setRucCliente(clienteDto.getRuc());
+            factura.setDireccion(clienteDto.getDireccion());
         }
         factura.setTimbrado(facturaDto.getTimbrado());
         factura.setNroFactura(obtenerNumeroFacturaCompleto(facturaDto.getSesionId()));
@@ -126,6 +126,11 @@ public class FacturaService implements IFacturaService {
 
         // Retornar la FacturaDto creada
         return mapper.toDto(savedFactura);
+    }
+
+    private String obtenerNombreDeCliente(Long clienteId) {
+        var cliente= clienteService.getById(clienteId);
+        return cliente.getNombre();
     }
 
 
