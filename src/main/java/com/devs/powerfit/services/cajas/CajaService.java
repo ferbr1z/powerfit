@@ -40,6 +40,11 @@ public class CajaService implements ICajaService {
             throw new BadRequestException("El monto de la caja no puede ser negativo.");
         }
 
+        // Verificar si ya hay 5 cajas creadas
+        if (cajaDao.count() >= 5) {
+            throw new BadRequestException("Ya se han creado 5 cajas. No se pueden crear más.");
+        }
+
         // Buscar la última caja creada
         Optional<CajaBean> lastCajaOptional = cajaDao.findFirstByOrderByNumeroCajaDesc();
 
@@ -64,6 +69,7 @@ public class CajaService implements ICajaService {
 
         return mapper.toDto(caja);
     }
+
 
     @Override
     public CajaDto getById(Long id) {
