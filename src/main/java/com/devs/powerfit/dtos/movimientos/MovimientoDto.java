@@ -12,7 +12,8 @@ public class MovimientoDto extends AbstractDto {
     private Long facturaId;
     private Long facturaProveedorId;
     private Long sesionId;
-    private Long ticketId;
+    private String comprobanteNumero;
+    private String comprobanteNombre;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fecha;
     @JsonFormat(pattern = "HH:mm:ss")
