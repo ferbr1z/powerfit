@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequestMapping("/movimientos")
 public class MovimientoController {
@@ -39,5 +41,45 @@ public class MovimientoController {
     ResponseEntity<PageResponse<MovimientoConDetalleDto>> getAll(@PathVariable Long id,@PathVariable int page){
         return new ResponseEntity<>(service.getAllBySesionId(page,id), HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/search/nombre/{name}/page/{page}")
+    ResponseEntity<PageResponse<MovimientoConDetalleDto>> getAll(@PathVariable String name,@PathVariable int page){
+        return new ResponseEntity<>(service.searchByComprobanteNombre(page,name), HttpStatus.OK);
+    }
+    //No funcional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/search/facturas/page/{page}")
+    public ResponseEntity<PageResponse<MovimientoConDetalleDto>> searchFacturasMovimientos(
+            @PathVariable int page,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Boolean entrada,
+            @RequestParam(required = false) LocalDate fechaInicio,
+            @RequestParam(required = false) LocalDate fechaFin,
+            @RequestParam(required = false) String nombreCaja) {
+
+        PageResponse<MovimientoConDetalleDto> response = service.searchMovimientoByNombreAndFacturaAndEntradaAndFechaBetweenAndNombreCaja(
+                page, nombre, entrada, fechaInicio, fechaFin, nombreCaja);
+
+        return ResponseEntity.ok(response);
+    }
+
+    //No funcional
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/search/facturas-proveedores/page/{page}")
+    public ResponseEntity<PageResponse<MovimientoConDetalleDto>> searchFacturasProveedoresMovimientos(
+            @PathVariable int page,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Boolean entrada,
+            @RequestParam(required = false) LocalDate fechaInicio,
+            @RequestParam(required = false) LocalDate fechaFin,
+            @RequestParam(required = false) String nombreCaja) {
+
+        PageResponse<MovimientoConDetalleDto> response = service.searchMovimientoByNombreAndFacturaProveedorAndEntradaAndFechaBetweenAndNombreCaja(
+                page, nombre, entrada, fechaInicio, fechaFin, nombreCaja);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

@@ -23,8 +23,12 @@ import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaProveedorMapper;
 import com.devs.powerfit.utils.mappers.movimientoMappers.MovimientoMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -304,6 +308,75 @@ public class MovimientoService implements IMovimientoService {
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public PageResponse<MovimientoDto> searchByComprobanteNombre(int page, String nombre) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var movimientoPage = dao.findAllByComprobanteNombreContainingIgnoreCase(pageRequest,nombre);
+        if (movimientoPage.isEmpty()) {
+            throw new NotFoundException("No hay movimientos en la lista");
+        }
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+        return new PageResponse<>(movimientoDtoPage.getContent(),
+                movimientoDtoPage.getTotalPages(),
+                movimientoDtoPage.getTotalElements(),
+                movimientoDtoPage.getNumber() + 1);
+    }
+
+    @Override
+    public PageResponse<MovimientoDto> searchFacturaByNombreComprobanteAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombreComprobante, Boolean entrada, LocalDate fechaInicio, LocalDate fechaFin,String nombreCaja) {
+
+        // Configurar la paginación
+        var pageable = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+
+        // Realizar la consulta en el DAO
+        var movimientoPage = dao.findAllByComprobanteNombreContainingIgnoreCaseOrEntrada(pageable, nombreComprobante,entrada);
+
+        // Verificar si la página está vacía
+        if (movimientoPage.isEmpty()) {
+            // Si la página está vacía, lanzar una excepción de NotFoundException
+            throw new NotFoundException("No se encontraron movimientos para los criterios de búsqueda proporcionados");
+        }
+
+        // Mapear los resultados a DTOs
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+
+        // Crear y devolver la respuesta paginada
+        return new PageResponse<>(
+                movimientoDtoPage.getContent(),           // Lista de DTOs en la página actual
+                movimientoDtoPage.getTotalPages(),       // Número total de páginas
+                movimientoDtoPage.getTotalElements(),    // Número total de elementos en todas las páginas
+                movimientoDtoPage.getNumber() + 1        // Número de la página actual (empezando desde 1)
+        );
+    }
+
+
+    @Override
+    public PageResponse<MovimientoDto> searchFacturaProveedorByNombreComprobanteAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombre, Boolean entrada, LocalDate fechaInicio, LocalDate fechaFin,String nombreCaja) {
+        // Configurar la paginación
+        var pageable = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+
+        // Realizar la consulta en el DAO
+        var movimientoPage = findByFilters(pageable, nombre, entrada, fechaInicio, fechaFin,nombreCaja);
+
+        // Verificar si la página está vacía
+        if (movimientoPage.isEmpty()) {
+            // Si la página está vacía, lanzar una excepción de NotFoundException
+            throw new NotFoundException("No se encontraron movimientos para los criterios de búsqueda proporcionados");
+        }
+
+        // Mapear los resultados a DTOs
+        var movimientoDtoPage = movimientoPage.map(mapper::toDto);
+
+        // Crear y devolver la respuesta paginada
+        return new PageResponse<>(
+                movimientoDtoPage.getContent(),           // Lista de DTOs en la página actual
+                movimientoDtoPage.getTotalPages(),       // Número total de páginas
+                movimientoDtoPage.getTotalElements(),    // Número total de elementos en todas las páginas
+                movimientoDtoPage.getNumber() + 1        // Número de la página actual (empezando desde 1)
+        );
+    }
+
     private String obtenerNombreDeEmpleado(Long sesionId) {
         Optional<SesionCajaBean> sesionOptional = sesionCajaDao.findByIdAndActiveTrue(sesionId);
         if (sesionOptional.isPresent()) {
@@ -334,6 +407,25 @@ public class MovimientoService implements IMovimientoService {
             throw new BadRequestException("La sesión no fue encontrada.");
         }
     }
+    public Page<MovimientoBean> findByFilters(Pageable pageable, String nombre, Boolean entrada, LocalDate fechaInicio, LocalDate fechaFin, String nombreCaja) {
+        return dao.findAll((Specification<MovimientoBean>) (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+            if (nombre != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("comprobanteNombre"), "%" + nombre + "%"));
+            }
+            if (entrada != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("entrada"), entrada));
+            }
+            if (fechaInicio != null && fechaFin != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.between(root.get("fecha"), fechaInicio, fechaFin));
+            }
+            if (nombreCaja != null) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("nombreCaja"), "%" + nombreCaja + "%"));
+            }
+            return predicate;
+        }, pageable);
+    }
+
 
 
 }

@@ -52,6 +52,7 @@ public class FacturaController {
     public ResponseEntity<PageResponse<FacturaConDetallesDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(facturaConDetallesService.getAll(page), HttpStatus.OK);
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/{fechaInicio}/{fechaFin}/page/{page}")
     ResponseEntity<PageResponse<FacturaConDetallesDto>> getAllBetween(@PathVariable int page, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
         return new ResponseEntity<>(facturaConDetallesService.searchByFecha(page,fechaInicio, fechaFin), HttpStatus.OK);
