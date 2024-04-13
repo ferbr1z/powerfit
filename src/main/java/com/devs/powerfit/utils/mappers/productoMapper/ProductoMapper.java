@@ -3,7 +3,6 @@ package com.devs.powerfit.utils.mappers.productoMapper;
 import com.devs.powerfit.abstracts.AbstractMapper;
 import com.devs.powerfit.beans.productos.ProductoBean;
 import com.devs.powerfit.dtos.productos.ProductoDto;
-import com.devs.powerfit.dtos.reportes.ProductosSinStockDto;
 import org.springframework.stereotype.Component;
 
 @Component

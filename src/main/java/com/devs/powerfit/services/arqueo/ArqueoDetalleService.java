@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,31 +33,24 @@ public class ArqueoDetalleService implements IArqueoDetallesService {
 
     @Override
     public List<ArqueoDetalleBean> generarDetalles(ArqueoBean arqueo, List<MovimientoBean> movimientos) {
-        List<ArqueoDetalleBean> detalles = new ArrayList<>();
-        for (MovimientoBean movimiento : movimientos) {
-            List<MovimientoDetalleBean> detallesMovimiento = movimientoDetalleDao.findAllByMovimientoAndActiveTrue(movimiento);
-            for (MovimientoDetalleBean detalleMovimiento : detallesMovimiento) {
-                ArqueoDetalleBean detalle;
-                if (movimiento.isEntrada()) {
-                    detalle = new ArqueoDetalleBean();
-                    detalle.setActive(true);
-                    detalle.setArqueo(arqueo);
-                    detalle.setMontoEntrada(detalleMovimiento.getMonto());
-                    detalle.setMontoSalida(0.0);
-                    detalle.setMovimiento(movimiento);
-                } else {
-                    detalle = new ArqueoDetalleBean();
-                    detalle.setActive(true);
-                    detalle.setArqueo(arqueo);
-                    detalle.setMontoEntrada(0.0);
-                    detalle.setMontoSalida(detalleMovimiento.getMonto());
-                    detalle.setMovimiento(movimiento);
-                }
-                detalles.add(detalle);
-            }
-        }
-        return detalles;
+        return movimientos.stream()
+                .flatMap(movimiento -> {
+                    List<MovimientoDetalleBean> detallesMovimiento = movimientoDetalleDao.findAllByMovimientoAndActiveTrue(movimiento);
+                    return detallesMovimiento.stream()
+                            .map(detalleMovimiento -> {
+                                ArqueoDetalleBean detalle = new ArqueoDetalleBean();
+                                detalle.setActive(true);
+                                detalle.setArqueo(arqueo);
+                                detalle.setMontoEntrada(movimiento.isEntrada() ? detalleMovimiento.getMonto() : 0.0);
+                                detalle.setMontoSalida(movimiento.isEntrada() ? 0.0 : detalleMovimiento.getMonto());
+                                detalle.setMovimiento(movimiento);
+                                return detalle;
+                            });
+                })
+                .collect(Collectors.toList());
     }
+
+
 
     @Override
     public void guardarDetalles(List<ArqueoDetalleBean> detalles) {

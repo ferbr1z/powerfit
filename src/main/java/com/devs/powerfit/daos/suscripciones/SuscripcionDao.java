@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +25,14 @@ public interface SuscripcionDao extends JpaRepository<SuscripcionBean,Long>{
     Page<SuscripcionBean> findAllByActividadAndActiveTrue(ActividadBean actividad,Pageable pageable);
     boolean existsByClienteAndEstadoAndActiveTrue(ClienteBean cliente, EEstado estado);
     List<SuscripcionBean> findAllByEstadoAndActiveTrueAndFinalizadoFalse(EEstado estado);
-    List<SuscripcionBean> findAllByClienteAndActiveTrue(ClienteBean cliente);
+
+
     List<SuscripcionBean> findAllByActiveTrue();
+    List<SuscripcionBean> findAllByActiveTrueAndFinalizadoFalse();
+    Long countByClienteAndEstadoAndActiveTrue(ClienteBean cliente, EEstado estado);
+
+    List<SuscripcionBean> findAllByActiveTrueAndModalidad(EModalidad modalidad);
+    List<SuscripcionBean> findAllByClienteAndActiveTrue(ClienteBean cliente);
+
+
 }

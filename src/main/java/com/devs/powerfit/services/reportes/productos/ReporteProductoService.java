@@ -1,12 +1,20 @@
 package com.devs.powerfit.services.reportes.productos;
 
+import com.devs.powerfit.beans.productos.ProductoBean;
+import com.devs.powerfit.daos.productos.ProductoDao;
 import com.devs.powerfit.dtos.facturas.FacturaDetalleDto;
 import com.devs.powerfit.dtos.productos.ProductoDto;
-import com.devs.powerfit.dtos.reportes.ProductoMasVendidoDTO;
+import com.devs.powerfit.dtos.reportes.productos.ProductoMasVendidoDTO;
+import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.facturas.IFacturaDetalleService;
 import com.devs.powerfit.interfaces.productos.IProductoService;
-import com.devs.powerfit.interfaces.reportes.productos.IProductosMasVendidosService;
+import com.devs.powerfit.interfaces.reportes.productos.IProductoReportesService;
+import com.devs.powerfit.utils.Setting;
+import com.devs.powerfit.utils.mappers.productoMapper.ProductoMapper;
+import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,16 +24,21 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class ProductosMasVendidosService implements IProductosMasVendidosService {
+public class ReporteProductoService implements IProductoReportesService {
 
     private final IFacturaDetalleService facturaDetalleService;
     private final IProductoService productoService;
+    private final ProductoDao productoDao;
+    private final ProductoMapper mapper;
 
     @Autowired
-    public ProductosMasVendidosService(IFacturaDetalleService facturaDetalleService, IProductoService productoService) {
+    public ReporteProductoService(IFacturaDetalleService facturaDetalleService, IProductoService productoService, ProductoDao productoDao, ProductoMapper mapper) {
         this.facturaDetalleService = facturaDetalleService;
         this.productoService = productoService;
+        this.productoDao = productoDao;
+        this.mapper = mapper;
     }
+
 
 
     @Override
@@ -54,18 +67,31 @@ public class ProductosMasVendidosService implements IProductosMasVendidosService
         return productosMasVendidosBetween(fechaInicio,fechaFin);
     }
 
+    @Override
+    public PageResponse<ProductoDto> getAll(int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page productos = productoDao.findAllByCantidadAndActiveIsTrue(pag, 0);
+        if (productos.isEmpty()){
+            throw new NotFoundException("No hay productos sin Stock");
+        }
+        var productosDto = productos.map(producto ->
+                mapper.toDto((ProductoBean) producto));
+        return new PageResponse<ProductoDto>(productosDto.getContent(),
+                productosDto.getTotalPages(),
+                productosDto.getTotalElements(),
+                productosDto.getNumber() + 1);
+    }
+
+    @Override
+    public Long getCantidadSinStock() {
+        return productoDao.countByCantidadAndActiveIsTrue(0);
+    }
+
     // Método privado para mapear los detalles de factura y ticket por producto y cantidad vendida
     private Map<Long, Integer> mapearVentasPorProducto(List<FacturaDetalleDto> detallesFactura) {
-        Map<Long, Integer> ventasPorProducto = new HashMap<>();
-
-        // Mapear detalles de factura
-        detallesFactura.forEach(detalleFactura ->
-                ventasPorProducto.put(detalleFactura.getProductoId(),
-                        ventasPorProducto.getOrDefault(detalleFactura.getProductoId(), 0) + detalleFactura.getCantidad()));
-
-
-
-        return ventasPorProducto;
+        return  detallesFactura.stream()
+                .collect(Collectors.groupingBy(FacturaDetalleDto::getProductoId,
+                        Collectors.summingInt(FacturaDetalleDto::getCantidad)));
     }
 
     // Método privado para ordenar los productos por cantidad vendida
