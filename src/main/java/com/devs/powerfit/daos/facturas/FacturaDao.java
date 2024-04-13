@@ -4,6 +4,7 @@ import com.devs.powerfit.beans.actividades.ActividadBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -24,4 +25,5 @@ public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
     Page<FacturaBean>findAllByNombreClienteContainingIgnoreCaseAndPagado(Pageable pageable,String nombre,boolean pagado);
     List<FacturaBean> findAllByFechaBetweenAndActiveTrue(LocalDate fechaInicio, LocalDate fechaFin);
     Page<FacturaBean> findAllByClienteAndPagadoTrueAndActiveTrue(Pageable pageable, ClienteBean clienteBean);
+    Page<FacturaBean> findAllByFechaBetween(Pageable pageRequest, LocalDate fechaInicio, LocalDate fechaFin);
 }

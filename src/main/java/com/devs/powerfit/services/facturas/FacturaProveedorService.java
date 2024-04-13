@@ -2,6 +2,7 @@ package com.devs.powerfit.services.facturas;
 
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
+import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
 import com.devs.powerfit.exceptions.BadRequestException;
@@ -215,5 +216,22 @@ public class FacturaProveedorService implements IFacturaProveedorService {
 
         // Construir el número de factura con el formato especificado
         return primerTrioStr + "-" + segundoTrioStr + "-" + octalStr;
+    }
+    public PageResponse<FacturaProveedorDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaFin.isBefore(fechaInicio)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturaPage = facturaDao.findAllByFechaBetween(pageRequest, fechaInicio, fechaFin);
+        if (facturaPage.isEmpty()) {
+            throw new NotFoundException("No hay facturas en la lista");
+        }
+        var facturaDtoPage = facturaPage.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
     }
 }

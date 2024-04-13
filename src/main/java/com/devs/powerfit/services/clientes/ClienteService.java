@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -199,4 +198,11 @@ public class ClienteService implements IClienteService {
 
         return pageResponse;
     }
+    public Long countNewClients(LocalDate startOfMonth, LocalDate endOfMonth) {
+        if(startOfMonth.isAfter(startOfMonth)){
+            throw new BadRequestException("La fecha de inicio no puede ser posterior a la fecha de fin");
+        }
+        return clienteDao.countClientesByFechaRegistroBetween(startOfMonth, endOfMonth);
+    }
+
 }

@@ -26,6 +26,7 @@ public class SuscripcionDto extends AbstractDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaInicio;
     @JsonFormat(pattern = "yyyy-MM-dd")
+    private Double monto;
     private LocalDate fechaFin;
     private String modalidad;
 }
