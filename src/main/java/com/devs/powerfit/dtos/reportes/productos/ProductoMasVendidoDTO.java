@@ -1,4 +1,4 @@
-package com.devs.powerfit.dtos.reportes;
+package com.devs.powerfit.dtos.reportes.productos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductoMasVendidoDTO {
-//    private Long id;
     private String nombreProducto;
     private int cantidadVendida;
 }
