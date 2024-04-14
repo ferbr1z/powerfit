@@ -1,6 +1,7 @@
 package com.devs.powerfit.services.movimientos;
 
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.dtos.movimientos.IngresosTotalesDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
@@ -174,6 +175,11 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
 
         // Devolver la lista de movimientos con detalles
         return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+    }
+
+    @Override
+    public IngresosTotalesDto getByFechaBetween(LocalDate fechaInicio, LocalDate fechaFin) {
+        return movimientoService.getIngresosByFechaBetween(fechaInicio,fechaFin);
     }
 
 

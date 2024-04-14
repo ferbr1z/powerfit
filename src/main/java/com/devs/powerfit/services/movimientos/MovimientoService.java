@@ -11,6 +11,7 @@ import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
+import com.devs.powerfit.dtos.movimientos.IngresosTotalesDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -424,6 +425,23 @@ public class MovimientoService implements IMovimientoService {
             }
             return predicate;
         }, pageable);
+    }
+    public IngresosTotalesDto getIngresosByFechaBetween(LocalDate fechaInicio,LocalDate fechaFin){
+        if(fechaInicio.isAfter(fechaFin)){
+            throw new BadRequestException("La fecha de inicio no puede ser posterior a la fecha fin");
+        }
+        List<MovimientoBean> movimientos=dao.findAllByFechaBetweenAndEntradaTrue(fechaInicio,fechaFin);
+        if (movimientos.isEmpty()){
+            throw new NotFoundException("No hay ingresos en ese rango de fecha");
+        }
+        // Sumar los totales de los movimientos
+        double ingresoTotal = movimientos.stream()
+                .mapToDouble(MovimientoBean::getTotal)
+                .sum();
+
+        IngresosTotalesDto ingresos=new IngresosTotalesDto();
+        ingresos.setIngresoTotal(ingresoTotal);
+        return ingresos;
     }
 
 

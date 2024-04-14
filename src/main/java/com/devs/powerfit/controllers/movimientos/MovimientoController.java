@@ -1,10 +1,13 @@
 package com.devs.powerfit.controllers.movimientos;
 
+import com.devs.powerfit.dtos.facturas.FacturaConDetallesDto;
+import com.devs.powerfit.dtos.movimientos.IngresosTotalesDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.dtos.productos.ProductoDto;
 import com.devs.powerfit.services.movimientos.MovimientoConDetalleService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,6 +33,11 @@ public class MovimientoController {
     @GetMapping("/{id}")
     ResponseEntity<MovimientoConDetalleDto> getById(@PathVariable Long id){
         return new ResponseEntity<>(service.getById(id), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/reportes/ingresos/{fechaInicio}/{fechaFin}")
+    ResponseEntity<IngresosTotalesDto> getAllBetween(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(service.getByFechaBetween(fechaInicio, fechaFin), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/page/{page}")

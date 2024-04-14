@@ -1,6 +1,7 @@
 package com.devs.powerfit.interfaces.movimientos;
 
 import com.devs.powerfit.dtos.facturas.FacturaConDetallesDto;
+import com.devs.powerfit.dtos.movimientos.IngresosTotalesDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
 import com.devs.powerfit.interfaces.bases.IService;
@@ -17,7 +18,7 @@ public interface IMovimientoConDetalleService extends IService<MovimientoConDeta
     PageResponse<MovimientoConDetalleDto> searchByComprobanteNombre(int page,String nombre);
     PageResponse<MovimientoConDetalleDto> searchMovimientoByNombreAndFacturaAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombre, Boolean entrada, LocalDate fechaInicio,LocalDate fechaFin,String nombreCaja);
     PageResponse<MovimientoConDetalleDto> searchMovimientoByNombreAndFacturaProveedorAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombre, Boolean entrada, LocalDate fechaInicio,LocalDate fechaFin,String nombreCaja);
-
+    IngresosTotalesDto getByFechaBetween(LocalDate fechaInicio,LocalDate fechaFin);
 
 
 }

@@ -37,6 +37,6 @@ public interface MovimientoDao extends JpaRepository<MovimientoBean,Long> {
     Page<MovimientoBean> findAllByComprobanteNombreContainingIgnoreCaseOrEntrada(Pageable pageable,String nombre,Boolean entrada);
     Page<MovimientoBean> findAllByComprobanteNombreContainingIgnoreCaseAndFacturaIsNotNullAndEntradaAndFechaBetweenAndNombreCajaContainingIgnoreCase(Pageable pageable, String nombre, Boolean entrada, LocalDate fechaInicio,LocalDate fechaFin,String nombreCaja);
 
-
+    List<MovimientoBean> findAllByFechaBetweenAndEntradaTrue(LocalDate fechaInicio,LocalDate fechaFin);
     Page<MovimientoBean> findAll(Specification<MovimientoBean> movimientoBeanSpecification, Pageable pageable);
 }
