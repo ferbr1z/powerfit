@@ -70,6 +70,7 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
             extraccionDeCajaBean.setFecha(LocalDate.now());
         }
         caja.setMonto(caja.getMonto() - extraccionDeCajaDto.getMonto());
+        cajaService.update(caja.getId(), caja);
         extraccionDeCajaBean.setUsuario(empleado.get());
         extraccionDeCajaBean.setCaja(cajaMapper.toBean(caja));
         extraccionDeCajaBean.setNombreCaja(caja.getNombre());
