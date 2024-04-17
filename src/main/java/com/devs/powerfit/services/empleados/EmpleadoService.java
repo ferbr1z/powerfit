@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.empleados;
 
+import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import com.devs.powerfit.daos.auth.RolDao;
 import com.devs.powerfit.daos.empleados.EmpleadoDao;
@@ -15,6 +16,7 @@ import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,10 +92,10 @@ public class EmpleadoService implements IEmpleadoService {
     @Override
     public EmpleadoDto update(Long id, EmpleadoDto empleadoDto) {
         Optional<EmpleadoBean> empleadoOptional = empleadoDao.findByIdAndActiveIsTrue(id);
-
         if (empleadoOptional.isPresent()) {
             UsuarioDto usuarioDto = new UsuarioDto();
             EmpleadoBean empleadoBean = empleadoOptional.get();
+            UsuarioBean usuario = authService.getByEmail(empleadoBean.getEmail());
             if (empleadoDto.getNombre() != null) {
                 empleadoBean.setNombre(empleadoDto.getNombre());
                 usuarioDto.setNombre(empleadoDto.getNombre());
@@ -124,9 +126,8 @@ public class EmpleadoService implements IEmpleadoService {
                 empleadoBean.setEmail(empleadoDto.getEmail());
             }
             if (empleadoDto.getTelefono() != null) empleadoBean.setTelefono(empleadoDto.getTelefono());
-
             // Actualizar los datos del usuario asociado al empleado
-            authService.update(empleadoBean.getEmail(), usuarioDto); // Actualizar usuario
+            authService.update(usuario.getId(), usuarioDto); // Actualizar usuario
             empleadoDao.save(empleadoBean);
 
             return mapper.toDto(empleadoBean);

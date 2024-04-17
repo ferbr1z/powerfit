@@ -13,22 +13,24 @@ import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.SesionCajaMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.TimeZone;
 
 @Service
 @Transactional
 public class SesionCajaService implements ISesionCajaService {
-    private SesionCajaMapper sesionCajaMapper;
-    private SesionCajaDao sesionCajaDao;
-    private CajaDao cajaDao;
-    private UsuarioDao usuarioDao;
+    private final SesionCajaMapper sesionCajaMapper;
+    private final SesionCajaDao sesionCajaDao;
+    private final CajaDao cajaDao;
+    private final UsuarioDao usuarioDao;
+
     @Autowired
     public SesionCajaService(SesionCajaMapper mapper, SesionCajaDao sesionCajaDao, CajaDao cajaDao, UsuarioDao usuarioDao) {
         this.cajaDao = cajaDao;
@@ -39,9 +41,6 @@ public class SesionCajaService implements ISesionCajaService {
 
     @Override
     public SesionCajaDto create(SesionCajaDto sesionCajaDto) {
-        if (sesionCajaDto.getMontoInicial() ==null) {
-            throw new BadRequestException("El monto inicial no puede ser null");
-        }
 
         // Verificar si la fecha y la hora de apertura son válidas (no nulas)
         if (sesionCajaDto.getFecha() == null || sesionCajaDto.getHoraApertura() == null) {
@@ -59,45 +58,37 @@ public class SesionCajaService implements ISesionCajaService {
         // Realizar la apertura de la caja
         SesionCajaBean sesionCaja = new SesionCajaBean();
         sesionCaja.setActive(true);
-        var caja=cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
-        if(caja.isEmpty()){
-            throw new NotFoundException("No se encontro caja con ese id");
+        var caja = cajaDao.findByIdAndActiveTrue(sesionCajaDto.getIdCaja());
+        if (caja.isEmpty()) {
+            throw new NotFoundException("No se encontró caja con ese id");
         }
-        CajaBean cajaExistente=caja.get();
+        CajaBean cajaExistente = caja.get();
         sesionCaja.setCaja(cajaExistente);
-        var usuario=usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario());
-        if (usuario.isEmpty()){
-            throw new NotFoundException("No se encontro usuario con ese id");
+        var usuario = usuarioDao.findByIdAndActiveTrue(sesionCajaDto.getIdUsuario());
+        if (usuario.isEmpty()) {
+            throw new NotFoundException("No se encontró usuario con ese id");
         }
-        var usuarioExistente=usuario.get();
+        var usuarioExistente = usuario.get();
         sesionCaja.setUsuario(usuarioExistente);
         // Obtener el monto actual de la caja
         double montoCaja = cajaExistente.getMonto();
-        System.out.println("Monto de la caja existente: " + montoCaja);
+        sesionCaja.setMontoInicial(montoCaja);
 
-// Verificar si el monto inicial proporcionado coincide con el monto actual de la caja
-        if (montoCaja != sesionCajaDto.getMontoInicial()) {
-            throw new BadRequestException("No coinciden el monto inicial con el monto actual de caja");
-        }
-        sesionCaja.setMontoInicial(sesionCajaDto.getMontoInicial());
+        // Parsear cadena de fecha a LocalDate o establecer en la fecha actual
+        if (sesionCajaDto.getFecha() != null) {
+            LocalDate fechaFormateada = sesionCajaDto.getFecha();
+            sesionCaja.setFecha(fechaFormateada);
 
-        // Formatear cadena de fecha a objeto Date
-        SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
-        sdfFecha.setTimeZone(TimeZone.getTimeZone("UTC"));
-        try {
-            String fechaFormateada = sdfFecha.format(sesionCajaDto.getFecha());
-            sesionCaja.setFecha(sdfFecha.parse(fechaFormateada));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha inválido: " + sesionCajaDto.getFecha());
+        } else {
+            sesionCaja.setFecha(LocalDate.now());
         }
 
-        // Formatear cadena de hora a objeto Date
-        SimpleDateFormat sdfHora = new SimpleDateFormat("HH:mm:ss");
-        try {
-            String horaAperturaFormateada = sdfHora.format(sesionCajaDto.getHoraApertura());
-            sesionCaja.setHoraApertura(sdfHora.parse(horaAperturaFormateada));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de hora de apertura inválido: " + sesionCajaDto.getHoraApertura());
+// Parsear cadena de hora a LocalTime o establecer en la hora actual
+        if (sesionCajaDto.getHoraApertura() != null) {
+            LocalTime horaAperturaFormateada = sesionCajaDto.getHoraApertura();
+            sesionCaja.setHoraApertura(horaAperturaFormateada);
+        } else {
+            sesionCaja.setHoraApertura(LocalTime.now());
         }
 
         // Guardar la sesión de caja
@@ -105,10 +96,6 @@ public class SesionCajaService implements ISesionCajaService {
 
         return sesionCajaMapper.toDto(sesionCaja);
     }
-
-
-
-
 
 
     @Override
@@ -140,7 +127,7 @@ public class SesionCajaService implements ISesionCajaService {
             throw new NotFoundException("No hay sesiones de caja en la lista");
         }
 
-        // Mapear las sesiones de caja a DTOs y devolver la respuesta de página
+        // Mapear las sesiones de caja a DTO y devolver la respuesta de página
         var sesionesCajaDto = sesionesCaja.map(sesionCajaMapper::toDto);
         return new PageResponse<>(
                 sesionesCajaDto.getContent(),
@@ -180,24 +167,21 @@ public class SesionCajaService implements ISesionCajaService {
         if (sesionCajaDto.getHoraCierre() != null) {
             sesionCajaExistente.setHoraCierre(sesionCajaDto.getHoraCierre());
         }
-        // Actualizar la fecha si se proporciona en el DTO
+
+// Actualizar la fecha si se proporciona en el DTO
         if (sesionCajaDto.getFecha() != null) {
             // Verificar si la fecha proporcionada tiene el formato correcto
-            SimpleDateFormat sdfFecha = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                sesionCajaExistente.setFecha(sdfFecha.parse(sdfFecha.format(sesionCajaDto.getFecha())));
-            } catch (ParseException e) {
-                throw new BadRequestException("Formato de fecha inválido: " + sesionCajaDto.getFecha());
-            }
+            LocalDate fechaFormateada =sesionCajaDto.getFecha();
+            sesionCajaExistente.setFecha(fechaFormateada);
         }
 
-        // Actualizar la hora de apertura si se proporciona en el DTO
+// Actualizar la hora de apertura si se proporciona en el DTO
         if (sesionCajaDto.getHoraApertura() != null) {
             // Verificar si la hora de apertura proporcionada tiene el formato correcto
-            SimpleDateFormat sdfHoraApertura = new SimpleDateFormat("HH:mm:ss");
             try {
-                sesionCajaExistente.setHoraApertura(sdfHoraApertura.parse(sdfHoraApertura.format(sesionCajaDto.getHoraApertura())));
-            } catch (ParseException e) {
+                LocalTime horaAperturaFormateada = sesionCajaDto.getHoraApertura();
+                sesionCajaExistente.setHoraApertura(horaAperturaFormateada);
+            } catch (DateTimeParseException e) {
                 throw new BadRequestException("Formato de hora de apertura inválido: " + sesionCajaDto.getHoraApertura());
             }
         }
@@ -212,27 +196,47 @@ public class SesionCajaService implements ISesionCajaService {
     public boolean delete(Long id) {
         return false;
     }
-    public boolean aumentarMontoCaja(Long id,Double monto){
+
+    public boolean aumentarMontoCaja(Long id, Double monto) {
         Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
-        if(sesionCajaExistente.isEmpty()){
+        if (sesionCajaExistente.isEmpty()) {
             return false;
         }
-        var caja= sesionCajaExistente.get().getCaja();
-        caja.setMonto(caja.getMonto()+monto);
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() + monto);
         cajaDao.save(caja);
         return true;
 
     }
-    public boolean disminuirMontoCaja(Long id,Double monto){
+
+    public boolean disminuirMontoCaja(Long id, Double monto) {
         Optional<SesionCajaBean> sesionCajaExistente = sesionCajaDao.findById(id);
-        if(sesionCajaExistente.isEmpty()){
+        if (sesionCajaExistente.isEmpty()) {
             return false;
         }
-        var caja= sesionCajaExistente.get().getCaja();
-        caja.setMonto(caja.getMonto()-monto);
+        var caja = sesionCajaExistente.get().getCaja();
+        caja.setMonto(caja.getMonto() - monto);
         cajaDao.save(caja);
         return true;
 
     }
+    public PageResponse<SesionCajaDto> searchByFecha(int page, LocalDate fechaInicio, LocalDate fechaFin) {
+        // Validar que la fecha final sea igual o posterior a la fecha inicial
+        if (fechaFin.isBefore(fechaInicio)) {
+            throw new BadRequestException("La fecha final debe ser igual o posterior a la fecha inicial");
+        }
+
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var sesionCajaPage = sesionCajaDao.findAllByFechaBetweenAndActiveTrue(pageRequest, fechaInicio, fechaFin);
+        if (sesionCajaPage.isEmpty()) {
+            throw new NotFoundException("No hay sesiones de caja en la lista");
+        }
+        var sesionCajaDtoPage = sesionCajaPage.map(sesionCajaMapper::toDto);
+        return new PageResponse<>(sesionCajaDtoPage.getContent(),
+                sesionCajaDtoPage.getTotalPages(),
+                sesionCajaDtoPage.getTotalElements(),
+                sesionCajaDtoPage.getNumber() + 1);
+    }
+
 
 }

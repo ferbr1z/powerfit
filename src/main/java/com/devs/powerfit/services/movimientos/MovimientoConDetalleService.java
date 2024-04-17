@@ -1,6 +1,7 @@
 package com.devs.powerfit.services.movimientos;
 
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
+import com.devs.powerfit.dtos.movimientos.IngresosTotalesDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoConDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDetalleDto;
 import com.devs.powerfit.dtos.movimientos.MovimientoDto;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,4 +135,52 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
         return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
 
     }
+
+
+    @Override
+    public PageResponse<MovimientoConDetalleDto> searchByComprobanteNombre(int page, String nombre) {
+        PageResponse<MovimientoDto> movimientoPage = movimientoService.searchByComprobanteNombre(page,nombre);
+
+        // Para cada movimiento, obtener sus detalles
+        List<MovimientoConDetalleDto> movimientoConDetallesList = movimientoPage.getItems().stream()
+                .map(movimientoDto -> getById(movimientoDto.getId())) // Obtener la movimiento con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de movimientos con detalles
+        return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+
+    }
+
+    @Override
+    public PageResponse<MovimientoConDetalleDto> searchMovimientoByNombreAndFacturaAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombre, Boolean entrada, LocalDate fechaInicio, LocalDate fechaFin, String nombreCaja) {
+        PageResponse<MovimientoDto> movimientoPage = movimientoService.searchFacturaByNombreComprobanteAndEntradaAndFechaBetweenAndNombreCaja(page, nombre, entrada, fechaInicio, fechaFin, nombreCaja);
+
+        // Para cada movimiento, obtener sus detalles
+        List<MovimientoConDetalleDto> movimientoConDetallesList = movimientoPage.getItems().stream()
+                .map(movimientoDto -> getById(movimientoDto.getId())) // Obtener la movimiento con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de movimientos con detalles
+        return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+    }
+
+    @Override
+    public PageResponse<MovimientoConDetalleDto> searchMovimientoByNombreAndFacturaProveedorAndEntradaAndFechaBetweenAndNombreCaja(int page, String nombre, Boolean entrada, LocalDate fechaInicio, LocalDate fechaFin, String nombreCaja) {
+        PageResponse<MovimientoDto> movimientoPage = movimientoService.searchFacturaProveedorByNombreComprobanteAndEntradaAndFechaBetweenAndNombreCaja(page, nombre, entrada, fechaInicio, fechaFin, nombreCaja);
+
+        // Para cada movimiento, obtener sus detalles
+        List<MovimientoConDetalleDto> movimientoConDetallesList = movimientoPage.getItems().stream()
+                .map(movimientoDto -> getById(movimientoDto.getId())) // Obtener la movimiento con detalles
+                .collect(Collectors.toList());
+
+        // Devolver la lista de movimientos con detalles
+        return new PageResponse<>(movimientoConDetallesList, movimientoPage.getTotalPages(), movimientoPage.getTotalItems(), movimientoPage.getCurrentPage());
+    }
+
+    @Override
+    public IngresosTotalesDto getByFechaBetween(LocalDate fechaInicio, LocalDate fechaFin) {
+        return movimientoService.getIngresosByFechaBetween(fechaInicio,fechaFin);
+    }
+
+
 }

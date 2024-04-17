@@ -6,6 +6,7 @@ import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -29,15 +31,26 @@ public class MovimientoBean extends AbstractBean {
     @JoinColumn(name = "factura_proveedor_id")
     private FacturaProveedorBean facturaProveedor;
     @ManyToOne
-    @NotNull
+    @NotNull(message = "Sesion no puede ser null")
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
     @Column
-    private Date fecha;
+    @NotNull(message = "Fecha no puede ser nula")
+    private LocalDate fecha;
     @Column
-    private Date hora;
+    @NotNull(message = "Hora no puede ser nula")
+    private LocalTime hora;
     @Column
-    @Positive
+    @Positive(message = "El total debe ser positivo")
+    @NotNull(message = "El total no puede ser nulo")
+    @Min(value = 1,message = "Total debe ser mayor a 0")
     private Double total;
     private boolean entrada;
+    @NotNullAndNotBlank(message = "El nombre de caja no puede ser nulo ni en blanco")
+    private String nombreCaja;
+    @NotNullAndNotBlank(message = "El nombre de empleado no puede ser nulo ni en blanco")
+    private String nombreEmpleado;
+    private String comprobanteNombre;
+    @NotNullAndNotBlank(message = "El numero de comprobante no puede ser nulo ni en blanco")
+    private String comprobanteNumero;
 }

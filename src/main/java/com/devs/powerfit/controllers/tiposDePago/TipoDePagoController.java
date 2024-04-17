@@ -20,37 +20,37 @@ public class TipoDePagoController {
         this.tipoDePagoService = tipoDePagoService;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @PostMapping
     public ResponseEntity<TipoDePagoDto> create(@RequestBody TipoDePagoDto tipoDePagoDto) {
         return new ResponseEntity<>(tipoDePagoService.create(tipoDePagoDto), HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/{id}")
     public ResponseEntity<TipoDePagoDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(tipoDePagoService.getById(id), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/page/{page}")
     public ResponseEntity<PageResponse<TipoDePagoDto>> getAll(@PathVariable int page) {
         return new ResponseEntity<>(tipoDePagoService.getAll(page), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @PutMapping("/{id}")
     public ResponseEntity<TipoDePagoDto> update(@PathVariable Long id, @RequestBody TipoDePagoDto tipoDePagoDto) {
         return new ResponseEntity<>(tipoDePagoService.update(id, tipoDePagoDto), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return new ResponseEntity<>(tipoDePagoService.delete(id), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/search/{nombre}/page/{page}")
     public ResponseEntity<PageResponse<TipoDePagoDto>> searchByName(@PathVariable int page, @PathVariable String nombre) {
         return new ResponseEntity<>(tipoDePagoService.searchByNombre(nombre, page), HttpStatus.OK);

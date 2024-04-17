@@ -3,12 +3,11 @@ package com.devs.powerfit.beans.cajas;
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.utils.anotaciones.NotNullAndNotBlank;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Table(name = "cajas")
@@ -17,10 +16,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CajaBean extends AbstractBean {
     @Column(unique = true)
-    @NotNullAndNotBlank
+    @NotNullAndNotBlank(message = "El nombre de la caja no puede ser nulo ni en blanco")
     private String nombre;
+    @NotNull(message = "El monto no puede ser nulo")
     private Double monto;
     @Positive
+    @NotNull(message = "El número de caja no puede ser nulo")
     private Long numeroCaja;
     private Long numeroFactura;
 }

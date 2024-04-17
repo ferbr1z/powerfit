@@ -8,10 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,8 +18,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Table(name = "productos")
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductoBean extends AbstractBean {
 
     @Column
@@ -39,7 +36,7 @@ public class ProductoBean extends AbstractBean {
     @NotNullable
     @Column
     @Min(value = 0, message = "La cantidad debe ser mayor o igual que cero")
-    private Long cantidad;
+    private Integer cantidad;
 
     @NotNullable
     @Column
@@ -54,6 +51,10 @@ public class ProductoBean extends AbstractBean {
     @NotNullable
     @Column
     private double iva;
+
+    @Column
+    @Min(value = 1, message = "Debe ser mayor que cero")
+    private Integer cantidadLimite;
 
     @AssertTrue(message = "El IVA debe ser 0.00, 0.05 o 0.10")
     public boolean isValidIva() {

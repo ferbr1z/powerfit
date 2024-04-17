@@ -11,5 +11,9 @@ public class MovimientoDetalleMapper extends AbstractMapper<MovimientoDetalleBea
     public MovimientoDetalleBean toBean(MovimientoDetalleDto dto) {return modelMapper.map(dto, MovimientoDetalleBean.class);}
 
     @Override
-    public MovimientoDetalleDto toDto(MovimientoDetalleBean bean) {return modelMapper.map(bean, MovimientoDetalleDto.class);}
+    public MovimientoDetalleDto toDto(MovimientoDetalleBean bean) {
+        MovimientoDetalleDto movimientoDetalleDto=modelMapper.map(bean, MovimientoDetalleDto.class);
+        movimientoDetalleDto.setTipoMovimiento(bean.getTipoDePago().getNombre());
+        return movimientoDetalleDto;
+    }
 }

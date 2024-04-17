@@ -1,5 +1,6 @@
 package com.devs.powerfit.services.suscripciones;
 
+import com.devs.powerfit.beans.actividades.ActividadBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
@@ -22,9 +23,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,21 +73,8 @@ public class SuscripcionService implements ISuscripcionDetalleService {
 
         // Convertir el valor del campo modalidad del DTO a un objeto EModalidad
         EModalidad modalidad = EModalidad.valueOf(suscripcionDto.getModalidad());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         // Obtener la fecha de inicio
-        Date fechaInicio;
-        if (suscripcionDto.getFechaInicio() != null) {
-            try {
-                fechaInicio = sdf.parse(sdf.format(suscripcionDto.getFechaInicio()));
-            } catch (ParseException e) {
-                throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
-            }
-        } else {
-            fechaInicio = new Date();
-        }
-
+        LocalDate fechaInicio = suscripcionDto.getFechaInicio() != null ? suscripcionDto.getFechaInicio() : LocalDate.now();
         // Crear el detalle de suscripcion
         SuscripcionBean suscripcionDetalle = new SuscripcionBean();
         suscripcionDetalle.setCliente(clienteMapper.toBean(clienteDto));
@@ -95,25 +83,17 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         suscripcionDetalle.setModalidad(modalidad);
         suscripcionDetalle.setFechaInicio(fechaInicio);
         suscripcionDetalle.setFinalizado(false);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(fechaInicio);
-
-        // Verificar si la modalidad es MENSUAL
-        if (modalidad == EModalidad.MENSUAL) {
-            calendar.add(Calendar.MONTH, 1);
-        } else {
-            // Si no es MENSUAL, entonces es SEMANAL
-            calendar.add(Calendar.WEEK_OF_YEAR, 1);
-        }
-
         // Calcular la fecha de fin
-        Date fechaFin = calendar.getTime();
-        try {
-            suscripcionDetalle.setFechaFin(sdf.parse(sdf.format(fechaFin)));
-        } catch (ParseException e) {
-            throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
+        LocalDate fechaFin;
+        if (modalidad == EModalidad.MENSUAL) {
+            fechaFin = fechaInicio.plusMonths(1);
+            suscripcionDetalle.setMonto(actividadDto.getCostoMensual());
+        } else {
+            fechaFin = fechaInicio.plusWeeks(1);
+            suscripcionDetalle.setMonto(actividadDto.getCostoSemanal());
         }
+        suscripcionDetalle.setFechaFin(fechaFin);
+
         suscripcionDetalle.setActive(true); // Establecer como activa
 
         // Guardar el detalle de suscripcion en la base de datos
@@ -122,6 +102,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         // Retornar el detalle de suscripcion creado
         return detalleCreado;
     }
+
 
 
 
@@ -166,21 +147,17 @@ public class SuscripcionService implements ISuscripcionDetalleService {
 
                 // Actualizar la fecha de inicio si se proporciona en el DTO
                 if (suscripcionDto.getFechaInicio() != null) {
-                    try {
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                        Date fechaInicio = sdf.parse(sdf.format(suscripcionDto.getFechaInicio()));
-                        suscripcionDetalleBean.setFechaInicio(fechaInicio);
+                    LocalDate fechaInicio = suscripcionDto.getFechaInicio();
+                    suscripcionDetalleBean.setFechaInicio(fechaInicio);
 
-                        // Recalcular la fecha de fin basada en la nueva fecha de inicio y la modalidad
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(fechaInicio);
-                        int field = (modalidad == EModalidad.MENSUAL) ? Calendar.MONTH : Calendar.WEEK_OF_YEAR;
-                        calendar.add(field, 1);
-                        Date fechaFin = calendar.getTime();
-                        suscripcionDetalleBean.setFechaFin(sdf.parse(sdf.format(fechaFin)));
-                    } catch (ParseException e) {
-                        throw new BadRequestException("Formato de fecha de inicio inválido: " + suscripcionDto.getFechaInicio());
+                    // Recalcular la fecha de fin basada en la nueva fecha de inicio y la modalidad
+                    LocalDate fechaFin;
+                    if (modalidad == EModalidad.MENSUAL) {
+                        fechaFin = fechaInicio.plusMonths(1);
+                    } else {
+                        fechaFin = fechaInicio.plusWeeks(1);
                     }
+                    suscripcionDetalleBean.setFechaFin(fechaFin);
                 }
             }
 
@@ -196,6 +173,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
                 // Asignar la actividad actualizada al detalle de suscripción
                 suscripcionDetalleBean.setActividad(actividadMapper.toBean(actividadDto));
             }
+            suscripcionDetalleBean.setMonto(getMonto(suscripcionDetalleBean.getModalidad(),suscripcionDetalleBean.getActividad()));
 
             suscripcionDetalleDao.save(suscripcionDetalleBean);
 
@@ -203,6 +181,15 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         }
         throw new NotFoundException("Detalle de suscripción no encontrado");
     }
+    private Double getMonto(EModalidad modalidad,ActividadBean actividadBean){
+        if(modalidad==EModalidad.MENSUAL){
+            return actividadBean.getCostoMensual();
+        }else {
+            return actividadBean.getCostoSemanal();
+        }
+
+    }
+
 
     @Override
     public boolean delete(Long id) {

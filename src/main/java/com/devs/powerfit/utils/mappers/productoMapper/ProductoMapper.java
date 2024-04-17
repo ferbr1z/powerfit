@@ -15,4 +15,5 @@ public class ProductoMapper extends AbstractMapper<ProductoBean, ProductoDto> {
     public ProductoDto toDto(ProductoBean bean) {
         return modelMapper.map(bean, ProductoDto.class);
     }
+
 }

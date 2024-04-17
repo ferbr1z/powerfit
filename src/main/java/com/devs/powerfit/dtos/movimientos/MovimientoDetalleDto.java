@@ -8,4 +8,5 @@ public class MovimientoDetalleDto extends AbstractDto {
     private Long movimientoId;
     private Long tipoDePagoId;
     private Double monto;
+    private String tipoMovimiento;
 }

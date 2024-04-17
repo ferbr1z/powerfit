@@ -2,14 +2,15 @@ package com.devs.powerfit.beans.cajas;
 
 import com.devs.powerfit.abstracts.AbstractBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
-import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -25,13 +26,16 @@ public class SesionCajaBean extends AbstractBean {
     @JoinColumn(name = "id_usuario")
     private UsuarioBean usuario;
     @Column
+    @NotNull(message = "El monto inicial no puede ser nulo")
     private Double montoInicial;
     @Column
     private Double montoFinal;
     @Column
-    private Date fecha;
+    @NotNull(message = "La fecha no puede ser nula")
+    private LocalDate fecha;
     @Column
-    private Date horaApertura;
+    @NotNull(message = "La hora de apertura no puede ser nula")
+    private LocalTime horaApertura;
     @Column
-    private Date horaCierre;
+    private LocalTime horaCierre;
 }

@@ -9,4 +9,5 @@ public class CajaDto extends AbstractDto {
     private Double monto;
     private Long numeroCaja;
     private Long numeroFactura;
+    private Long numeroTicket;
 }

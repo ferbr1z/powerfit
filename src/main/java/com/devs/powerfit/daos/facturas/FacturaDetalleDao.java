@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,11 @@ public interface FacturaDetalleDao extends JpaRepository<FacturaDetalleBean,Long
     Optional<FacturaDetalleBean> findByIdAndActiveTrue(Long id);
     Page<FacturaDetalleBean> findAllByActiveTrue(Pageable pageable);
     List<FacturaDetalleBean> findAllByFacturaIdAndActiveTrue( Long id);
+    List<FacturaDetalleBean> findAllByActiveIsTrue();
+
+    List<FacturaDetalleBean> findAllByProductoIsNotNull();
+
+    List<FacturaDetalleBean> findAllByFacturaIdAndProductoIsNotNullAndActiveTrue(Long id);
 
     boolean existsByFacturaIdAndSuscripcionId(Long facturaId, Long suscripcionId);
 }
