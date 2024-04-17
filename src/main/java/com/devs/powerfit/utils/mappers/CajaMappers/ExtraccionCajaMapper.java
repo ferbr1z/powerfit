@@ -6,7 +6,7 @@ import com.devs.powerfit.dtos.cajas.ExtraccionDeCajaDto;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ExtracciónCajaMapper extends AbstractMapper<ExtraccionDeCajaBean, ExtraccionDeCajaDto> {
+public class ExtraccionCajaMapper extends AbstractMapper<ExtraccionDeCajaBean, ExtraccionDeCajaDto> {
     @Override
     public ExtraccionDeCajaBean toBean(ExtraccionDeCajaDto dto) {
         return modelMapper.map(dto,ExtraccionDeCajaBean.class);
