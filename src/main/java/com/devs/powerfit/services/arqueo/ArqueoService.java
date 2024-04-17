@@ -26,10 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,7 +101,7 @@ public class ArqueoService implements IArqueoService {
     @Override
     public PageResponse<ArqueoDto> getAllByFecha(Date fecha, int page) {
         PageRequest pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
-        Page<ArqueoBean> arqueos = arqueoDao.findAllByFechaAndActiveTrue(sumarDiaAfecha(fecha), pag);
+        Page<ArqueoBean> arqueos = arqueoDao.findAllByFechaAndActiveTrue(fecha, pag);
         if (arqueos.isEmpty()){
             throw new NotFoundException("No hay arqueos en la lista");
         }
@@ -201,25 +198,30 @@ Se crea un nuevo Arqueo y se setean los datos
     }
 
     private double calcularTotalEntradaPorTipoPago(List<ArqueoDetalleBean> detalles, String tipoPago, boolean esEntrada) {
+        Set<Long> movimientosProcesados = new HashSet<>();
         return detalles.stream()
-                .mapToDouble(detalle -> calcularMontoPorTipoPago(detalle, tipoPago, esEntrada))
+                .filter(detalle -> detalle.getMovimiento().isEntrada() == esEntrada)
+                .flatMap(detalle -> movimientoDetalleDao.findAllByMovimientoAndActiveTrue(detalle.getMovimiento()).stream())
+                .filter(detalleMovimiento -> detalleMovimiento.getTipoDePago().getNombre().equals(tipoPago))
+                .filter(detalleMovimiento -> movimientosProcesados.add(detalleMovimiento.getMovimiento().getId())) // Solo procesar el movimiento una vez
+                .mapToDouble(MovimientoDetalleBean::getMonto)
                 .sum();
     }
 
-    private double calcularMontoPorTipoPago(ArqueoDetalleBean detalle, String tipoPago, boolean esEntrada) {
-        MovimientoBean movimiento = detalle.getMovimiento();
-        if (movimiento.isEntrada() == esEntrada) {
-            return movimientoDetalleDao.findAllByMovimientoAndActiveTrue(movimiento).stream()
-                    .filter(detalleMovimiento -> detalleMovimiento.getTipoDePago().getNombre().equals(tipoPago))
-                    .mapToDouble(MovimientoDetalleBean::getMonto)
-                    .sum();
-        }
-        return 0.0;
+
+
+
+
+
+
+
+    private double calcularMontoPorTipoPago(ArqueoDetalleBean detalle, String tipoPago) {
+        return movimientoDetalleDao.findAllByMovimientoAndActiveTrue(detalle.getMovimiento()).stream()
+                .filter(detalleMovimiento -> detalleMovimiento.getTipoDePago().getNombre().equals(tipoPago))
+                .mapToDouble(MovimientoDetalleBean::getMonto)
+                .sum();
     }
-    private Date sumarDiaAfecha(Date fecha){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(fecha);
-        calendar.add(Calendar.DAY_OF_YEAR, 1);
-        return calendar.getTime();
-    }
+
+
+
 }
