@@ -3,17 +3,19 @@ package com.devs.powerfit.services.cajas;
 
 
 import com.devs.powerfit.beans.cajas.ExtraccionDeCajaBean;
-import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import com.devs.powerfit.daos.cajas.ExtraccionCajaDao;
-import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.dtos.cajas.ExtraccionDeCajaDto;
+import com.devs.powerfit.dtos.empleados.EmpleadoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
+import com.devs.powerfit.interfaces.cajas.ICajaService;
 import com.devs.powerfit.interfaces.cajas.IExtraccionCajaService;
+import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.CajaMapper;
 import com.devs.powerfit.utils.mappers.CajaMappers.ExtracciónCajaMapper;
+import com.devs.powerfit.utils.mappers.empleadoMappers.EmpleadoMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -28,21 +30,21 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
 
     private final ExtracciónCajaMapper mapper;
     private final ExtraccionCajaDao extraccionCajaDao;
-    private  final EmpleadoDao empleadoDao;
-
     private final CajaMapper cajaMapper;
-
-    private final CajaService cajaService;
+    private final ICajaService cajaService;
+    private final IEmpleadoService empleadoService;
+    private final EmpleadoMapper empleadoMapper;
 
 
 
     @Autowired
-    public ExtraccionCajaService(ExtracciónCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, EmpleadoDao empleadoDao, CajaMapper cajaMapper, CajaService cajaService) {
+    public ExtraccionCajaService(ExtracciónCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, CajaMapper cajaMapper, ICajaService cajaService, IEmpleadoService empleadoService, EmpleadoMapper empleadoMapper) {
         this.mapper = mapper;
         this.extraccionCajaDao = extraccionCajaDao;
-        this.empleadoDao = empleadoDao;
         this.cajaMapper = cajaMapper;
         this.cajaService = cajaService;
+        this.empleadoService = empleadoService;
+        this.empleadoMapper = empleadoMapper;
     }
 
 
@@ -53,13 +55,7 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
         ExtraccionDeCajaBean extraccionDeCajaBean = mapper.toBean(extraccionDeCajaDto);
         extraccionDeCajaBean.setActive(true);
         CajaDto caja = cajaService.getById(extraccionDeCajaDto.getIdCaja());
-        if (caja == null){
-            throw new NotFoundException("No existe una caja con ese id");
-        }
-        Optional<EmpleadoBean> empleado = empleadoDao.findByIdAndActiveIsTrue(extraccionDeCajaDto.getIdUsuario());
-        if (empleado.isEmpty()){
-            throw new NotFoundException("No existe un empleado con ese id");
-        }
+        EmpleadoDto empleado = empleadoService.getById(extraccionDeCajaDto.getIdUsuario());
         if (extraccionDeCajaDto.getMonto() > caja.getMonto()){
             throw new BadRequestException("El monto que desea retirar es mayor al disponible actualmente.");
         }
@@ -71,10 +67,10 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
         }
         caja.setMonto(caja.getMonto() - extraccionDeCajaDto.getMonto());
         cajaService.update(caja.getId(), caja);
-        extraccionDeCajaBean.setUsuario(empleado.get());
+        extraccionDeCajaBean.setUsuario(empleadoMapper.toBean(empleado));
         extraccionDeCajaBean.setCaja(cajaMapper.toBean(caja));
         extraccionDeCajaBean.setNombreCaja(caja.getNombre());
-        extraccionDeCajaBean.setNombreUsuario(empleado.get().getNombre());
+        extraccionDeCajaBean.setNombreUsuario(empleado.getNombre());
 
         extraccionCajaDao.save(extraccionDeCajaBean);
 
