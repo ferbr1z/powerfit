@@ -111,9 +111,6 @@ public class CajaService implements ICajaService {
             var cajaBean = caja.get();
 
             // Verificar si se está intentando cambiar el nombre a uno que ya está en uso
-            if (!cajaDto.getNombre().equals(cajaBean.getNombre()) && cajaDao.existsByNombreAndActiveTrue(cajaDto.getNombre())) {
-                throw new BadRequestException("El nombre de la caja ya está en uso.");
-            }
 
             if (cajaDto.getNombre() != null) cajaBean.setNombre(cajaDto.getNombre());
             if (cajaDto.getMonto() != null) cajaBean.setMonto(cajaDto.getMonto());
@@ -127,15 +124,14 @@ public class CajaService implements ICajaService {
 
     @Override
     public boolean delete(Long id) {
-        var caja = cajaDao.findByIdAndActiveTrue(id);
-        if (caja.isPresent()) {
-            var cajaBean = caja.get();
-            cajaBean.setActive(false);
-            cajaDao.save(cajaBean);
+        Optional<CajaBean> cajaOptional = cajaDao.findByIdAndActiveTrue(id);
+        if (cajaOptional.isPresent()) {
+            cajaDao.delete(cajaOptional.get()); // Eliminar físicamente el registro de la base de datos
             return true;
         }
         throw new NotFoundException("Caja no encontrada");
     }
+
     public PageResponse<CajaDto> searchByNombre(String nombre, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         var cajas = cajaDao.findAllByNombreContainingIgnoreCaseAndActiveTrue(pag, nombre);
