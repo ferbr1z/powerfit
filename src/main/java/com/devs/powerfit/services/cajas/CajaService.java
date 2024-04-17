@@ -39,9 +39,9 @@ public class CajaService implements ICajaService {
         if (cajaDto.getMonto() < 0) {
             throw new BadRequestException("El monto de la caja no puede ser negativo.");
         }
-
+        Long count= cajaDao.countByActiveTrue();
         // Verificar si ya hay 5 cajas creadas
-        if (cajaDao.count() >= 5) {
+        if (count >= 5) {
             throw new BadRequestException("Ya se han creado 5 cajas. No se pueden crear más.");
         }
 
@@ -111,9 +111,6 @@ public class CajaService implements ICajaService {
             var cajaBean = caja.get();
 
             // Verificar si se está intentando cambiar el nombre a uno que ya está en uso
-            if (!cajaDto.getNombre().equals(cajaBean.getNombre()) && cajaDao.existsByNombreAndActiveTrue(cajaDto.getNombre())) {
-                throw new BadRequestException("El nombre de la caja ya está en uso.");
-            }
 
             if (cajaDto.getNombre() != null) cajaBean.setNombre(cajaDto.getNombre());
             if (cajaDto.getMonto() != null) cajaBean.setMonto(cajaDto.getMonto());
@@ -127,15 +124,16 @@ public class CajaService implements ICajaService {
 
     @Override
     public boolean delete(Long id) {
-        var caja = cajaDao.findByIdAndActiveTrue(id);
-        if (caja.isPresent()) {
-            var cajaBean = caja.get();
-            cajaBean.setActive(false);
-            cajaDao.save(cajaBean);
+        Optional<CajaBean> cajaOptional = cajaDao.findByIdAndActiveTrue(id);
+        if (cajaOptional.isPresent()) {
+            var caja=cajaOptional.get();
+            caja.setActive(false);
+            cajaDao.save(caja);
             return true;
         }
         throw new NotFoundException("Caja no encontrada");
     }
+
     public PageResponse<CajaDto> searchByNombre(String nombre, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         var cajas = cajaDao.findAllByNombreContainingIgnoreCaseAndActiveTrue(pag, nombre);
