@@ -9,6 +9,7 @@ import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.dtos.auth.UsuarioDto;
+import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.auth.IAuthService;
 import com.devs.powerfit.security.auth.AuthRequest;
 import com.devs.powerfit.security.auth.AuthResponse;
@@ -71,9 +72,9 @@ public class AuthService implements IAuthService {
         }
     }
 
-    public ResponseEntity<?> update(String email, UsuarioDto request) {
+    public ResponseEntity<?> update(Long id, UsuarioDto request) {
         try {
-            Optional<UsuarioBean> optionalUser = userDao.findByEmailAndActiveIsTrue(email);
+            Optional<UsuarioBean> optionalUser = userDao.findByIdAndActiveTrue(id);
 
             if (optionalUser.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
@@ -112,19 +113,15 @@ public class AuthService implements IAuthService {
 
     }
 
-    public ResponseEntity<?> getByEmail(String email) {
-        try {
+    @Override
+    public UsuarioBean getByEmail(String email) {
             Optional<UsuarioBean> optionalUser = userDao.findByEmailAndActiveIsTrue(email);
 
             if (optionalUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+                throw new NotFoundException("Usuario no encontrado.");
             }
-
             UsuarioBean user = optionalUser.get();
-            return ResponseEntity.ok().body(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener el usuario por email");
-        }
+            return user;
     }
 
     public ResponseEntity<?> delete(String email){
