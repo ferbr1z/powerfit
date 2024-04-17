@@ -141,7 +141,7 @@ class CajaServiceTest {
         CajaBean eliminado = new CajaBean();
         eliminado.setActive(true);
 
-        when(cajaDao.findByIdAndActiveTrue(id)).thenReturn(Optional.of(eliminado));
+        when(cajaDao.findById(id)).thenReturn(Optional.of(eliminado));
 
         // Act
         boolean result = cajaService.delete(id);
