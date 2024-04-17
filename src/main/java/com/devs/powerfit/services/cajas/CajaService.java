@@ -124,7 +124,7 @@ public class CajaService implements ICajaService {
 
     @Override
     public boolean delete(Long id) {
-        Optional<CajaBean> cajaOptional = cajaDao.findByIdAndActiveTrue(id);
+        Optional<CajaBean> cajaOptional = cajaDao.findById(id);
         if (cajaOptional.isPresent()) {
             cajaDao.delete(cajaOptional.get()); // Eliminar físicamente el registro de la base de datos
             return true;
