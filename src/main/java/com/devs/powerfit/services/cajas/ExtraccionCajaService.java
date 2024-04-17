@@ -14,7 +14,7 @@ import com.devs.powerfit.interfaces.cajas.IExtraccionCajaService;
 import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.CajaMapper;
-import com.devs.powerfit.utils.mappers.CajaMappers.ExtracciónCajaMapper;
+import com.devs.powerfit.utils.mappers.CajaMappers.ExtraccionCajaMapper;
 import com.devs.powerfit.utils.mappers.empleadoMappers.EmpleadoMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import java.util.Optional;
 @Service
 public class ExtraccionCajaService implements IExtraccionCajaService {
 
-    private final ExtracciónCajaMapper mapper;
+    private final ExtraccionCajaMapper mapper;
     private final ExtraccionCajaDao extraccionCajaDao;
     private final CajaMapper cajaMapper;
     private final ICajaService cajaService;
@@ -38,7 +38,7 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
 
 
     @Autowired
-    public ExtraccionCajaService(ExtracciónCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, CajaMapper cajaMapper, ICajaService cajaService, IEmpleadoService empleadoService, EmpleadoMapper empleadoMapper) {
+    public ExtraccionCajaService(ExtraccionCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, CajaMapper cajaMapper, ICajaService cajaService, IEmpleadoService empleadoService, EmpleadoMapper empleadoMapper) {
         this.mapper = mapper;
         this.extraccionCajaDao = extraccionCajaDao;
         this.cajaMapper = cajaMapper;
