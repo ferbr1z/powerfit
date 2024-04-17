@@ -39,9 +39,9 @@ public class CajaService implements ICajaService {
         if (cajaDto.getMonto() < 0) {
             throw new BadRequestException("El monto de la caja no puede ser negativo.");
         }
-
+        Long count= cajaDao.countByActiveTrue();
         // Verificar si ya hay 5 cajas creadas
-        if (cajaDao.count() >= 5) {
+        if (count >= 5) {
             throw new BadRequestException("Ya se han creado 5 cajas. No se pueden crear más.");
         }
 
@@ -124,9 +124,11 @@ public class CajaService implements ICajaService {
 
     @Override
     public boolean delete(Long id) {
-        Optional<CajaBean> cajaOptional = cajaDao.findById(id);
+        Optional<CajaBean> cajaOptional = cajaDao.findByIdAndActiveTrue(id);
         if (cajaOptional.isPresent()) {
-            cajaDao.delete(cajaOptional.get()); // Eliminar físicamente el registro de la base de datos
+            var caja=cajaOptional.get();
+            caja.setActive(false);
+            cajaDao.save(caja);
             return true;
         }
         throw new NotFoundException("Caja no encontrada");
