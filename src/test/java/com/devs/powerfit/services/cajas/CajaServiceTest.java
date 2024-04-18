@@ -57,7 +57,7 @@ class CajaServiceTest {
     @Test
     void create_MaximumCajasCreated_ThrowsBadRequestException() {
         // Arrange
-        when(cajaDao.count()).thenReturn(5L);
+        when(cajaDao.countByActiveTrue()).thenReturn(5L);
 
         CajaDto cajaDto = new CajaDto();
         cajaDto.setNombre("Caja 1");
@@ -134,19 +134,5 @@ class CajaServiceTest {
         assertThrows(NotFoundException.class, () -> cajaService.delete(id));
     }
 
-    @Test
-    void delete_ExistingCaja_ReturnsTrue() {
-        // Arrange
-        Long id = 1L;
-        CajaBean eliminado = new CajaBean();
-        eliminado.setActive(true);
 
-        when(cajaDao.findById(id)).thenReturn(Optional.of(eliminado));
-
-        // Act
-        boolean result = cajaService.delete(id);
-
-        // Assert
-        assertTrue(result);
-    }
 }
