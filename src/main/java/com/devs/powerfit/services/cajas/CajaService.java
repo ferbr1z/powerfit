@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -35,6 +36,19 @@ public class CajaService implements ICajaService {
         if (cajaDto.getNombre() == null || cajaDto.getNombre().isEmpty()) {
             throw new BadRequestException("El nombre de la caja no puede estar vacío.");
         }
+        var cajaOptional=cajaDao.findByNombreContainingIgnoreCase(cajaDto.getNombre());
+        if(cajaOptional.isPresent()){
+            CajaBean cajaExistente=cajaOptional.get();
+            if(!cajaExistente.isActive()){
+                cajaExistente.setMonto(cajaDto.getMonto());
+                cajaExistente.setActive(true);
+                cajaDao.save(cajaExistente);
+                return mapper.toDto(cajaExistente);
+            }else {
+                throw new BadRequestException("Ya existe una caja activa con ese nombre");
+            }
+        }
+
         // Verificar si el monto es válido (mayor o igual a 0)
         if (cajaDto.getMonto() < 0) {
             throw new BadRequestException("El monto de la caja no puede ser negativo.");
@@ -101,26 +115,40 @@ public class CajaService implements ICajaService {
             throw new BadRequestException("El nombre de la caja no puede estar vacío.");
         }
 
-        // Verificar si el monto es válido (mayor o igual a 0)
+        // Verificar si el monto de la caja es negativo
         if (cajaDto.getMonto() < 0) {
             throw new BadRequestException("El monto de la caja no puede ser negativo.");
         }
-
-        var caja = cajaDao.findByIdAndActiveTrue(id);
-        if (caja.isPresent()) {
-            var cajaBean = caja.get();
-
-            // Verificar si se está intentando cambiar el nombre a uno que ya está en uso
-
-            if (cajaDto.getNombre() != null) cajaBean.setNombre(cajaDto.getNombre());
-            if (cajaDto.getMonto() != null) cajaBean.setMonto(cajaDto.getMonto());
-
-            cajaDao.save(cajaBean);
-
-            return mapper.toDto(cajaBean);
+        Optional<CajaBean> caja = cajaDao.findByIdAndActiveTrue(id);
+        if (caja.isEmpty()) {
+            throw new NotFoundException("No existe caja con ese id");
         }
-        throw new NotFoundException("Caja no encontrada");
+        // Buscar una caja por el nombre proporcionado
+        Optional<CajaBean> cajaOptional = cajaDao.findByNombreContainingIgnoreCase(cajaDto.getNombre());
+        // Verificar si existe una caja con el mismo nombre
+        if (cajaOptional.isPresent()) {
+            CajaBean cajaExistente = cajaOptional.get();
+
+            // Si la caja existe y está activa pero la ID no coincide, lanzar excepción
+            if (cajaExistente.isActive() && !cajaExistente.getId().equals(id)) {
+                throw new BadRequestException("Ya existe una caja activa con este nombre");
+            }
+
+            // Si la caja existe pero está inactiva y la ID coincide, activarla y actualizar el monto
+            if (!cajaExistente.isActive() && cajaExistente.getId().equals(id)) {
+                cajaExistente.setActive(true);
+                cajaExistente.setMonto(cajaDto.getMonto());
+                cajaDao.save(cajaExistente);
+                return mapper.toDto(cajaExistente);
+            }
+        }
+        CajaBean cajaBean = caja.get();
+        cajaBean.setNombre(cajaDto.getNombre());
+        cajaBean.setMonto(cajaDto.getMonto());
+        cajaDao.save(cajaBean);
+        return mapper.toDto(cajaBean);
     }
+
 
     @Override
     public boolean delete(Long id) {
