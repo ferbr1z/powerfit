@@ -79,15 +79,15 @@ public class FacturaService implements IFacturaService {
         // Calcular el ivaTotal si no se proporciona explícitamente
         double ivaTotal = facturaDto.getIvaTotal() != null ? facturaDto.getIvaTotal() : facturaDto.getIva5() + facturaDto.getIva10();
 
-//        // Verificar si los datos de ivaTotal y total son correctos
-//        if (facturaDto.getIvaTotal() != null && facturaDto.getIvaTotal() != ivaTotal) {
-//            throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
-//        }
+        // Verificar si los datos de ivaTotal y total son correctos
+        if (facturaDto.getIvaTotal() != null && facturaDto.getIvaTotal() != ivaTotal) {
+            throw new BadRequestException("El valor de ivaTotal proporcionado no coincide con el cálculo");
+        }
 
-//        double total =  facturaDto.getSubTotal() + ivaTotal;
-//        if (facturaDto.getTotal() != total) {
-//            throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
-//        }
+        double total =  facturaDto.getSubTotal() + ivaTotal;
+        if (facturaDto.getTotal() != total) {
+            throw new BadRequestException("El valor de total proporcionado no coincide con el cálculo");
+        }
 
         // Convertir la fecha de String a LocalDate
         LocalDate fecha = facturaDto.getFecha() != null ? facturaDto.getFecha() : LocalDate.now();
@@ -110,9 +110,9 @@ public class FacturaService implements IFacturaService {
         factura.setTimbrado(facturaDto.getTimbrado());
         factura.setNroFactura(obtenerNumeroFacturaCompleto(facturaDto.getSesionId()));
         factura.setFecha(fecha);
-        factura.setTotal(facturaDto.getTotal());
-        factura.setSubTotal(facturaDto.getSubTotal());
-        factura.setSaldo(facturaDto.getSaldo());
+        factura.setTotal(total);
+        factura.setSubTotal(facturaDto.getSubTotal() != null ? facturaDto.getSubTotal() : total - ivaTotal);
+        factura.setSaldo(facturaDto.getSaldo() != null ? facturaDto.getSaldo() : total);
         factura.setIva5(facturaDto.getIva5() != null ? facturaDto.getIva5() : 0.0);
         factura.setIva10(facturaDto.getIva10() != null ? facturaDto.getIva10() : 0.0);
         factura.setIvaTotal(ivaTotal);
