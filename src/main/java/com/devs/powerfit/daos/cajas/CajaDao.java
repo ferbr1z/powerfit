@@ -19,4 +19,5 @@ public interface CajaDao extends JpaRepository<CajaBean,Long> {
     Optional<CajaBean> findFirstByOrderByNumeroCajaDesc();
     Page<CajaBean>findAllByNombreContainingIgnoreCaseAndActiveTrue(Pageable pageable,String nombre);
     Long countByActiveTrue();
+    Optional<CajaBean> findByNombreContainingIgnoreCase(String nombre);
 }
