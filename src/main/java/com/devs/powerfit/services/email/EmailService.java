@@ -1,21 +1,21 @@
 package com.devs.powerfit.services.email;
 
+import com.devs.powerfit.daos.cajas.CajaDao;
+import com.devs.powerfit.utils.mappers.CajaMappers.CajaMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service(value= "MailService")
+@Transactional
 public class EmailService {
-    private Environment env;
 
+    @Autowired
     private JavaMailSender emailSender;
-
-    public EmailService(Environment env) {
-        this.env = env;
-    }
 
     public void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
