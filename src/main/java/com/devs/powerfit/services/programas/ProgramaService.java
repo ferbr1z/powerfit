@@ -124,6 +124,7 @@ public class ProgramaService implements IProgramaService {
         if(programa.isEmpty()) throw new NotFoundException("Programa no encontrado");
         var item = _itemMapper.toBean(itemDto);
         item.setPrograma(programa.get());
+        item.setActive(true);
         _itemRepository.save(item);
         return _itemMapper.toDto(item);
     }
