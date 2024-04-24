@@ -11,5 +11,5 @@ import java.util.Optional;
 @Repository
 public interface ProgramaItemDao extends JpaRepository<ProgramaItemBean, Long> {
     Page<ProgramaItemBean> findAllByProgramaId(Pageable page, Long programaId);
-    Optional<ProgramaItemBean> findByIdAndActiveTrue(Long programaId, Long itemId);
+    Optional<ProgramaItemBean> findByIdAndActiveTrue(Long itemId);
 }
