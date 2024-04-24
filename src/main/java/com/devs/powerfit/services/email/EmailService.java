@@ -2,9 +2,6 @@ package com.devs.powerfit.services.email;
 
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
-import com.devs.powerfit.dtos.clientes.ClienteDto;
-import com.devs.powerfit.services.clientes.ClienteService;
-import com.devs.powerfit.services.suscripciones.SuscripcionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -18,17 +15,11 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender emailSender;
-
-    private final ClienteService clienteService;
     private final ClienteDao clienteDao;
 
-    private final SuscripcionService suscripcionService;
-
     @Autowired
-    public EmailService(ClienteService clienteService, ClienteDao clienteDao, SuscripcionService suscripcionService) {
-        this.clienteService = clienteService;
+    public EmailService(ClienteDao clienteDao) {
         this.clienteDao = clienteDao;
-        this.suscripcionService = suscripcionService;
     }
 
     //validacion de email
@@ -63,6 +54,7 @@ public class EmailService {
     //Enviar correo a todos los morosos
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
+        //String[] morososEmails = new String[] {};
         for (ClienteBean moroso : morosos) {
             String subject = "Recordatorio de pago";
             String body = "Estimado " + moroso.getNombre() + ", le recordamos que tiene una suscripción pendiente.";
