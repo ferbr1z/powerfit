@@ -4,12 +4,16 @@ import com.devs.powerfit.abstracts.AbstractMapper;
 import com.devs.powerfit.beans.programas.ProgramaBean;
 import com.devs.powerfit.dtos.programas.CrearAndUpdateProgramaDto;
 import com.devs.powerfit.dtos.programas.FullProgramaDto;
+import com.devs.powerfit.dtos.programas.ProgramaItemDto;
 import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
 import com.devs.powerfit.utils.mappers.empleadoMappers.EmpleadoMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class ProgramaMapper extends AbstractMapper<ProgramaBean, CrearAndUpdateProgramaDto> {
@@ -53,7 +57,12 @@ public class ProgramaMapper extends AbstractMapper<ProgramaBean, CrearAndUpdateP
     }
 
     public FullProgramaDto toFullDto(ProgramaBean bean){
-        return  modelMapper.map(bean, FullProgramaDto.class);
+        FullProgramaDto fullProgramaDto = modelMapper.map(bean, FullProgramaDto.class);
+        List<ProgramaItemDto> programaItemDtos = bean.getItems().stream()
+                .map(programaItemBean -> modelMapper.map(programaItemBean, ProgramaItemDto.class))
+                .collect(Collectors.toList());
+        fullProgramaDto.setItems(programaItemDtos);
+        return fullProgramaDto;
     }
 
     public CrearAndUpdateProgramaDto toCreateAndUpdateDto(ProgramaBean bean){

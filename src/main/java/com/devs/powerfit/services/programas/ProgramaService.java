@@ -130,7 +130,7 @@ public class ProgramaService implements IProgramaService {
 
     @Override
     public ProgramaItemDto getItemById(Long programaId, Long itemId) {
-        var item = _itemRepository.findByIdAndActiveTrue(programaId, itemId);
+        var item = _itemRepository.findByIdAndActiveTrue(itemId);
         if(item.isEmpty()) throw new NotFoundException("Item no encontrado");
         return _itemMapper.toDto(item.get());
     }
@@ -152,7 +152,7 @@ public class ProgramaService implements IProgramaService {
 
     @Override
     public ProgramaItemDto updateItem(Long programaId, Long itemId, ProgramaItemDto itemDto) {
-        var item = _itemRepository.findByIdAndActiveTrue(programaId, itemId);
+        var item = _itemRepository.findByIdAndActiveTrue(itemId);
         if(item.isEmpty()) throw new NotFoundException("Item no encontrado");
 
         var programa = _repository.findByIdAndActiveTrue(programaId);
@@ -169,7 +169,7 @@ public class ProgramaService implements IProgramaService {
 
     @Override
     public boolean deleteItem(Long programaId, Long itemId) {
-        var item = _itemRepository.findByIdAndActiveTrue(programaId, itemId);
+        var item = _itemRepository.findByIdAndActiveTrue(itemId);
         if(item.isEmpty()) throw new NotFoundException("Item no encontrado");
         item.get().setActive(false);
         _itemRepository.save(item.get());
