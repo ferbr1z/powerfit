@@ -3,6 +3,7 @@ package com.devs.powerfit.services.clientes;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.clientes.ClienteListaDto;
 import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
 import com.devs.powerfit.enums.EEstado;
@@ -95,4 +96,23 @@ public class ClienteListaService {
         return nuevos;
     }
 
+    public PageResponse<ClienteDto> obtenerClientesNuevosConDetalles(int page , LocalDate fechaInicio, LocalDate fechaFin) {
+        if (fechaInicio == null || fechaFin == null) {
+            throw new BadRequestException("Las fechas de inicio y fin deben ser especificadas.");
+        }
+
+        if (fechaInicio.isAfter(fechaFin)) {
+            throw new BadRequestException("La fecha de inicio debe ser anterior a la fecha de fin.");
+        }
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var clientes = clienteDao.findAllByFechaRegistroBetweenAndActiveTrue(pag, fechaInicio, fechaFin);
+
+        var clientesDto = clientes.map(cliente -> clienteMapper.toDto(cliente));
+
+        var pageResponse = new PageResponse<ClienteDto>(clientesDto.getContent(),
+                clientesDto.getTotalPages(),
+                clientesDto.getTotalElements(),
+                clientesDto.getNumber() + 1);
+        return pageResponse;
+    }
 }

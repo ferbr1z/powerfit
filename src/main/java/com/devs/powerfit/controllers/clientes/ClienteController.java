@@ -47,6 +47,13 @@ public class ClienteController {
     public ResponseEntity<ClienteDto> getById(@PathVariable Long id) {
         return new ResponseEntity<>(clienteService.getById(id), HttpStatus.OK);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @GetMapping("/nuevos/{fechaInicio}/{fechaFin}/page/{page}")
+    public ResponseEntity<PageResponse<ClienteDto>> getByFechaRegistro(@PathVariable int page, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin){
+        return new ResponseEntity<>(clienteListaService.obtenerClientesNuevosConDetalles(page, fechaInicio, fechaFin), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO','CLIENTE')")
     @GetMapping("/id/{id}/page/{page}")
     public ResponseEntity<PageResponse<PagoClienteDto>> getAllPagosCliente(@PathVariable Long id , @PathVariable int page) {
