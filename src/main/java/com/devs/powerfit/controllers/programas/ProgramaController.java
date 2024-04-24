@@ -1,9 +1,6 @@
 package com.devs.powerfit.controllers.programas;
 
-import com.devs.powerfit.dtos.programas.CrearAndUpdateProgramaDto;
-import com.devs.powerfit.dtos.programas.FullProgramaDto;
-import com.devs.powerfit.dtos.programas.ProgramaDto;
-import com.devs.powerfit.dtos.programas.ProgramaForListDto;
+import com.devs.powerfit.dtos.programas.*;
 import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.enums.ESexo;
 import com.devs.powerfit.exceptions.NotFoundException;
@@ -72,6 +69,45 @@ public class ProgramaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Long id){
         return new ResponseEntity<>(_service.delete(id), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/items")
+    public ResponseEntity<ProgramaItemDto> addItem(@PathVariable Long id, @RequestBody ProgramaItemDto itemDto){
+        var item = _service.createItem(id, itemDto);
+        if(item==null){
+            throw new NotFoundException("Producto no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/items/{itemId}")
+    public ResponseEntity<ProgramaItemDto> getItemById(@PathVariable Long id, @PathVariable Long itemId){
+        var item = _service.getItemById(id, itemId);
+        if(item==null){
+            throw new NotFoundException("Producto no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/{id}/items/page/{page}")
+    public ResponseEntity<PageResponse<ProgramaItemDto>> getItemsByProgramaId(@PathVariable int page, @PathVariable Long id){
+        var items = _service.getItemsByProgramaId(id, page);
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/items/{itemId}")
+    public ResponseEntity<ProgramaItemDto> updateItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody ProgramaItemDto itemDto){
+        var item = _service.updateItem(id, itemId, itemDto);
+        if(item==null){
+            throw new NotFoundException("Producto no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/items/{itemId}")
+    public ResponseEntity<Boolean> deleteItem(@PathVariable Long id, @PathVariable Long itemId){
+        return new ResponseEntity<>(_service.deleteItem(id, itemId), HttpStatus.OK);
     }
 
 }
