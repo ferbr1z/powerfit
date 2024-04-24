@@ -54,9 +54,8 @@ public class EmailService {
     //Enviar correo a todos los morosos
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
-        //String[] morososEmails = new String[] {};
         for (ClienteBean moroso : morosos) {
-            String subject = "Recordatorio de pago";
+            String subject = "Powerfit: Recordatorio de pago";
             String body = "Estimado " + moroso.getNombre() + ", le recordamos que tiene una suscripción pendiente.";
             sendEmail(moroso.getEmail(), subject, body);
         }
