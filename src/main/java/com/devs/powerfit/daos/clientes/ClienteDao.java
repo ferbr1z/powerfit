@@ -18,6 +18,8 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Optional<ClienteBean> findByEmail( String email);
     Long countByFechaRegistroBetweenAndActiveTrue(LocalDate fechaInicio, LocalDate fechaFin);
 
+    Page<ClienteBean> findAllByFechaRegistroBetweenAndActiveTrue(Pageable pageable,LocalDate fechaInicio, LocalDate fechaFin);
+
     Page<ClienteBean> findAllByNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
     Page<ClienteBean>findByCedulaAndActiveIsTrue(Pageable pageable, String cedula);
 
