@@ -1,6 +1,7 @@
 package com.devs.powerfit.controllers.email;
 
 import com.devs.powerfit.services.email.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class EmailController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/sendMail/{email}")
-    public ResponseEntity<MailResponse> sendMail(@PathVariable String email) {
+    public ResponseEntity<MailResponse> sendMail(@PathVariable String email) throws MessagingException {
         MailRequest mailRequest = new MailRequest();
         mailRequest.setBody("Bienvenido a Powerfit.");
         mailRequest.setSubject("Titulo");
@@ -52,7 +53,7 @@ public class EmailController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/sendMail/{email}")
-    public ResponseEntity<MailResponse> sendMail(@PathVariable String email, @RequestBody MailRequest request) {
+    public ResponseEntity<MailResponse> sendMail(@PathVariable String email, @RequestBody MailRequest request) throws MessagingException {
         String body = request.getBody();
         String subject = request.getSubject();
         emailService.sendEmail(email, subject, body);
@@ -65,7 +66,7 @@ public class EmailController {
     //send to all morosos
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/sendMailMorosos")
-    public ResponseEntity<MailResponse> sendMailMorosos() {
+    public ResponseEntity<MailResponse> sendMailMorosos() throws MessagingException {
         emailService.sendEmailToMorosos();
         MailResponse mailResponse = new MailResponse();
         mailResponse.setMensaje("Correo enviado a morosos");
