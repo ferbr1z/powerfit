@@ -80,7 +80,7 @@ public class EmailService {
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
         for (ClienteBean moroso : morosos) {
-            //get pageable of this Page<SuscripcionBean>findAllByClienteIdAndEstadoAndActiveTrue(Pageable pageable,Long id,  EEstado estado);
+            //TODO: mostrar todas las páginas
             var pag = PageRequest.of(0, Setting.PAGE_SIZE);
             var suscripcionDetalles = suscripcionDao.findAllByClienteIdAndEstadoAndActiveTrue(pag, moroso.getId(), EEstado.PENDIENTE);
 
