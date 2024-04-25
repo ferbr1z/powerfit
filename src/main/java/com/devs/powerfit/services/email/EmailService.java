@@ -76,13 +76,6 @@ public class EmailService {
         }
     }
 
-    //Enviar correo de bienvenida
-    public void sendWelcomeEmail(String to) throws MessagingException {
-        String subject = "Bienvenido a Powerfit";
-        String body = "Bienvenido a Powerfit, esperamos que disfrutes de nuestros servicios.";
-        sendEmail(to, subject, body);
-    }
-
     //Enviar correo a todos los morosos
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
