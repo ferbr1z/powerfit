@@ -45,6 +45,17 @@ public class ProgramaMapper extends AbstractMapper<ProgramaBean, CrearAndUpdateP
             }
         });
 
+        // Si se trata de FullProgramaDto
+        modelMapper.addMappings(new PropertyMap<ProgramaBean, FullProgramaDto>() {
+            @Override
+            protected void configure() {
+                // Se mapea la propiedad 'actividad' de ProgramaBean a 'actividad' de FullProgramaDto
+                map().setActividad(source.getActividad().getNombre());
+                // Se mapea la propiedad 'empleado' de ProgramaBean a 'empleado' de FullProgramaDto
+                map().setEmpleado(source.getEmpleado().getNombre());
+            }
+        });
+
     }
 
     @Override

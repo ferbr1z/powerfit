@@ -12,7 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FullProgramaDto extends ProgramaDto{
-    private ActividadDto actividad;
-    private EmpleadoDto empleado;
+    private Integer actividadId;
+    private String actividad;
+    private Integer empleadoId;
+    private String empleado;
     private List<ProgramaItemDto> items;
 }
