@@ -58,8 +58,8 @@ public class SecurityConfiguration {
                 .headers(headers -> headers
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
-                                .preload(true)
                                 .maxAgeInSeconds(31536000)
+                                .requestMatcher(AnyRequestMatcher.INSTANCE)
                         )
                         .referrerPolicy(referrer -> referrer
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
