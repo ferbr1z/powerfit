@@ -48,8 +48,9 @@ public class ProgramaService implements IProgramaService {
                            ProgramaItemDao itemRepository,
                            ClienteProgramaMapper clienteProgramaMapper,
                            ClienteProgramaDao clienteProgramaRepository,
-                           IClienteService clienteService){
-    public ProgramaService(ProgramaMapper mapper, ProgramaItemMapper itemMapper, ProgramaDao repository, ProgramaItemDao itemRepository, IEmpleadoService empleadoService, IActividadService actividadService) {
+                           IClienteService clienteService,
+                           IEmpleadoService empleadoService,
+                           IActividadService actividadService){
         _mapper = mapper;
         _itemMapper = itemMapper;
         _repository = repository;
