@@ -4,6 +4,7 @@ import com.devs.powerfit.daos.actividades.ActividadDao;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.actividades.ActividadConClientesDto;
+import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
@@ -40,7 +41,7 @@ public class ActividadConClientesService {
     }
 
     public PageResponse<ActividadConClientesDto> getAllActividadesConClientes(int page) {
-        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE); // Ajusta Setting.PAGE_SIZE según tu configuración
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         var actividades = actividadDao.findAllByActiveTrue(pag);
         if (actividades.isEmpty()) {
             throw new NotFoundException("No hay actividades en la lista");
@@ -48,16 +49,30 @@ public class ActividadConClientesService {
 
         List<ActividadConClientesDto> actividadesConClientes = actividades.stream()
                 .map(actividad -> {
-
                     long clientesMensuales = suscripcionDao.countDistinctByActividadAndModalidadAndActiveTrue(actividad, EModalidad.MENSUAL);
                     long clientesSemanales = suscripcionDao.countDistinctByActividadAndModalidadAndActiveTrue(actividad, EModalidad.SEMANAL);
-                    long totalClientes = clientesSemanales+clientesMensuales;
-                    return new ActividadConClientesDto(actividadMapper.toDto( actividad), totalClientes);
+                    long totalClientes = clientesSemanales + clientesMensuales;
+
+                    ActividadDto actividadDto = new ActividadDto();
+                    actividadDto.setId(actividad.getId());
+                    actividadDto.setNombre(actividad.getNombre());
+                    actividadDto.setDescripcion(actividad.getDescripcion());
+                    actividadDto.setCostoMensual(actividad.getCostoMensual());
+                    actividadDto.setCostoSemanal(actividad.getCostoSemanal());
+
+                    List<Long> entrenadoresIds = actividad.getEntrenadores().stream()
+                            .map(entrenador -> entrenador.getId())
+                            .collect(Collectors.toList());
+                    actividadDto.setEntrenadores(entrenadoresIds);
+
+                    return new ActividadConClientesDto(actividadDto, totalClientes);
                 })
                 .collect(Collectors.toList());
 
-
-        return new PageResponse<>(actividadesConClientes, actividades.getTotalPages(),actividades.getTotalElements(), page);
+        return new PageResponse<>(actividadesConClientes,
+                actividades.getTotalPages(),
+                actividades.getTotalElements(),
+                actividades.getNumber() + 1);
     }
     public PageResponse<SuscripcionConClienteDto> getSuscripcionesConClientesPorActividad(Long actividadId, int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE); // Ajusta Setting.PAGE_SIZE según tu configuración

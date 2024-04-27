@@ -84,7 +84,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> addItem(@PathVariable Long id, @RequestBody ProgramaItemDto itemDto){
         var item = _service.createItem(id, itemDto);
         if(item==null){
-            throw new NotFoundException("Item no encontrado");
+            throw new NotFoundException("Programa no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
