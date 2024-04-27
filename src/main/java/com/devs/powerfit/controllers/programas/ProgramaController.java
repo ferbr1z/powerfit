@@ -33,7 +33,7 @@ public class ProgramaController {
     public ResponseEntity<FullProgramaDto> getById(@PathVariable Long id){
         var programa = (FullProgramaDto) _service.getById(id);
         if(programa==null){
-            throw new NotFoundException("Producto no encontrado");
+            throw new NotFoundException("Programa no encontrado");
         }
         return new ResponseEntity<>(programa, HttpStatus.OK);
     }
@@ -66,7 +66,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaDto> update(@PathVariable Long id, @RequestBody CrearAndUpdateProgramaDto updateDto) {
         var updated = _service.update(id, updateDto);
         if(updated==null){
-            throw new NotFoundException("Producto no encontrado");
+            throw new NotFoundException("Programa no encontrado");
         }
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
@@ -82,7 +82,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> addItem(@PathVariable Long id, @RequestBody ProgramaItemDto itemDto){
         var item = _service.createItem(id, itemDto);
         if(item==null){
-            throw new NotFoundException("Producto no encontrado");
+            throw new NotFoundException("Programa no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
@@ -92,7 +92,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> getItemById(@PathVariable Long id, @PathVariable Long itemId){
         var item = _service.getItemById(id, itemId);
         if(item==null){
-            throw new NotFoundException("Producto no encontrado");
+            throw new NotFoundException("Item de programa no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
@@ -110,7 +110,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> updateItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody ProgramaItemDto itemDto){
         var item = _service.updateItem(id, itemId, itemDto);
         if(item==null){
-            throw new NotFoundException("Producto no encontrado");
+            throw new NotFoundException("Item de programa no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
