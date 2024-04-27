@@ -17,9 +17,9 @@ public class EmailCronService {
         this.emailService = emailService;
     }
 
-    //0 0 12 ? * MON * = Se ejecuta todos los lunes a las 12:00 PM
+    //0 0 12 * * MON = Se ejecuta todos los lunes a las 12:00 PM
     // cada minuto = "0 * * * * *"
-    @Scheduled(cron = "0 0 12 ? * MON *")
+    @Scheduled(cron = "0 0 10 * * MON")
     public void enviarCorreoAMorosos()  {
         emailService.sendEmailToMorosos();
     }
