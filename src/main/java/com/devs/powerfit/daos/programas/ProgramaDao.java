@@ -33,6 +33,5 @@ public interface ProgramaDao extends JpaRepository<ProgramaBean, Long> {
                                      Pageable pageable);
 
 
-    @Query("SELECT p FROM ProgramaBean p LEFT JOIN FETCH p.items WHERE p.id = :id AND p.active = true")
     Optional<ProgramaBean> findByIdAndActiveTrue(Long id);
 }
