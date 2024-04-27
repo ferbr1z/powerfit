@@ -264,17 +264,26 @@ public class ProgramaService implements IProgramaService {
     @Override
     public ClienteProgramaDto updateClientePrograma(Long programaId, Long id, ClienteProgramaDto clienteProgramaDto) {
 
-        var programa = _repository.findByIdAndActiveTrue(clienteProgramaDto.getProgramaId());
-        if(programa.isEmpty()) throw new NotFoundException("Programa no encontrado");
-        var clienteId = clienteProgramaDto.getClienteId();
-        if(_clienteService.getById(clienteId)==null) throw new NotFoundException("Cliente no encontrado");
 
+        // Obtenemos el registro del cliente
         var clienteProgramaBean = _clienteProgramaRepository.findByProgramaIdAndId(programaId, id);
-        if(clienteProgramaBean.isEmpty()) return null;
+        if(clienteProgramaBean.isEmpty()) return null; // si no existe, retornamos null, el controlador se encarga
 
+        // Si el clienteProgramaDto trae un programaId, lo actualizamos si es que existe
+        if(clienteProgramaDto.getProgramaId()!=null) {
+            var programa = _repository.findByIdAndActiveTrue(clienteProgramaDto.getProgramaId());
+            if(programa.isEmpty()) throw new NotFoundException("Programa no encontrado");
+            clienteProgramaBean.get().getPrograma().setId(clienteProgramaDto.getProgramaId());
+        }
+
+        // Si el clienteProgramaDto trae un clienteId, lo actualizamos si es que existe
+        if(clienteProgramaDto.getClienteId()!=null) {
+            var clienteId = clienteProgramaDto.getClienteId();
+            if(_clienteService.getById(clienteId)==null) throw new NotFoundException("Cliente no encontrado");
+            clienteProgramaBean.get().getCliente().setId(clienteProgramaDto.getClienteId());
+        }
         if(clienteProgramaDto.getFechaEvaluacion()!=null) clienteProgramaBean.get().setFechaEvaluacion(clienteProgramaDto.getFechaEvaluacion());
-        if(clienteProgramaDto.getClienteId()!=null) clienteProgramaBean.get().getCliente().setId(clienteProgramaDto.getClienteId());
-        if(clienteProgramaDto.getProgramaId()!=null) clienteProgramaBean.get().getPrograma().setId(clienteProgramaDto.getProgramaId());
+
 
         var updated = _clienteProgramaRepository.save(clienteProgramaBean.get());
 
