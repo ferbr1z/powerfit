@@ -21,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
@@ -58,8 +59,8 @@ public class SecurityConfiguration {
                 .headers(headers -> headers
                         .httpStrictTransportSecurity(hsts -> hsts
                                 .includeSubDomains(true)
-                                .preload(true)
                                 .maxAgeInSeconds(31536000)
+                                .requestMatcher(AnyRequestMatcher.INSTANCE)
                         )
                         .referrerPolicy(referrer -> referrer
                                 .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
@@ -67,6 +68,7 @@ public class SecurityConfiguration {
                         .permissionsPolicy(permissions -> permissions
                                 .policy("geolocation=(self)")
                         )
+                        .and().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy", "script-src 'self'"))
                 );
 
         return http.build();
