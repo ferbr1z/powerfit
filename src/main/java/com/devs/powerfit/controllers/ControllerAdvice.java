@@ -25,6 +25,20 @@ public class ControllerAdvice {
 
         return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDto> handleValidationExceptions(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+
+        ErrorDto errorDto = ErrorDto.builder()
+                .code(HttpStatus.BAD_REQUEST.toString())
+                .message(message)
+                .build();
+
+        return new ResponseEntity<>(errorDto, HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorDto> runtimeExeptionHandler(RuntimeException e) {
         ErrorDto errorDto = ErrorDto.builder()
