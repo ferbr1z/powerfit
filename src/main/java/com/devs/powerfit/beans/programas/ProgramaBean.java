@@ -45,4 +45,8 @@ public class ProgramaBean extends AbstractBean {
 
     @OneToMany(mappedBy = "programa")
     private List<ProgramaItemBean> items;
+
+    @OneToMany(mappedBy = "programa")
+    private List<ClienteProgramaBean> clienteProgramas;
+
 }
