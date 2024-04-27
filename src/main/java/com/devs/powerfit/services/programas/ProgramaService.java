@@ -13,7 +13,10 @@ import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.enums.ESexo;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
+import com.devs.powerfit.interfaces.actividades.IActividadService;
+import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.interfaces.programas.IProgramaService;
+import com.devs.powerfit.services.empleados.EmpleadoService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.programaMapper.ClienteProgramaMapper;
 import com.devs.powerfit.utils.mappers.programaMapper.ProgramaItemMapper;
@@ -31,6 +34,8 @@ public class ProgramaService implements IProgramaService {
     private ProgramaMapper _mapper;
     private ProgramaItemMapper _itemMapper;
     private ClienteProgramaMapper _clienteProgramaMapper;
+    private IEmpleadoService _empleadoService;
+    private IActividadService _actividadService;
     private ProgramaDao _repository;
     private ProgramaItemDao _itemRepository;
     private ClienteProgramaDao _clienteProgramaRepository;
@@ -44,6 +49,7 @@ public class ProgramaService implements IProgramaService {
                            ClienteProgramaMapper clienteProgramaMapper,
                            ClienteProgramaDao clienteProgramaRepository,
                            IClienteService clienteService){
+    public ProgramaService(ProgramaMapper mapper, ProgramaItemMapper itemMapper, ProgramaDao repository, ProgramaItemDao itemRepository, IEmpleadoService empleadoService, IActividadService actividadService) {
         _mapper = mapper;
         _itemMapper = itemMapper;
         _repository = repository;
@@ -51,11 +57,19 @@ public class ProgramaService implements IProgramaService {
         _clienteProgramaMapper = clienteProgramaMapper;
         _clienteProgramaRepository = clienteProgramaRepository;
         _clienteService = clienteService;
+        _empleadoService = empleadoService;
+        _actividadService = actividadService;
     }
 
     @Override
     public ProgramaDto create(ProgramaDto programaDto) {
         var crearProgramaDto = (CrearAndUpdateProgramaDto) programaDto;
+        var entrenadorId = crearProgramaDto.getEmpleado();
+        var actividadId = crearProgramaDto.getActividad();
+
+        if(_empleadoService.getById(entrenadorId)==null) throw new NotFoundException("Entrenador no encontrado");
+        if(_actividadService.getById(actividadId)==null) throw new NotFoundException("Actividad no encontrada");
+
         ProgramaBean newPrograma = _mapper.toBean(crearProgramaDto);
         newPrograma.setActive(true);
         _repository.save(newPrograma);
@@ -124,7 +138,16 @@ public class ProgramaService implements IProgramaService {
     @Override
     public boolean delete(Long id) {
         var programa = _repository.findByIdAndActiveTrue(id);
+
         if(programa.isEmpty()) return false;
+
+        var items = _itemRepository.findAllByProgramaId(id);
+
+        for (var item: items) {
+            item.setActive(false);
+            _itemRepository.save(item);
+        }
+
         programa.get().setActive(false);
         _repository.save(programa.get());
         return true;
@@ -149,7 +172,7 @@ public class ProgramaService implements IProgramaService {
 
     @Override
     public ProgramaItemDto getItemById(Long programaId, Long itemId) {
-        var item = _itemRepository.findByIdAndActiveTrue(itemId);
+        var item = _itemRepository.findByIdAAndProgramaIdAndActiveTrue(itemId, programaId);
         if(item.isEmpty()) throw new NotFoundException("Item no encontrado");
         return _itemMapper.toDto(item.get());
     }
