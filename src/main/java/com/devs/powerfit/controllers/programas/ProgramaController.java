@@ -92,7 +92,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> getItemById(@PathVariable Long id, @PathVariable Long itemId){
         var item = _service.getItemById(id, itemId);
         if(item==null){
-            throw new NotFoundException("Item de programa no encontrado");
+            throw new NotFoundException("Item no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
@@ -110,7 +110,7 @@ public class ProgramaController {
     public ResponseEntity<ProgramaItemDto> updateItem(@PathVariable Long id, @PathVariable Long itemId, @RequestBody ProgramaItemDto itemDto){
         var item = _service.updateItem(id, itemId, itemDto);
         if(item==null){
-            throw new NotFoundException("Item de programa no encontrado");
+            throw new NotFoundException("Item no encontrado");
         }
         return new ResponseEntity<>(item, HttpStatus.OK);
     }
