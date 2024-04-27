@@ -68,7 +68,7 @@ public class SecurityConfiguration {
                         .permissionsPolicy(permissions -> permissions
                                 .policy("geolocation=(self)")
                         )
-                        .and().addHeaderWriter(new StaticHeadersWriter("X-Content-Security-Policy", "script-src 'self'"))
+                        .and().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy", "script-src 'self'"))
                 );
 
         return http.build();
