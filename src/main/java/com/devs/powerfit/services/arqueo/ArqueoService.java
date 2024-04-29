@@ -67,14 +67,15 @@ public class ArqueoService implements IArqueoService {
         ArqueoBean arqueo = crearArqueo(sesionCaja);
         List<MovimientoBean> movimientos = obtenerMovimientos(sesionCaja);
         List<ArqueoDetalleBean> detalles = detalleService.generarDetalles(arqueo, movimientos);
-        arqueo.setMontoApertura(arqueoRequestDto.getMontoApertura());
+
         arqueo.setNombreCaja(caja.getNombre());
         // Calcular los totales de entrada y salida de cada tipo de pago
         calcularTotales(arqueo, detalles);
 
         // Calcular el monto total del arqueo
         double montoTotal = calcularMontoTotal(detalles);
-        arqueo.setMontoTotal(montoTotal + arqueoRequestDto.getMontoApertura());
+        arqueo.setMontoTotal(arqueoRequestDto.getMontoApertura());
+        arqueo.setMontoApertura(arqueoRequestDto.getMontoApertura() - montoTotal);
 
         guardarDetalles(detalles);
         arqueo.setDetalles(detalles);
