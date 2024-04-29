@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Filter;
 
 import java.util.List;
 
@@ -45,4 +46,8 @@ public class ProgramaBean extends AbstractBean {
 
     @OneToMany(mappedBy = "programa")
     private List<ProgramaItemBean> items;
+
+    @OneToMany(mappedBy = "programa")
+    private List<ClienteProgramaBean> clienteProgramas;
+
 }

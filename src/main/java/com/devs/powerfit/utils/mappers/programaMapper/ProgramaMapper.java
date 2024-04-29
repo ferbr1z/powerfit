@@ -5,11 +5,7 @@ import com.devs.powerfit.beans.programas.ProgramaBean;
 import com.devs.powerfit.dtos.programas.CrearAndUpdateProgramaDto;
 import com.devs.powerfit.dtos.programas.FullProgramaDto;
 import com.devs.powerfit.dtos.programas.ProgramaItemDto;
-import com.devs.powerfit.enums.ENivelPrograma;
-import com.devs.powerfit.utils.mappers.actividadMapper.ActividadMapper;
-import com.devs.powerfit.utils.mappers.empleadoMappers.EmpleadoMapper;
 import org.modelmapper.PropertyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,13 +14,8 @@ import java.util.stream.Collectors;
 @Component
 public class ProgramaMapper extends AbstractMapper<ProgramaBean, CrearAndUpdateProgramaDto> {
 
-    private ActividadMapper _actividadMapper;
-    private EmpleadoMapper _empleadoMapper;
 
-    @Autowired
-    public ProgramaMapper(ActividadMapper actividadMapper, EmpleadoMapper empleadoMapper){
-        _actividadMapper = actividadMapper;
-        _empleadoMapper = empleadoMapper;
+    public ProgramaMapper(){
         configureMapper();
     }
 
@@ -42,6 +33,17 @@ public class ProgramaMapper extends AbstractMapper<ProgramaBean, CrearAndUpdateP
             @Override
             protected void configure() {
                 map().getEmpleado().setId(source.getEmpleado());
+            }
+        });
+
+        // Si se trata de FullProgramaDto
+        modelMapper.addMappings(new PropertyMap<ProgramaBean, FullProgramaDto>() {
+            @Override
+            protected void configure() {
+                // Se mapea la propiedad 'actividad' de ProgramaBean a 'actividad' de FullProgramaDto
+                map().setActividad(source.getActividad().getNombre());
+                // Se mapea la propiedad 'empleado' de ProgramaBean a 'empleado' de FullProgramaDto
+                map().setEmpleado(source.getEmpleado().getNombre());
             }
         });
 
