@@ -19,7 +19,8 @@ public class ClienteProgramaItem extends AbstractBean {
     @JoinColumn(name = "id_cliente_programa")
     @NotNull(message = "El cliente programa no puede ser nulo")
     private ClienteProgramaBean clientePrograma;
-    @OneToOne(optional = false)
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "id_programa_item")
     @NotNull(message = "El programa item no puede ser nulo")
     private ProgramaItemBean programaItem;
