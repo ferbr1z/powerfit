@@ -2,8 +2,10 @@ package com.devs.powerfit.controllers.arqueo;
 
 
 import com.devs.powerfit.dtos.arqueo.ArqueoDto;
+import com.devs.powerfit.dtos.arqueo.ArqueoRequestDto;
 import com.devs.powerfit.interfaces.arqueo.IArqueoService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -24,9 +26,9 @@ public class ArqueoController {
     private IArqueoService arqueoService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
-    @PostMapping("/{id}")
-    ResponseEntity<ArqueoDto> generarArqueo(@PathVariable Long id) {
-        return new ResponseEntity<>(arqueoService.realizarArqueo(id), HttpStatus.CREATED);
+    @PostMapping()
+    ResponseEntity<ArqueoDto> generarArqueo(@RequestBody @Valid ArqueoRequestDto arqueoRequestDto) {
+        return new ResponseEntity<>(arqueoService.realizarArqueo(arqueoRequestDto), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
