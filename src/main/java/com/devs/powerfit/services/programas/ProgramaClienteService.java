@@ -13,6 +13,7 @@ import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProgramaClienteService implements IProgramaClienteService {
@@ -34,6 +35,7 @@ public class ProgramaClienteService implements IProgramaClienteService {
     }
 
     @Override
+    @Transactional
     public ClienteProgramaDto registrarCliente(Long programaId, ClienteProgramaDto clienteProgramaDto) {
 
         var clienteId = clienteProgramaDto.getClienteId();
