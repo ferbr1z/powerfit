@@ -2,10 +2,12 @@ package com.devs.powerfit.controllers.programas;
 
 import com.devs.powerfit.dtos.programas.*;
 import com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto;
+import com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaItemDto;
 import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.enums.ESexo;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.programas.IProgramItemService;
+import com.devs.powerfit.interfaces.programas.IProgramaClienteItemService;
 import com.devs.powerfit.interfaces.programas.IProgramaClienteService;
 import com.devs.powerfit.interfaces.programas.IProgramaService;
 import com.devs.powerfit.utils.responses.PageResponse;
@@ -22,11 +24,13 @@ public class ProgramaController {
     private IProgramaService _service;
     private IProgramaClienteService _clienteProgramaService;
     private IProgramItemService _programItemService;
+    private IProgramaClienteItemService _clienteProgramaItemService;
     @Autowired
-    public ProgramaController(IProgramaService service, IProgramaClienteService clienteProgramaService, IProgramItemService programItemService){
+    public ProgramaController(IProgramaService service, IProgramaClienteService clienteProgramaService, IProgramItemService programItemService, IProgramaClienteItemService clienteProgramaItemService){
         _service = service;
         _clienteProgramaService = clienteProgramaService;
         _programItemService = programItemService;
+        _clienteProgramaItemService = clienteProgramaItemService;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
@@ -167,6 +171,50 @@ public class ProgramaController {
     @DeleteMapping("/{id}/clientes/{clienteProgramaId}")
     public ResponseEntity<Boolean> deleteRegistroCliente(@PathVariable Long id, @PathVariable Long clienteProgramaId){
         return new ResponseEntity<>(_clienteProgramaService.deleteClientePrograma(id, clienteProgramaId), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @PostMapping("/{id}/clientes/{clienteProgramaId}/resultados")
+    public ResponseEntity<ClienteProgramaItemDto> createResultado(@PathVariable Long id, @PathVariable Long clienteProgramaId, @RequestBody @Valid ClienteProgramaItemDto clienteProgramaItemDto){
+        var item = _clienteProgramaItemService.create(id, clienteProgramaId, clienteProgramaItemDto);
+        if(item==null){
+            throw new NotFoundException("Registro de cliente no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/{id}/clientes/{clienteProgramaId}/resultados/{itemId}")
+    public ResponseEntity<ClienteProgramaItemDto> getResultadoById(@PathVariable Long id, @PathVariable Long clienteProgramaId, @PathVariable Long itemId) {
+        var item = _clienteProgramaItemService.getById(id, clienteProgramaId, itemId);
+        if (item == null) {
+            throw new NotFoundException("Item no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/{id}/clientes/{clienteProgramaId}/resultados/page/{page}")
+    public ResponseEntity<PageResponse<ClienteProgramaItemDto>> getResultadosByProgramaId(@PathVariable int page, @PathVariable Long id, @PathVariable Long clienteProgramaId) {
+        var items = _clienteProgramaItemService.getAll(id, clienteProgramaId, page);
+        return new ResponseEntity<>(items, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @PutMapping("/{id}/clientes/{clienteProgramaId}/resultados/{itemId}")
+    public ResponseEntity<ClienteProgramaItemDto> updateResultado(@PathVariable Long id, @PathVariable Long clienteProgramaId, @PathVariable Long itemId, @RequestBody ClienteProgramaItemDto clienteProgramaItemDto) {
+        var item = _clienteProgramaItemService.update(id, clienteProgramaId, itemId, clienteProgramaItemDto);
+        if (item == null) {
+            throw new NotFoundException("Item no encontrado");
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @DeleteMapping("/{id}/clientes/{clienteProgramaId}/resultados/{itemId}")
+    public ResponseEntity<Boolean> deleteResultado(@PathVariable Long id, @PathVariable Long clienteProgramaId, @PathVariable Long itemId) {
+        var result = _clienteProgramaItemService.delete(id, clienteProgramaId, itemId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }
