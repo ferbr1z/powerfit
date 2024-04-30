@@ -12,8 +12,11 @@ import com.devs.powerfit.daos.movimientos.MovimientoDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDetalleDao;
 import com.devs.powerfit.dtos.arqueo.ArqueoDetalleDto;
 import com.devs.powerfit.dtos.arqueo.ArqueoDto;
+import com.devs.powerfit.dtos.arqueo.ArqueoRequestDto;
+import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.arqueo.IArqueoService;
+import com.devs.powerfit.interfaces.cajas.ICajaService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.arqueoMapper.ArqueoDetalleMapper;
 import com.devs.powerfit.utils.mappers.arqueoMapper.ArqueoMapper;
@@ -41,8 +44,9 @@ public class ArqueoService implements IArqueoService {
     private final ArqueoDetalleMapper detalleMapper;
     private final ArqueoDetalleService detalleService;
     private final MovimientoDetalleDao movimientoDetalleDao;
+    private final ICajaService cajaService;
     @Autowired
-    public ArqueoService(ArqueoDao arqueoDao, ArqueoDetalleDao arqueoDetalleDao, MovimientoDao movimientoDao, SesionCajaDao sesionCajaDao, ArqueoMapper mapper, ArqueoDetalleMapper detalleMapper, ArqueoDetalleService detalleService, MovimientoDetalleDao movimientoDetalleDao) {
+    public ArqueoService(ArqueoDao arqueoDao, ArqueoDetalleDao arqueoDetalleDao, MovimientoDao movimientoDao, SesionCajaDao sesionCajaDao, ArqueoMapper mapper, ArqueoDetalleMapper detalleMapper, ArqueoDetalleService detalleService, MovimientoDetalleDao movimientoDetalleDao, ICajaService cajaService) {
         this.arqueoDao = arqueoDao;
         this.arqueoDetalleDao = arqueoDetalleDao;
         this.movimientoDao = movimientoDao;
@@ -51,24 +55,27 @@ public class ArqueoService implements IArqueoService {
         this.detalleMapper = detalleMapper;
         this.detalleService = detalleService;
         this.movimientoDetalleDao = movimientoDetalleDao;
-
+        this.cajaService = cajaService;
     }
 
 
     @Override
-    public ArqueoDto realizarArqueo(Long sesionCajaId) {
+    public ArqueoDto realizarArqueo(ArqueoRequestDto arqueoRequestDto) {
         //crear y guardar el arqueo
-        SesionCajaBean sesionCaja = obtenerSesionCaja(sesionCajaId);
+        SesionCajaBean sesionCaja = obtenerSesionCaja(arqueoRequestDto.getSesionCajaId());
+        CajaDto caja = cajaService.getById(arqueoRequestDto.getCajaId());
         ArqueoBean arqueo = crearArqueo(sesionCaja);
         List<MovimientoBean> movimientos = obtenerMovimientos(sesionCaja);
         List<ArqueoDetalleBean> detalles = detalleService.generarDetalles(arqueo, movimientos);
 
+        arqueo.setNombreCaja(caja.getNombre());
         // Calcular los totales de entrada y salida de cada tipo de pago
         calcularTotales(arqueo, detalles);
 
         // Calcular el monto total del arqueo
         double montoTotal = calcularMontoTotal(detalles);
-        arqueo.setMontoTotal(montoTotal);
+        arqueo.setMontoTotal(arqueoRequestDto.getMontoApertura());
+        arqueo.setMontoApertura(arqueoRequestDto.getMontoApertura() - montoTotal);
 
         guardarDetalles(detalles);
         arqueo.setDetalles(detalles);
@@ -99,7 +106,7 @@ public class ArqueoService implements IArqueoService {
     }
 
     @Override
-    public PageResponse<ArqueoDto> getAllByFecha(Date fecha, int page) {
+    public PageResponse<ArqueoDto> getAllByFecha(LocalDate fecha, int page) {
         PageRequest pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         Page<ArqueoBean> arqueos = arqueoDao.findAllByFechaAndActiveTrue(fecha, pag);
         if (arqueos.isEmpty()){

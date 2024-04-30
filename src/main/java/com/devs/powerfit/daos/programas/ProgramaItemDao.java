@@ -12,12 +12,13 @@ import java.util.Optional;
 
 @Repository
 public interface ProgramaItemDao extends JpaRepository<ProgramaItemBean, Long> {
-    Page<ProgramaItemBean> findAllByProgramaId(Pageable page, Long programaId);
+    Page<ProgramaItemBean> findAllByProgramaIdAndActiveTrue(Pageable page, Long programaId);
     Optional<ProgramaItemBean> findByIdAndActiveTrue(Long itemId);
 
     @Query("SELECT pi FROM ProgramaItemBean pi WHERE pi.id = :itemId AND pi.programa.id = :programaId AND pi.active = true")
     Optional<ProgramaItemBean> findByIdAAndProgramaIdAndActiveTrue(Long itemId, Long programaId);
 
-    List<ProgramaItemBean> findAllByProgramaId(Long programaId);
+    @Query("SELECT pi FROM ProgramaItemBean pi WHERE pi.programa.id = :programaId AND pi.active = true")
+    List<ProgramaItemBean> getAllByProgramaIdAAndActiveTrue(Long programaId);
 
 }

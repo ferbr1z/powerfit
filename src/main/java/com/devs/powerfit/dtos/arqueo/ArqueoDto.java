@@ -21,6 +21,8 @@ public class ArqueoDto extends AbstractDto {
 
     private Double montoTotal;
 
+    private String nombreCaja;
+    private Double montoApertura;
     private Double totalEntradaTarjeta;
 
     private Double totalEntradaEfectivo;
