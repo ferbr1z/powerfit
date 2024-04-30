@@ -106,7 +106,7 @@ public class ArqueoService implements IArqueoService {
     }
 
     @Override
-    public PageResponse<ArqueoDto> getAllByFecha(Date fecha, int page) {
+    public PageResponse<ArqueoDto> getAllByFecha(LocalDate fecha, int page) {
         PageRequest pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         Page<ArqueoBean> arqueos = arqueoDao.findAllByFechaAndActiveTrue(fecha, pag);
         if (arqueos.isEmpty()){

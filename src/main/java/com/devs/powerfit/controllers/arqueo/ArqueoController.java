@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
@@ -40,7 +41,7 @@ public class ArqueoController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
     @GetMapping("/searchByFecha/{fecha}/page/{page}")
-    ResponseEntity<PageResponse<ArqueoDto>> getAll(@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date fecha, @PathVariable int page) {
+    ResponseEntity<PageResponse<ArqueoDto>> getAll(@PathVariable LocalDate fecha, @PathVariable int page) {
         return new ResponseEntity<>(arqueoService.getAllByFecha(fecha, page), HttpStatus.OK);
     }
 
