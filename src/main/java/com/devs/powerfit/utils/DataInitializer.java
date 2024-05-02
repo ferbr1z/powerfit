@@ -51,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
             rolEntrenador.setActive(true);
             rolDao.save(rolEntrenador);
         }
-        if (empleadoDao.findByEmailAndActiveIsTrue("admindefinitivo@gmail.com").isEmpty()){
+        if (empleadoDao.findByEmailAndActiveIsTrue("admindefinitivo@gmail.com").isEmpty() || empleadoDao.count() == 0){
             EmpleadoDto empleado = new EmpleadoDto();
             empleado.setActive(true);
             empleado.setTelefono("0987123456");
