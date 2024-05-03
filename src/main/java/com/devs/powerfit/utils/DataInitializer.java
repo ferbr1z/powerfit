@@ -51,15 +51,15 @@ public class DataInitializer implements CommandLineRunner {
             rolEntrenador.setActive(true);
             rolDao.save(rolEntrenador);
         }
-        if (empleadoDao.findByEmailAndActiveIsTrue("superadmin@gamil.com").isEmpty()){
+        if (empleadoDao.findByEmailAndActiveIsTrue("admindefinitivo@gmail.com").isEmpty() || empleadoDao.count() == 0){
             EmpleadoDto empleado = new EmpleadoDto();
             empleado.setActive(true);
             empleado.setTelefono("0987123456");
-            empleado.setEmail("superadmin@gamil.com");
+            empleado.setEmail("admindefinitivo@gmail.com");
             empleado.setRol(1L);
-            empleado.setCedula("superadmin");
+            empleado.setCedula("12345678");
             empleado.setDireccion("Encarnación");
-            empleado.setNombre("Super Admin");
+            empleado.setNombre("Administrador");
             empleadoService.create(empleado);
         }
         if (tipoDePagoDao.count() == 0){

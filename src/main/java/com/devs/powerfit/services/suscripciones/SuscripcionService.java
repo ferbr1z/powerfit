@@ -5,6 +5,7 @@ import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionDto;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
@@ -300,6 +301,7 @@ public class SuscripcionService implements ISuscripcionDetalleService {
 
         return pageResponse;
     }
+
     public SuscripcionDto actualizarEstado(Long id){
         var suscripcionOptional= suscripcionDetalleDao.findByIdAndActiveTrue(id);
         if(suscripcionOptional.isEmpty()){

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Aviso de Moroso</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .purpleSquare {
+            background-color: #6941C6;
+            color: white;
+            padding: 5px;
+            max-width: 30rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        table {
+            max-width: 30rem;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #6941C6;
+            color: white;
+            padding: 5px;
+        }
+
+        th {
+            color: white;
+            text-align: left;
+        }
+
+        th,
+        td {
+            border: 1px solid #6941C6;
+            padding: 5px;
+        }
+
+        footer {
+            padding: 5px;
+            max-width: 25rem;
+            width: 100%;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <img src=cid:pwflogo1>
+</header>
+<div class="purpleSquare">
+    <h3>Recordatorios de pagos de Powerfit.</h3>
+</div>
+<div style="display: flex;">
+    <p>Estimado&nbsp;</p>
+    <p th:text="${nombre}">Cliente</p>
+</div>
+<p>Le recordamos que tiene pagos pendientes en Powerfit.</p>
+<table>
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Concepto</th>
+        <th>Monto (Gs)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="subscription : ${subscriptions}">
+        <td th:text="${subscription.fechaFin}">2021-01-01</td>
+        <td th:text="${subscription.actividad.getNombre()}">Membresia</td>
+        <td th:text="${subscription.monto}">1000</td>
+    </tr>
+    </tbody>
+</table>
+<footer>
+    <p>@Powerfit -&nbsp;</p>
+    <p th:text="${year}">2024</p>
+</footer>
+</body>
+
+</html>

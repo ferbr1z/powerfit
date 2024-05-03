@@ -3,11 +3,13 @@ package com.devs.powerfit.daos.suscripciones;
 import com.devs.powerfit.beans.actividades.ActividadBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.enums.EModalidad;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
