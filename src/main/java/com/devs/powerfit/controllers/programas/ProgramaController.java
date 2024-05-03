@@ -91,7 +91,7 @@ public class ProgramaController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     @PostMapping("/{id}/items")
-    public ResponseEntity<ProgramaItemDto> addItem(@PathVariable Long id, @RequestBody ProgramaItemDto itemDto){
+    public ResponseEntity<ProgramaItemDto> addItem(@PathVariable Long id, @RequestBody @Valid ProgramaItemDto itemDto){
         var item = _programItemService.createItem(id, itemDto);
         if(item==null){
             throw new NotFoundException("Programa no encontrado");

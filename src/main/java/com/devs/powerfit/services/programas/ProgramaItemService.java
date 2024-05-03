@@ -29,6 +29,9 @@ public class ProgramaItemService implements IProgramItemService {
 
     @Override
     public ProgramaItemDto createItem(Long programaId, ProgramaItemDto itemDto) {
+        if(itemDto.getPeso() == null && itemDto.getRepeticiones() == null && itemDto.getTiempo() == null)
+            throw new IllegalArgumentException("Debe enviar al menos un campo de peso, repeticiones o tiempo");
+
         var programa = _repository.findByIdAndActiveTrue(programaId);
         if(programa.isEmpty()) throw new NotFoundException("Programa no encontrado");
         var item = _itemMapper.toBean(itemDto);
