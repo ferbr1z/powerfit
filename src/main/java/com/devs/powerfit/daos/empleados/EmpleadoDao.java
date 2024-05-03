@@ -19,4 +19,6 @@ public interface EmpleadoDao extends JpaRepository<EmpleadoBean, Long> {
 
     Page<EmpleadoBean> findAllByRolAndActiveIsTrue(Pageable pageable, Long rolId);
 
+    Page<EmpleadoBean> findAllByRolAndNombreContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, Long rolId, String nombre);
+
 }

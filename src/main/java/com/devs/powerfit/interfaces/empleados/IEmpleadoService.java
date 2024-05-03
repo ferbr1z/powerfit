@@ -10,5 +10,5 @@ public interface IEmpleadoService extends IService<EmpleadoDto> {
 
     public EmpleadoDto getByEmail(String email);
 
-    PageResponse<EmpleadoDto> getAllEntrenadores(int page);
+    PageResponse<EmpleadoDto> getAllEntrenadores(int page, String nombre);
 }
