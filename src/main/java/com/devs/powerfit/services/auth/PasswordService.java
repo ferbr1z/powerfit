@@ -14,9 +14,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Base64;
 
 @Service
 public class PasswordService {
@@ -53,15 +54,10 @@ public class PasswordService {
         _userDao.save(user);
     }
 
-    public Boolean confirmPassword(String password, String hash) {
-        return _encoder.matches(password, hash);
-    }
-
-
     public void forgotPassword(String email){
         var user = getUser(email);
 
-        var token = UUID.randomUUID().toString();
+        var token = generateToken();
 
         var recoveryToken = PasswordRecoveryTokenBean.builder()
                 .token(token)
@@ -100,6 +96,17 @@ public class PasswordService {
         var tokenBean = _recoveryTokeService.findByTokenAndActiveIsTrue(token);
         if(tokenBean.isEmpty()) throw new NotFoundException("Token no encontrado");
         return isTokenValid(tokenBean.get());
+    }
+
+    private String generateToken(){
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[20];
+        random.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    private Boolean confirmPassword(String password, String hash) {
+        return _encoder.matches(password, hash);
     }
 
     private Boolean isTokenValid(PasswordRecoveryTokenBean recoveryToken){
