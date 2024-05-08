@@ -95,12 +95,13 @@ public class EmailService {
         }
     }
 
-    public void sendRecoveryPasswordEmail(UsuarioBean user) {
+    public void sendRecoveryPasswordEmail(UsuarioBean user, String token) {
         Context context = new Context();
 
         String year = String.valueOf(java.time.LocalDate.now().getYear());
         context.setVariable("user", user);
         context.setVariable("year", year);
+        context.setVariable("token", token);
         String subject = "Powerfit: Restablecer contraseña";
         sendEmailWithHtmlTemplate(user.getEmail(), subject, "forgot-password-template", context);
     }
