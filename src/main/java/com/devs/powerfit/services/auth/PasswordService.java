@@ -71,6 +71,8 @@ public class PasswordService {
                 .usado(false)
                 .build();
 
+        recoveryToken.setActive(true);
+
         _recoveryTokeService.save(recoveryToken);
 
         _mail.sendRecoveryPasswordEmail(user, token);
