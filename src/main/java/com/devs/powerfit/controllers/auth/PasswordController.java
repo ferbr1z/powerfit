@@ -24,7 +24,7 @@ public class PasswordController {
     }
 
     @PostMapping("/change")
-    public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeRequest newPassword, Principal principal) {
+    public ResponseEntity<?> changePassword(@RequestBody @Validgit a PasswordChangeRequest newPassword, Principal principal) {
 
         _passwordService.changePassword(newPassword, principal);
         return ResponseEntity.ok().body(Map.of("message", "La contraseña se cambió con éxito"));
