@@ -1,7 +1,7 @@
 package com.devs.powerfit.services.email;
 
+import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
-import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
 import com.devs.powerfit.enums.EEstado;
@@ -93,6 +93,16 @@ public class EmailService {
 
             sendEmailWithHtmlTemplate(moroso.getEmail(), subject, "email-template", context);
         }
+    }
+
+    public void sendRecoveryPasswordEmail(UsuarioBean user) {
+        Context context = new Context();
+
+        String year = String.valueOf(java.time.LocalDate.now().getYear());
+        context.setVariable("user", user);
+        context.setVariable("year", year);
+        String subject = "Powerfit: Restablecer contraseña";
+        sendEmailWithHtmlTemplate(user.getEmail(), subject, "forgot-password-template", context);
     }
 
 }
