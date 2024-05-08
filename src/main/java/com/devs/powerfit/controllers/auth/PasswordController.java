@@ -2,6 +2,7 @@ package com.devs.powerfit.controllers.auth;
 
 import com.devs.powerfit.security.password.PasswordChangeRequest;
 import com.devs.powerfit.services.auth.PasswordService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class PasswordController {
     }
 
     @PostMapping("/change")
-    public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest newPassword, Principal principal) {
+    public ResponseEntity<?> changePassword(@RequestBody @Valid PasswordChangeRequest newPassword, Principal principal) {
 
         _passwordService.changePassword(newPassword, principal);
         return ResponseEntity.ok().body(Map.of("message", "La contraseña se cambió con éxito"));
