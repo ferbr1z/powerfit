@@ -1,10 +1,12 @@
 package com.devs.powerfit.controllers.actividades;
 
 import com.devs.powerfit.dtos.actividades.ActividadConClientesDto;
+import com.devs.powerfit.dtos.actividades.ActividadConEntrenadoresDto;
 import com.devs.powerfit.dtos.actividades.ActividadDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionConClienteDto;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.services.actividades.ActividadConClientesService;
+import com.devs.powerfit.services.actividades.ActividadConEntrenadoresService;
 import com.devs.powerfit.utils.responses.PageResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +23,12 @@ public class ActividadController {
 
     private final IActividadService actividadService;
     private final ActividadConClientesService actividadConClientesService;
+    private final ActividadConEntrenadoresService actividadConEntrenadoresService;
     @Autowired
-    public ActividadController(IActividadService actividadService, ActividadConClientesService actividadConClientesService) {
+    public ActividadController(ActividadConEntrenadoresService actividadConEntrenadoresService, IActividadService actividadService, ActividadConClientesService actividadConClientesService) {
         this.actividadService = actividadService;
         this.actividadConClientesService = actividadConClientesService;
+        this.actividadConEntrenadoresService = actividadConEntrenadoresService;
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     @PostMapping
@@ -67,5 +71,17 @@ public class ActividadController {
         return new ResponseEntity<>(actividadService.searchByNombre(nombre,page), HttpStatus.OK);
     }
 
+    /*New SCRUM-185 sprint 6*/
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/entrenadores/page/{page}")
+    public ResponseEntity<PageResponse<ActividadConEntrenadoresDto>> getAllWithEntrenadores(@PathVariable int page) {
+        return new ResponseEntity<>(actividadConEntrenadoresService.getAllActividadesConEntrenadores(page), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/entrenadores/{id}")
+    public ResponseEntity<ActividadConEntrenadoresDto> getByIdWithEntrenadores(@PathVariable Long id) {
+        return new ResponseEntity<>(actividadConEntrenadoresService.getByIdWithEntrenadores(id), HttpStatus.OK);
+    }
 }
 
