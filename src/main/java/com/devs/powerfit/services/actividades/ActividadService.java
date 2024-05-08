@@ -74,6 +74,7 @@ public class ActividadService implements IActividadService  {
     public ActividadDto getById(Long id) {
         var actividadOptional = actividadDao.findByIdAndActiveTrue(id);
         if (actividadOptional.isPresent()) {
+            //return mapper.toDto(actividadOptional.get());
             ActividadBean actividad = actividadOptional.get();
             ActividadDto actividadDto = new ActividadDto();
             actividadDto.setId(actividad.getId());
@@ -86,6 +87,8 @@ public class ActividadService implements IActividadService  {
                     .map(EmpleadoBean::getId)
                     .collect(Collectors.toList());
             actividadDto.setEntrenadores(entrenadoresIds);
+
+            actividadDto.setActive(true); //debido a que el metodo getbyid no devuelve active true
 
             return actividadDto;
         } else {
@@ -114,6 +117,8 @@ public class ActividadService implements IActividadService  {
                     .map(EmpleadoBean::getId)
                     .collect(Collectors.toList());
             actividadDto.setEntrenadores(entrenadoresIds);
+
+            actividadDto.setActive(true); //debido a que el metodo getbyid no devuelve active true
 
             actividadesDto.add(actividadDto);
         }
@@ -207,6 +212,8 @@ public class ActividadService implements IActividadService  {
                     .map(EmpleadoBean::getId)
                     .collect(Collectors.toList());
             actividadDto.setEntrenadores(entrenadoresIds);
+
+            actividadDto.setActive(true); //debido a que el metodo getbyid no devuelve active true
 
             actividadesDto.add(actividadDto);
         }
