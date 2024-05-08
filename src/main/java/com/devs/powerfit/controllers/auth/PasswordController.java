@@ -1,7 +1,9 @@
 package com.devs.powerfit.controllers.auth;
 
+import com.devs.powerfit.security.password.ForgotPasswordRequest;
 import com.devs.powerfit.security.password.PasswordChangeRequest;
 import com.devs.powerfit.services.auth.PasswordService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +29,12 @@ public class PasswordController {
 
         _passwordService.changePassword(newPassword, principal);
         return ResponseEntity.ok().body(Map.of("message", "La contraseña se cambió con éxito"));
+    }
+
+    @PostMapping("/forgot")
+    public ResponseEntity<?> forgotPassword(@RequestBody @Valid ForgotPasswordRequest email) {
+        _passwordService.forgotPassword(email.getEmail());
+        return ResponseEntity.ok().body(Map.of("message", "Se ha enviado un correo con las instrucciones para restablecer la contraseña"));
     }
 
 }
