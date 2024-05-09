@@ -80,4 +80,5 @@ public class DataInitializer implements CommandLineRunner {
             tipoDePagoDao.save(pagoTransferencia);
         }
     }
+
 }
