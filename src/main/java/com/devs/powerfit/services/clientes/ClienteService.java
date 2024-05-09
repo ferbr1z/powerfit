@@ -2,10 +2,12 @@ package com.devs.powerfit.services.clientes;
 
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
+import com.devs.powerfit.dtos.auth.UsuarioDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
+import com.devs.powerfit.services.auth.AuthService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
@@ -22,10 +24,12 @@ public class ClienteService implements IClienteService {
 
     private ClienteDao clienteDao;
     private ClienteMapper mapper;
+    private AuthService authService;
     @Autowired
-    public ClienteService(ClienteDao clienteDao, ClienteMapper mapper) {
+    public ClienteService(ClienteDao clienteDao, AuthService authService, ClienteMapper mapper) {
         this.clienteDao = clienteDao;
         this.mapper = mapper;
+        this.authService = authService;
     }
 
 
@@ -79,6 +83,16 @@ public class ClienteService implements IClienteService {
         nuevoCliente.setActive(true);
         nuevoCliente.setFechaRegistro(LocalDate.now());
         clienteDao.save(nuevoCliente);
+
+        //crear nuevo usuario
+        UsuarioDto usuarioDto = new UsuarioDto();
+        usuarioDto.setNombre(clienteDto.getNombre());
+        usuarioDto.setEmail(clienteDto.getEmail());
+        usuarioDto.setPassword(clienteDto.getCedula()); // La contraseña es la cedula del empleado
+        usuarioDto.setRol_id(2L);
+        // Guardar el nuevo Usuario
+        authService.register(usuarioDto);
+
         return mapper.toDto(nuevoCliente);
     }
 
