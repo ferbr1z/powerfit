@@ -111,7 +111,7 @@ public class ClienteController {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/createClientAccounts")
+    @GetMapping("/crear-cuentas")
     public String createAccounts() {
         return clienteService.createAccountsForClientsWithoutUsuario();
     }
