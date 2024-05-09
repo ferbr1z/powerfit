@@ -110,4 +110,9 @@ public class ClienteController {
         return new ResponseEntity<>(clienteService.searchByRuc(ruc,page), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/crear-cuentas")
+    public String createAccounts() {
+        return clienteService.createAccountsForClientsWithoutUsuario();
+    }
 }

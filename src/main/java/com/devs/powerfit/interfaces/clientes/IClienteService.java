@@ -10,4 +10,6 @@ public interface IClienteService extends IService<ClienteDto> {
     PageResponse<ClienteDto> searchByCi(String ci, int page);
 
     PageResponse<ClienteDto> searchByRuc(String ruc, int page);
+
+    String createAccountsForClientsWithoutUsuario();
 }
