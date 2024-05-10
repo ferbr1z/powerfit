@@ -7,11 +7,14 @@ import com.devs.powerfit.daos.cajas.ExtraccionCajaDao;
 import com.devs.powerfit.dtos.cajas.CajaDto;
 import com.devs.powerfit.dtos.cajas.ExtraccionDeCajaDto;
 import com.devs.powerfit.dtos.empleados.EmpleadoDto;
+import com.devs.powerfit.dtos.facturas.FacturaDto;
+import com.devs.powerfit.dtos.movimientos.MovimientoDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.cajas.ICajaService;
 import com.devs.powerfit.interfaces.cajas.IExtraccionCajaService;
 import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
+import com.devs.powerfit.services.movimientos.MovimientoService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.CajaMappers.CajaMapper;
 import com.devs.powerfit.utils.mappers.CajaMappers.ExtraccionCajaMapper;
@@ -35,16 +38,18 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
     private final IEmpleadoService empleadoService;
     private final EmpleadoMapper empleadoMapper;
 
+    private final MovimientoService movimientoService;
 
 
     @Autowired
-    public ExtraccionCajaService(ExtraccionCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, CajaMapper cajaMapper, ICajaService cajaService, IEmpleadoService empleadoService, EmpleadoMapper empleadoMapper) {
+    public ExtraccionCajaService(ExtraccionCajaMapper mapper, ExtraccionCajaDao extraccionCajaDao, CajaMapper cajaMapper, ICajaService cajaService, IEmpleadoService empleadoService, EmpleadoMapper empleadoMapper, MovimientoService movimientoService) {
         this.mapper = mapper;
         this.extraccionCajaDao = extraccionCajaDao;
         this.cajaMapper = cajaMapper;
         this.cajaService = cajaService;
         this.empleadoService = empleadoService;
         this.empleadoMapper = empleadoMapper;
+        this.movimientoService = movimientoService;
     }
 
 
@@ -73,6 +78,23 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
         extraccionDeCajaBean.setNombreUsuario(empleado.getNombre());
 
         extraccionCajaDao.save(extraccionDeCajaBean);
+
+        MovimientoDto movimientoDto = new MovimientoDto();
+        movimientoDto.setHora(LocalTime.now());
+        movimientoDto.setFecha(LocalDate.now());
+        movimientoDto.setTotal(extraccionDeCajaDto.getMonto());
+        movimientoDto.setEntrada(false);
+        //movimientoDto.setComprobanteNumero(factura.getNroFactura());
+        //factura.setSaldo(factura.getSaldo() - movimientoDto.getTotal());
+        //FacturaDto facturaActualizada = facturaService.actualizarSaldo(factura.getId(), factura.getSaldo())
+        movimientoDto.setFacturaId(null);
+        movimientoDto.setSesionId(extraccionDeCajaDto.getSesionId());
+        movimientoDto.setFacturaProveedorId(null);
+        movimientoDto.setNombreCaja(caja.getNombre());
+        movimientoDto.setNombreEmpleado(empleado.getNombre());
+
+
+        movimientoService.create(movimientoDto);
 
         return mapper.toDto(extraccionDeCajaBean);
     }
