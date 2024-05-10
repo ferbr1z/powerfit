@@ -52,7 +52,8 @@ public class AuthService implements IAuthService {
             if (request.getNombre().isEmpty() || request.getPassword().isEmpty() || request.getEmail().isEmpty() || request.getRol_id() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Todos los campos son obligatorios para registrar un nuevo usuario.");
             }
-            if (userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent() || userDao.findByNombreAndActiveIsTrue(request.getNombre()).isPresent()) {
+            //ahora ya no se checkea si tiene el mismo nombre, solo si ya existe uno con el mismo email
+            if (userDao.findByEmailAndActiveIsTrue(request.getEmail()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario ya existe");
             }
             Optional<RolBean> rol = rolDao.findByIdAndActiveTrue(request.getRol_id());
