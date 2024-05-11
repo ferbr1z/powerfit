@@ -11,6 +11,7 @@ import java.time.LocalTime;
 public class MovimientoDto extends AbstractDto {
     private Long facturaId;
     private Long facturaProveedorId;
+    private Long extraccionId;
     private Long sesionId;
     private String comprobanteNumero;
     private String comprobanteNombre;

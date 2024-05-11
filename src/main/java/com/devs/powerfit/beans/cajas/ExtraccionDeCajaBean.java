@@ -56,4 +56,5 @@ public class ExtraccionDeCajaBean extends AbstractBean {
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
 
+
 }
