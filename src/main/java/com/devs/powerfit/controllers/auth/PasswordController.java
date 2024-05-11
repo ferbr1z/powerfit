@@ -43,7 +43,7 @@ public class PasswordController {
     }
 
     @PostMapping("/reset/{token}")
-    public ResponseEntity<?> resetPassword(@PathVariable String token, @RequestBody PasswordRecoveryReq passwordRecoveryReq) {
+    public ResponseEntity<?> resetPassword(@PathVariable String token, @RequestBody @Valid PasswordRecoveryReq passwordRecoveryReq) {
         _passwordService.recoveryPassword(token, passwordRecoveryReq.getPassword());
         return ResponseEntity.ok().body(Map.of("message", "Se ha restablecido la contraseña con éxito."));
     }
