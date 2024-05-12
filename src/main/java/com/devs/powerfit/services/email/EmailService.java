@@ -4,7 +4,11 @@ import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.services.clientes.ClienteListaService;
+import com.devs.powerfit.services.clientes.ReportesClienteService;
 import com.devs.powerfit.utils.Setting;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -30,12 +34,16 @@ public class EmailService {
     private final ClienteDao clienteDao;
     private final SuscripcionDao suscripcionDao;
     private final TemplateEngine templateEngine;
+    private final ReportesClienteService reportesClienteService;
+    private final ClienteListaService clienteListaService;
     @Autowired
-    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine) {
+    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine, ReportesClienteService reportesClienteService, ClienteListaService clienteListaService) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
         this.clienteDao = clienteDao;
         this.suscripcionDao = suscripcionDao;
+        this.reportesClienteService = reportesClienteService;
+        this.clienteListaService = clienteListaService;
     }
 
     //validacion de email
@@ -80,7 +88,7 @@ public class EmailService {
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
         for (ClienteBean moroso : morosos) {
-            //TODO: mostrar todas las páginas
+            //TODO: mostrar todas las páginas de suscripciones
             var pag = PageRequest.of(0, Setting.PAGE_SIZE);
             var suscripcionDetalles = suscripcionDao.findAllByClienteIdAndEstadoAndActiveTrue(pag, moroso.getId(), EEstado.PENDIENTE);
 
@@ -106,4 +114,40 @@ public class EmailService {
         sendEmailWithHtmlTemplate(user.getEmail(), subject, "forgot-password-template", context);
     }
 
+    public void sendReportesEmail() {
+        Context context = new Context();
+        String year = String.valueOf(java.time.LocalDate.now().getYear());
+        context.setVariable("year", year);
+        String subject = "Powerfit: Reporte de negocio";
+        Long nuevosClientes = clienteListaService.obtenerClientesNuevos(java.time.LocalDate.now().minusMonths(1), java.time.LocalDate.now()).getCantidadNuevosClientes();
+        SuscripcionGananciasDto ganancias = reportesClienteService.calcularGanancias();
+
+        context.setVariable("nuevosClientes", nuevosClientes);
+        context.setVariable("gananciasPotenciales", ganancias.getGananciasPotenciales());
+        context.setVariable("gananciasActuales", ganancias.getGananciaActual());
+        context.setVariable("perdidasMorosos", ganancias.getPerdidasMorosos());
+        context.setVariable("month", obtenerMes());
+
+        sendEmailWithHtmlTemplate("angelojeda@fiuni.edu.py", subject, "reportes-template", context);
+    }
+
+
+    private String obtenerMes() {
+        int mes = java.time.LocalDate.now().getMonthValue();
+        return switch (mes) {
+            case 1 -> "Enero";
+            case 2 -> "Febrero";
+            case 3 -> "Marzo";
+            case 4 -> "Abril";
+            case 5 -> "Mayo";
+            case 6 -> "Junio";
+            case 7 -> "Julio";
+            case 8 -> "Agosto";
+            case 9 -> "Septiembre";
+            case 10 -> "Octubre";
+            case 11 -> "Noviembre";
+            case 12 -> "Diciembre";
+            default -> "Este mes";
+        };
+    }
 }

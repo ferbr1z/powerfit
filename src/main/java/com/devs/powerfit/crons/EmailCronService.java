@@ -23,4 +23,8 @@ public class EmailCronService {
     public void enviarCorreoAMorosos()  {
         emailService.sendEmailToMorosos();
     }
+
+    //cada mes
+    @Scheduled(cron = "0 0 10 1 * *")
+    public void enviarCorreoNuevosClientes()  { emailService.sendEmailNuevosClientes(); }
 }
