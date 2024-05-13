@@ -1,6 +1,7 @@
 package com.devs.powerfit.beans.movimientos;
 
 import com.devs.powerfit.abstracts.AbstractBean;
+import com.devs.powerfit.beans.cajas.ExtraccionDeCajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.facturas.FacturaBean;
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
@@ -31,6 +32,9 @@ public class MovimientoBean extends AbstractBean {
     @JoinColumn(name = "factura_proveedor_id")
     private FacturaProveedorBean facturaProveedor;
     @ManyToOne
+    @JoinColumn(name = "extraccion_id")
+    private ExtraccionDeCajaBean extraccion;
+    @ManyToOne
     @NotNull(message = "Sesion no puede ser null")
     @JoinColumn(name = "sesion_id")
     private SesionCajaBean sesion;
@@ -51,6 +55,7 @@ public class MovimientoBean extends AbstractBean {
     @NotNullAndNotBlank(message = "El nombre de empleado no puede ser nulo ni en blanco")
     private String nombreEmpleado;
     private String comprobanteNombre;
-    @NotNullAndNotBlank(message = "El numero de comprobante no puede ser nulo ni en blanco")
+    //como se agregaron extracciones, no se puede hacer not null porque no siempre se va a tener un comprobante
+    //@NotNullAndNotBlank(message = "El numero de comprobante no puede ser nulo ni en blanco")
     private String comprobanteNumero;
 }
