@@ -44,6 +44,7 @@ public class EmailService {
         this.suscripcionDao = suscripcionDao;
         this.reportesClienteService = reportesClienteService;
         this.clienteListaService = clienteListaService;
+
     }
 
     //validacion de email
@@ -154,3 +155,5 @@ public class EmailService {
 
 
 }
+
+
