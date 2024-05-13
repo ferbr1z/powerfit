@@ -32,4 +32,6 @@ public class ExtraccionDeCajaDto extends AbstractDto {
 
     private Double monto;
 
+    private Long sesionId;
+
 }

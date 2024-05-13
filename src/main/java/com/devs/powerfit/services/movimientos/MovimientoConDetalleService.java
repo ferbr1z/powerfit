@@ -41,6 +41,7 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
         if (!comprobarTotal(movimientoDto,detalles)){
             throw new BadRequestException("No concuerda el total con los montos");
         }
+
         // Crear la factura principal
         MovimientoDto movimientoCreado = movimientoService.create(movimientoDto);
 
@@ -96,7 +97,8 @@ public class MovimientoConDetalleService implements IMovimientoConDetalleService
     public boolean delete(Long id) {
         return false;
     }
-    private boolean comprobarTotal(MovimientoDto movimiento,List<MovimientoDetalleDto>detalles){
+    private boolean comprobarTotal(MovimientoDto movimiento,List<MovimientoDetalleDto>detalles)
+    {
         Double sumaMontos= detalles.stream()
                 .mapToDouble(MovimientoDetalleDto::getMonto)
                 .sum();
