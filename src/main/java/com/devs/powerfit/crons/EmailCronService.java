@@ -2,11 +2,9 @@
 package com.devs.powerfit.crons;
 
 import com.devs.powerfit.services.email.EmailService;
-import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
 
 @Service
 public class EmailCronService {
@@ -25,6 +23,6 @@ public class EmailCronService {
     }
 
     //cada mes
-    @Scheduled(cron = "0 0 10 1 * *")
+    @Scheduled(cron = "0 * * * * *")
     public void enviarCorreoNuevosClientes()  { emailService.sendEmailNuevosClientes(); }
 }

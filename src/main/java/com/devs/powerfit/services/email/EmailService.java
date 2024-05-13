@@ -4,8 +4,8 @@ import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
-import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.services.clientes.ReportesClienteService;
@@ -121,16 +121,17 @@ public class EmailService {
         String subject = "Powerfit: Reporte de negocio";
         Long nuevosClientes = clienteListaService.obtenerClientesNuevos(java.time.LocalDate.now().minusMonths(1), java.time.LocalDate.now()).getCantidadNuevosClientes();
         SuscripcionGananciasDto ganancias = reportesClienteService.calcularGanancias();
+        SuscripcionesEstadisticasDto estadoclientes = reportesClienteService.cantidadClientesPorEstadoSuscripcion();
 
         context.setVariable("nuevosClientes", nuevosClientes);
         context.setVariable("gananciasPotenciales", ganancias.getGananciasPotenciales());
         context.setVariable("gananciasActuales", ganancias.getGananciaActual());
         context.setVariable("perdidasMorosos", ganancias.getPerdidasMorosos());
+        context.setVariable("clientesMorosos", estadoclientes.getCantidadClientesMorosos());
         context.setVariable("month", obtenerMes());
 
         sendEmailWithHtmlTemplate("angelojeda@fiuni.edu.py", subject, "reportes-template", context);
     }
-
 
     private String obtenerMes() {
         int mes = java.time.LocalDate.now().getMonthValue();
@@ -150,4 +151,6 @@ public class EmailService {
             default -> "Este mes";
         };
     }
+
+
 }

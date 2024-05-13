@@ -16,7 +16,7 @@
             background-color: #6941C6;
             color: white;
             padding: 5px;
-            max-width: 30rem;
+            max-width: 50rem;
             width: 100%;
             text-align: center;
         }
@@ -60,6 +60,20 @@
             border: 1px solid #6941C6;
             border-radius: 8px;
         }
+
+        .sectionHead {
+            display: flex;
+            gap:10px;
+            align-items: center;
+        }
+
+        .columnSection {
+            flex-direction: column;
+        }
+
+        .columnSubsection {
+            border: 1px solid #c9c9c9 !important;
+        }
     </style>
 </head>
 
@@ -67,32 +81,50 @@
 <header>
     <img src=cid:pwflogo1>
 </header>
-<div class="purpleSquare">
+<div class="purpleSquare" style="margin-bottom: 5px;">
     <h3>Reportes de Negocio: <b th:text="${month}">Este mes</b></h3>
 </div>
-<div>
-    <div class="reportSection">
-        <div>
-            <h3>Nuevos clientes: </h3><p th:text="${nuevosClientes}"></p>
+<div style="display:flex; flex-direction: column; gap: 15px;">
+    <div class="reportSection columnSection">
+        <div class="reportSection columnSection columnSubsection">
+            <div class="sectionHead">
+                <h3>Nuevos Clientes: </h3><p th:text="${nuevosClientes}">0</p>
+            </div>
             <i>Nuevos clientes registrados el mes pasado.</i>
         </div>
+
+        <div class="reportSection columnSection columnSubsection">
+            <div class="sectionHead">
+                <h3>Clientes Morosos: </h3><p th:text="${clientesMorosos}">0</p>
+            </div>
+            <i>Cantidad total de clientes morosos.</i>
+        </div>
     </div>
-    <div class="reportSection">
-        <div>
-            <h3>Ganancias actuales: </h3><p th:text="${gananciasActuales}"></p> <p>Gs</p>
+
+    <div class="reportSection columnSection">
+        <h2>Ingresos</h2>
+        <div class="reportSection columnSection columnSubsection">
+            <div class="sectionHead">
+                <h3>Ganancias actuales: </h3><p th:text="${gananciasActuales}"></p>0<p>Gs</p>
+            </div>
             <i>Ganancias actuales por clientes en regla.</i>
         </div>
 
-        <div>
-            <h3>Ganancias potenciales: </h3><p th:text="${gananciasPotenciales}"></p> <p>Gs</p>
+        <div class="reportSection columnSection columnSubsection">
+            <div class="sectionHead">
+                <h3>Ganancias potenciales: </h3><p th:text="${gananciasPotenciales}"></p>0<p>Gs</p>
+            </div>
             <i>Ganancias potenciales de clientes por suscripciones.</i>
         </div>
 
-        <div>
-            <h3>Perdidas por Morosos: </h3><p th:text="${perdidasMorosos}"></p> <p>Gs</p>
+        <div class="reportSection columnSection columnSubsection">
+            <div class="sectionHead">
+                <h3>Perdidas por Morosos: </h3><p th:text="${perdidasMorosos}"></p>0<p>Gs</p>
+            </div>
             <i>Cantidad de ingresos perdidos por morosidad de clientes.</i>
         </div>
     </div>
+
 </div>
 <footer>
     <p>@Powerfit -&nbsp;</p>
