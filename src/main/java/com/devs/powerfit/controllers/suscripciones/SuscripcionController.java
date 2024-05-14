@@ -23,7 +23,7 @@ public class SuscripcionController {
     }
     //Suscripciones
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO', 'CLIENTE')")
     public ResponseEntity<List <SuscripcionDto>> create(@RequestBody List<SuscripcionDto> suscripcionesDto) {
         return new ResponseEntity<>(suscripcionService.createList(suscripcionesDto), HttpStatus.CREATED);
     }
