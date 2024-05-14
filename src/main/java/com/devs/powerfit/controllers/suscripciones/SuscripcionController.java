@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -23,7 +24,7 @@ public class SuscripcionController {
     }
     //Suscripciones
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO', 'CLIENTE')")
     public ResponseEntity<List <SuscripcionDto>> create(@RequestBody List<SuscripcionDto> suscripcionesDto) {
         return new ResponseEntity<>(suscripcionService.createList(suscripcionesDto), HttpStatus.CREATED);
     }
@@ -77,13 +78,10 @@ public class SuscripcionController {
         return new ResponseEntity<>(suscripcionService.getAllPendientes( page), HttpStatus.OK);
     }
 
-
-
-
-
-
-
-
-
+    @PreAuthorize("hasAnyAuthority('CLIENTE')")
+    @GetMapping("/mis-suscripciones/page/{page}")
+    public ResponseEntity<PageResponse<SuscripcionDto>> getAllMisSuscripciones(@PathVariable int page, Principal principal) {
+        return new ResponseEntity<>(suscripcionService.getAllByClienteEmail(principal.getName(), page), HttpStatus.OK);
+    }
 
 }

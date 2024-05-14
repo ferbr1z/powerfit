@@ -10,4 +10,5 @@ public interface IMedicionService extends IService<MedicionDto> {
     PageResponse<MedicionDto> searchByNombreCliente(String nombre, int page);
     PageResponse<MedicionDto> searchByCiCliente(int ci, int page);
     PageResponse<MedicionDto> searchByIdCliente(Long id, int page);
+    PageResponse<MedicionDto> searchByClienteEmail(String email, int page);
 }

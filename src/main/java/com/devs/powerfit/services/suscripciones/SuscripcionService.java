@@ -206,6 +206,11 @@ public class SuscripcionService implements ISuscripcionDetalleService {
         throw new NotFoundException("Suscripción no encontrada" );
     }
 
+    public PageResponse<SuscripcionDto> getAllByClienteEmail(String email, int page){
+        var cliente = clienteService.getByEmail(email);
+        return getAllByClientId(cliente.getId(), page);
+    }
+
     public PageResponse<SuscripcionDto> getAllByClientId(Long id,int page) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         var suscripcionDetalles = suscripcionDetalleDao.findAllByClienteIdAndActiveTrue(pag,id);

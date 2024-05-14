@@ -24,12 +24,7 @@ public class ClienteProgramaItem extends AbstractBean {
     @JoinColumn(name = "id_programa_item")
     @NotNull(message = "El programa item no puede ser nulo")
     private ProgramaItemBean programaItem;
-    @NotNull(message = "El tiempo no puede ser nulo")
-    private String tiempo;
-    @NotNull(message = "Las repeticiones no pueden ser nulas")
-    private Integer repeticiones;
-    @NotNull(message = "El peso no puede ser nulo")
-    private Double peso;
+
     @NotNull(message = "El logrado no puede ser nulo")
     private Boolean logrado;
 }

@@ -251,4 +251,12 @@ public class ClienteService implements IClienteService {
         return "Se crearon " + conteo + " cuentas de usuario para los clientes sin usuario";
     }
 
+    public ClienteDto getByEmail(String email){
+        var cliente = clienteDao.findByEmailAndActiveTrue(email);
+        if(cliente.isEmpty()) throw new NotFoundException("No existe un cliente con ese email");
+
+        return mapper.toDto(cliente.get());
+
+    }
+
 }
