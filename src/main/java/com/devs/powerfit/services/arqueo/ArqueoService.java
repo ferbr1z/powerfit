@@ -58,7 +58,6 @@ public class ArqueoService implements IArqueoService {
         this.cajaService = cajaService;
     }
 
-
     @Override
     public ArqueoDto realizarArqueo(ArqueoRequestDto arqueoRequestDto) {
         //crear y guardar el arqueo
