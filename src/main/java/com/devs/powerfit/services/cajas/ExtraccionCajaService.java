@@ -78,8 +78,7 @@ public class ExtraccionCajaService implements IExtraccionCajaService {
         if (sesionCajaDao.findByIdAndActiveTrue(extraccionDeCajaDto.getSesionId()).isEmpty()){
             throw new NotFoundException("No existe una sesión con el ID proporcionado.");
         }
-        caja.setMonto(caja.getMonto() - extraccionDeCajaDto.getMonto());
-        cajaService.update(caja.getId(), caja);
+        //el monto de la caja se actualiza automaticamente en el servicio de movimiento
         extraccionDeCajaBean.setUsuario(empleadoMapper.toBean(empleado));
         extraccionDeCajaBean.setCaja(cajaMapper.toBean(caja));
         extraccionDeCajaBean.setNombreCaja(caja.getNombre());
