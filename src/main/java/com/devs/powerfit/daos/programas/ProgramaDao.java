@@ -2,6 +2,7 @@ package com.devs.powerfit.daos.programas;
 
 import com.devs.powerfit.beans.programas.ProgramaBean;
 
+import com.devs.powerfit.dtos.programas.CantClientesProgramaDto;
 import com.devs.powerfit.dtos.programas.ProgramaForListDto;
 import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.enums.ESexo;
@@ -35,4 +36,17 @@ public interface ProgramaDao extends JpaRepository<ProgramaBean, Long> {
 
     @Query("SELECT p FROM ProgramaBean p LEFT JOIN FETCH p.items WHERE p.id = :id AND p.active = true")
     Optional<ProgramaBean> findByIdAndActiveTrue(Long id);
+
+    //todos los programas los cuales está un entrenador y la cantidad de clientes de cada programa, parametro= id del entrenador
+    @Query("SELECT NEW com.devs.powerfit.dtos.programas.CantClientesProgramaDto(p.id, p.active, p.titulo, p.nivel, p.sexo, a.nombre, e.nombre, COUNT(cp)) " +
+            "FROM ProgramaBean p " +
+            "JOIN p.actividad a " +
+            "JOIN p.empleado e " +
+            "LEFT JOIN p.clienteProgramas cp " +
+            "WHERE " +
+            "e.id = :id AND " +
+            "(p.active = true) " +
+            "GROUP BY p.id")
+    Page<CantClientesProgramaDto> findAllByEmpleadoId(@Param("id") Long id, Pageable pageable);
+
 }

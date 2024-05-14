@@ -235,4 +235,13 @@ public class ProgramaController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+
+    //obtener todos los programas de un entrenador y la cantidad de clientes
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/empleado/{id}/page/{page}")
+    public ResponseEntity<PageResponse<CantClientesProgramaDto>> getAllByEmpleadoId(@PathVariable int page, @PathVariable Long id){
+        var programas = _service.getCantClientesByEntrenadorPrograma(id, page);
+        return new ResponseEntity<>(programas, HttpStatus.OK);
+    }
+
 }
