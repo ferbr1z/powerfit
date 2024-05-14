@@ -3,7 +3,9 @@ package com.devs.powerfit.services.email;
 import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
+import com.devs.powerfit.daos.email.EmailReportDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.email.EmailReportDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.enums.EEstado;
@@ -36,15 +38,19 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private final ReportesClienteService reportesClienteService;
     private final ClienteListaService clienteListaService;
+    private final EmailReportDao emailReportDao;
+    private final EmailReportService emailReportService;
     @Autowired
-    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine, ReportesClienteService reportesClienteService, ClienteListaService clienteListaService) {
+    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine, ReportesClienteService reportesClienteService, ClienteListaService clienteListaService
+    , EmailReportDao emailReportDao, EmailReportService emailReportService) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
         this.clienteDao = clienteDao;
         this.suscripcionDao = suscripcionDao;
         this.reportesClienteService = reportesClienteService;
         this.clienteListaService = clienteListaService;
-
+        this.emailReportDao = emailReportDao;
+        this.emailReportService = emailReportService;
     }
 
     //validacion de email
@@ -116,6 +122,10 @@ public class EmailService {
     }
 
     public void sendReportesEmail() {
+        EmailReportDto emailReport = emailReportService.get();
+        if (emailReport == null) {
+            return;
+        }
         Context context = new Context();
         String year = String.valueOf(java.time.LocalDate.now().getYear());
         context.setVariable("year", year);
@@ -131,7 +141,7 @@ public class EmailService {
         context.setVariable("clientesMorosos", estadoclientes.getCantidadClientesMorosos());
         context.setVariable("month", obtenerMes());
 
-        sendEmailWithHtmlTemplate("angelojeda@fiuni.edu.py", subject, "reportes-template", context);
+        sendEmailWithHtmlTemplate(emailReport.getReportEmail(), subject, "reportes-template", context);
     }
 
     private String obtenerMes() {
@@ -152,6 +162,8 @@ public class EmailService {
             default -> "Este mes";
         };
     }
+
+
 
 
 }
