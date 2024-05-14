@@ -22,8 +22,8 @@ public class EmailCronService {
         emailService.sendEmailToMorosos();
     }
 
-    //cada mes el dia 25 a las 9:00 AM
+    //cada mes el dia 14 a las 9:00 AM
     //@Scheduled(cron="0 0 9 25 * ?")
-    @Scheduled(cron="0 * * * * *")
+    @Scheduled(cron = "0 0 9 14 * ?")
     public void enviarCorreoReportes()  { emailService.sendReportesEmail(); }
 }
