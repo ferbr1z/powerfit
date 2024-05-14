@@ -14,7 +14,9 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "cliente_programa")
+@Table(name = "cliente_programa", uniqueConstraints = {
+        // Sólo puede haber un cliente por programa de entrenamiento
+        @UniqueConstraint(columnNames = {"id_programa", "id_cliente"})})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,6 +26,8 @@ public class ClienteProgramaBean extends AbstractBean {
     @NotNull(message = "El programa no puede ser nulo")
     private ProgramaBean programa;
 
+    private Double porcentaje;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "id_cliente")
     @NotNull(message = "El cliente no puede ser nulo")
@@ -32,6 +36,6 @@ public class ClienteProgramaBean extends AbstractBean {
     @NotNull(message = "La fecha de evaluación no puede ser nula")
     private LocalDate fechaEvaluacion;
 
-    @OneToMany(mappedBy = "clientePrograma")
+    @OneToMany(mappedBy = "clientePrograma", fetch = FetchType.EAGER)
     private List<ClienteProgramaItem> clienteProgramaItem;
 }

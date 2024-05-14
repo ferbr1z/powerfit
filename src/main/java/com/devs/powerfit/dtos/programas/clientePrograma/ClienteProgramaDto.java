@@ -1,30 +1,22 @@
 package com.devs.powerfit.dtos.programas.clientePrograma;
 
-import com.devs.powerfit.abstracts.AbstractDto;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClienteProgramaDto extends AbstractDto {
-    private Long programaId;
-
-    private String programa;
-
-    @NotNull(message = "El cliente no puede ser nulo")
-    private Long clienteId;
+public class ClienteProgramaDto extends BaseClienteProgramDto {
 
     private String nombreCliente;
+    private String programa;
 
-    @NotNull(message = "La fecha de evaluación no puede ser nula")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate fechaEvaluacion;
+    private List<ClienteProgramaItemDto> clienteProgramaItem;
+
 
     public ClienteProgramaDto(Long id,
                               boolean active,

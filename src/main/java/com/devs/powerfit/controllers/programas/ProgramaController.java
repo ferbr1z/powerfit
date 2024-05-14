@@ -1,6 +1,7 @@
 package com.devs.powerfit.controllers.programas;
 
 import com.devs.powerfit.dtos.programas.*;
+import com.devs.powerfit.dtos.programas.clientePrograma.BaseClienteProgramDto;
 import com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto;
 import com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaItemDto;
 import com.devs.powerfit.enums.ENivelPrograma;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/programas")
@@ -135,7 +138,7 @@ public class ProgramaController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     @PostMapping("/{id}/clientes")
-    public ResponseEntity<ClienteProgramaDto> registrarCliente(@PathVariable Long id, @RequestBody @Valid ClienteProgramaDto clienteProgramaDto){
+    public ResponseEntity<BaseClienteProgramDto> registrarCliente(@PathVariable Long id, @RequestBody @Valid ClienteProgramaDto clienteProgramaDto){
         var clientePrograma = _clienteProgramaService.registrarCliente(id,  clienteProgramaDto);
         return new ResponseEntity<>(clientePrograma, HttpStatus.CREATED);
     }
@@ -152,8 +155,12 @@ public class ProgramaController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     @GetMapping("/{id}/clientes/page/{page}")
-    public ResponseEntity<PageResponse<ClienteProgramaDto>> getResgistroClientesByProgramaId(@PathVariable int page, @PathVariable Long id){
-        var clientes = _clienteProgramaService.getClientesByProgramaId(id, page);
+    public ResponseEntity<PageResponse<ClienteProgramaDto>> getResgistroClientesByProgramaId(@PathVariable int page,
+                                                                                             @PathVariable Long id,
+                                                                                             @RequestParam(required = false) String nombreCliente,
+                                                                                             @RequestParam(required = false) LocalDate fechaInicio,
+                                                                                             @RequestParam(required = false) LocalDate fechaFin){
+        var clientes = _clienteProgramaService.getClientesByProgramaId(id, nombreCliente, fechaInicio, fechaFin, page);
         return new ResponseEntity<>(clientes, HttpStatus.OK);
     }
 

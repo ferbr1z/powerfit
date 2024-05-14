@@ -31,18 +31,22 @@ public class ClienteProgramaItemService implements IProgramaClienteItemService {
     }
 
     @Override
+    @Transactional
     public ClienteProgramaItemDto create(Long programaId, Long clienteProgramaId, ClienteProgramaItemDto clienteProgramaItemDto) {
         var clienteProgramaBean = _clienteProgramaRepository.findByProgramaIdAndId(programaId, clienteProgramaId);
 
         if(clienteProgramaBean.isEmpty()) throw new NotFoundException("Registro de cliente no encontrado");
-        var programaItemId = clienteProgramaItemDto.getProgramaItemId();
+        var programaItemId = clienteProgramaItemDto.getProgramaItem().getProgramaId();
 
         if(_programItemService.getItemById(programaId, programaItemId)==null) throw new NotFoundException("Item de programa no encontrado");
 
         clienteProgramaItemDto.setClienteProgramaId(clienteProgramaId);
 
         var itemBean = _mapper.toBean(clienteProgramaItemDto);
+
         itemBean.setActive(true);
+        itemBean.setLogrado(false);
+
         var newItemBean = _repository.save(itemBean);
         return _mapper.toDto(newItemBean);
     }
@@ -68,6 +72,7 @@ public class ClienteProgramaItemService implements IProgramaClienteItemService {
     }
 
     @Override
+    @Transactional
     public ClienteProgramaItemDto update(Long programaId, Long clienteProgramaId, Long id, ClienteProgramaItemDto clienteProgramaItemDto) {
         var itemBean = _repository.findByIdCustom(programaId, clienteProgramaId, id);
 
@@ -76,10 +81,7 @@ public class ClienteProgramaItemService implements IProgramaClienteItemService {
         var itemBeanToUpdate = itemBean.get();
 
         if( clienteProgramaItemDto.getClienteProgramaId()!=null) itemBeanToUpdate.getClientePrograma().setId(clienteProgramaItemDto.getClienteProgramaId());
-        if( clienteProgramaItemDto.getProgramaItemId()!=null) itemBeanToUpdate.getProgramaItem().setId(clienteProgramaItemDto.getProgramaItemId());
-        if( clienteProgramaItemDto.getTiempo()!=null) itemBeanToUpdate.setTiempo(clienteProgramaItemDto.getTiempo());
-        if( clienteProgramaItemDto.getRepeticiones()!=null) itemBeanToUpdate.setRepeticiones(clienteProgramaItemDto.getRepeticiones());
-        if( clienteProgramaItemDto.getPeso()!=null) itemBeanToUpdate.setPeso(clienteProgramaItemDto.getPeso());
+        if( clienteProgramaItemDto.getProgramaItem()!=null) itemBeanToUpdate.getProgramaItem().setId(clienteProgramaItemDto.getProgramaItem().getId());
         if( clienteProgramaItemDto.getLogrado()!=null) itemBeanToUpdate.setLogrado(clienteProgramaItemDto.getLogrado());
 
         var updatedItemBean = _repository.save(itemBeanToUpdate);
