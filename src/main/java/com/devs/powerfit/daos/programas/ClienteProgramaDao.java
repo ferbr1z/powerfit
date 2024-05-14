@@ -39,7 +39,7 @@ public interface ClienteProgramaDao extends JpaRepository<ClienteProgramaBean, L
 
 
 
-    @Query("SELECT NEW com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto(cp.id, cp.active, p.id, p.titulo, c.id, c.nombre, cp.fechaEvaluacion) " +
+    @Query("SELECT NEW com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto(cp.id, cp.active, p.id, p.titulo, c.id, c.nombre, cp.fechaEvaluacion, cp.porcentaje) " +
             "FROM ClienteProgramaBean cp " +
             "JOIN cp.cliente c " +
             "JOIN cp.programa p " +
@@ -53,5 +53,6 @@ public interface ClienteProgramaDao extends JpaRepository<ClienteProgramaBean, L
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin,
             Pageable page);
+
 
 }
