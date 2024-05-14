@@ -2,10 +2,12 @@ package com.devs.powerfit.services.movimientos;
 
 import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.cajas.CajaBean;
+import com.devs.powerfit.beans.cajas.ExtraccionDeCajaBean;
 import com.devs.powerfit.beans.cajas.SesionCajaBean;
 import com.devs.powerfit.beans.movimientos.MovimientoBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.cajas.CajaDao;
+import com.devs.powerfit.daos.cajas.ExtraccionCajaDao;
 import com.devs.powerfit.daos.cajas.SesionCajaDao;
 import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.movimientos.MovimientoDao;
@@ -54,9 +56,10 @@ public class MovimientoService implements IMovimientoService {
     private final MovimientoMapper mapper;
     private final UsuarioDao usuarioDao;
     private final CajaDao cajaDao;
+    private final ExtraccionCajaDao extraccionCajaDao;
 
     @Autowired
-    public MovimientoService(MovimientoDao dao, FacturaDao facturaDao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao) {
+    public MovimientoService(ExtraccionCajaDao extraccionCajaDao, MovimientoDao dao, FacturaDao facturaDao, SesionCajaService sesionCajaService, FacturaService facturaService, FacturaMapper facturaMapper, SesionCajaDao sesionCajaDao, FacturaProveedorService facturaProveedorService, FacturaProveedorMapper facturaProveedorMapper, MovimientoMapper mapper, UsuarioDao usuarioDao, CajaDao cajaDao) {
         this.dao = dao;
         this.facturaDao = facturaDao;
         this.sesionCajaService = sesionCajaService;
@@ -68,6 +71,7 @@ public class MovimientoService implements IMovimientoService {
         this.mapper = mapper;
         this.usuarioDao = usuarioDao;
         this.cajaDao = cajaDao;
+        this.extraccionCajaDao = extraccionCajaDao;
     }
 
     @Override
@@ -108,6 +112,9 @@ public class MovimientoService implements IMovimientoService {
                 if (factura.getSaldo() < movimientoDto.getTotal()) {
                     throw new BadRequestException("El saldo es menor al total del movimiento");
                 }
+                if (factura.getNroFactura() == null){
+                    throw new BadRequestException("La factura no tiene un comprobante");
+                }
                 MovimientoBean movimiento = new MovimientoBean();
                 movimiento.setActive(true);
                 movimiento.setHora(movimientoDto.getHora());
@@ -135,6 +142,36 @@ public class MovimientoService implements IMovimientoService {
                 MovimientoBean creado = dao.save(movimiento);
                 return mapper.toDto(creado);
             }
+        } else if (movimientoDto.getFacturaProveedorId() ==null && movimientoDto.getFacturaId()==null) {
+            //sera una extraccion
+
+            if (caja.get().getMonto()< movimientoDto.getTotal()){
+                throw new BadRequestException("El monto en caja es insuficiente para realizar la extraccion");
+            }
+
+            MovimientoBean movimiento = new MovimientoBean();
+            movimiento.setActive(true);
+            movimiento.setHora(movimientoDto.getHora());
+            movimiento.setFecha(movimientoDto.getFecha());
+            movimiento.setTotal(movimientoDto.getTotal());
+            movimiento.setEntrada(movimientoDto.isEntrada());
+            //movimiento.setComprobanteNumero(facturaProveedor.getNroFactura());
+            //movimiento.setComprobanteNombre(facturaProveedor.getNombreProveedor());
+            movimiento.setFacturaProveedor(null);
+            movimiento.setSesion(sesion.get());
+            movimiento.setComprobanteNumero(null);
+            movimiento.setComprobanteNombre(null);
+            ExtraccionDeCajaBean extraccion = extraccionCajaDao.findByIdAndActiveTrue(movimientoDto.getExtraccionId()).orElseThrow(() -> new BadRequestException("Extraccion no encontrada"));
+            movimiento.setExtraccion(extraccion);
+            if(!sesionCajaService.disminuirMontoCaja(movimiento.getSesion().getId(), movimiento.getTotal())){
+                throw new BadRequestException("Ha ocurrido un error al momento de actualizar el monto de caja");
+            }
+            movimiento.setFactura(null);
+            movimiento.setNombreCaja(nombreCaja);
+            movimiento.setNombreEmpleado(nombreEmpleado);
+
+            MovimientoBean creado = dao.save(movimiento);
+            return mapper.toDto(creado);
         } else {
             // Verificar que facturaProveedorId sea válido y facturaId sea nulo
             if (movimientoDto.getFacturaProveedorId() ==null ) {
@@ -149,6 +186,10 @@ public class MovimientoService implements IMovimientoService {
             }
             if (facturaProveedor.getSaldo() < movimientoDto.getTotal()) {
                 throw new BadRequestException("El saldo es menor al total del movimiento");
+            }
+            //no tiene comprobante
+            if (facturaProveedor.getNroFactura() == null){
+                throw new BadRequestException("La factura del proveedor no tiene un comprobante");
             }
             MovimientoBean movimiento = new MovimientoBean();
             movimiento.setActive(true);
