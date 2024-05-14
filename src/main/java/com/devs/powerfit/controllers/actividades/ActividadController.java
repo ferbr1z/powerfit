@@ -72,7 +72,7 @@ public class ActividadController {
     }
 
     /*New SCRUM-185 sprint 6*/
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CLIENTE')")
     @GetMapping("/entrenadores/page/{page}")
     public ResponseEntity<PageResponse<ActividadConEntrenadoresDto>> getAllWithEntrenadores(@PathVariable int page) {
         return new ResponseEntity<>(actividadConEntrenadoresService.getAllActividadesConEntrenadores(page), HttpStatus.OK);
