@@ -96,6 +96,20 @@ public class ProgramaClienteService implements IProgramaClienteService {
     }
 
     @Override
+    public PageResponse<ClienteProgramaDto> getAllByClienteEmail(String clienteEmail, LocalDate fechaInicio, LocalDate fechaFin, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var clienteProgramas = _clienteProgramaRepository.findAllByClienteEmail(clienteEmail, fechaInicio, fechaFin, pag);
+        var pageResponse = new PageResponse<ClienteProgramaDto>(
+                clienteProgramas.getContent(),
+                clienteProgramas.getTotalPages(),
+                clienteProgramas.getTotalElements(),
+                clienteProgramas.getNumber() + 1
+        );
+
+        return pageResponse;
+    }
+
+    @Override
     @Transactional
     public ClienteProgramaDto updateClientePrograma(Long programaId, Long id, ClienteProgramaDto clienteProgramaDto) {
 

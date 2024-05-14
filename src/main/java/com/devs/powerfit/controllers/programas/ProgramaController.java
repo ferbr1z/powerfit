@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDate;
 
 @RestController
@@ -162,6 +163,16 @@ public class ProgramaController {
                                                                                              @RequestParam(required = false) LocalDate fechaFin){
         var clientes = _clienteProgramaService.getClientesByProgramaId(id, nombreCliente, fechaInicio, fechaFin, page);
         return new ResponseEntity<>(clientes, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('CLIENTE')")
+    @GetMapping("/mis-progresos/page/{page}")
+    public ResponseEntity<PageResponse<ClienteProgramaDto>> getAllMisProgresos(@PathVariable int page,
+                                                                               @RequestParam(required = false) LocalDate fechaInicio,
+                                                                               @RequestParam(required = false) LocalDate fechaFin,
+                                                                               Principal principal){
+        var progresos = _clienteProgramaService.getAllByClienteEmail(principal.getName(), fechaInicio, fechaFin, page);
+        return new ResponseEntity<>(progresos, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")

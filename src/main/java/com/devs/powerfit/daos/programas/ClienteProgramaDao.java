@@ -36,4 +36,22 @@ public interface ClienteProgramaDao extends JpaRepository<ClienteProgramaBean, L
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin,
             Pageable page);
+
+
+
+    @Query("SELECT NEW com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto(cp.id, cp.active, p.id, p.titulo, c.id, c.nombre, cp.fechaEvaluacion) " +
+            "FROM ClienteProgramaBean cp " +
+            "JOIN cp.cliente c " +
+            "JOIN cp.programa p " +
+            "WHERE cp.active = true " +
+            "AND c.active = true " +
+            "AND p.active = true " +
+            "AND c.email=:clienteEmail " +
+            "AND (:fechaInicio IS NULL OR :fechaFin IS NULL OR cp.fechaEvaluacion BETWEEN :fechaInicio AND :fechaFin)")
+    Page<ClienteProgramaDto> findAllByClienteEmail(
+            @Param("clienteEmail") String clienteEmail,
+            @Param("fechaInicio") LocalDate fechaInicio,
+            @Param("fechaFin") LocalDate fechaFin,
+            Pageable page);
+
 }
