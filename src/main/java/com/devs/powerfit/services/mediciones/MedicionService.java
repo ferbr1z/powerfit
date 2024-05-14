@@ -303,4 +303,12 @@ public class MedicionService implements IMedicionService {
         // Crear y retornar la respuesta de la página
         return new PageResponse<>(medicionesDto, medicionesResponse.getTotalPages(), medicionesResponse.getTotalElements(), page);
     }
+
+    @Override
+    public PageResponse<MedicionDto> searchByClienteEmail(String email, int page) {
+        var cliente = clienteService.getByEmail(email);
+        return searchByIdCliente(cliente.getId(), page);
+    }
+
+
 }

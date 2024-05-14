@@ -11,6 +11,7 @@ public interface IProgramaClienteService {
     public BaseClienteProgramDto registrarCliente(Long programaId, BaseClienteProgramDto clienteProgramaDto);
     public ClienteProgramaDto getClienteProgramaById(Long programaId, Long id);
     public PageResponse<ClienteProgramaDto> getClientesByProgramaId(Long programaId, String nombreCliente, LocalDate fechaInicio, LocalDate fechaFin, int page);
+    public PageResponse<ClienteProgramaDto> getAllByClienteEmail(String clienteEmail, LocalDate fechaInicio, LocalDate fechaFin, int page);
     public ClienteProgramaDto updateClientePrograma(Long programaId, Long id, ClienteProgramaDto clienteProgramaDto);
     public boolean deleteClientePrograma(Long programaId, Long id);
 }
