@@ -74,6 +74,12 @@ public class EmailReportService {
     }
 
     public EmailReportDto update(EmailReportDto emailreportDto) {
+        //si el email es null, poner en la database null
+        if (emailreportDto.getReportEmail() == null) {
+            emailreportDto.setReportEmail(null);
+        } else if (!validateEmail(emailreportDto.getReportEmail())) {
+            throw new IllegalArgumentException("Correo inválido, verifica el formato.");
+        }
         var emailReport = emailReportDao.findFirstByOrderByIdAsc();
         if (emailReport.isPresent()) {
             EmailReportBean emailReportBean = emailReport.get();
@@ -86,6 +92,11 @@ public class EmailReportService {
         }
     }
 
+
+    //validacion de email
+    public boolean validateEmail(String email) {
+        return email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$");
+    }
 }
 
 
