@@ -21,7 +21,7 @@ public interface ClienteProgramaDao extends JpaRepository<ClienteProgramaBean, L
             "AND cp.active = true")
     Optional<ClienteProgramaBean> findByProgramaIdAndId(@Param("programaId") Long programaId, @Param("id") Long id);
 
-    @Query("SELECT NEW com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto(cp.id, cp.active, p.id, p.titulo, c.id, c.nombre, cp.fechaEvaluacion) " +
+    @Query("SELECT NEW com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto(cp.id, cp.active, p.id, p.titulo, c.id, c.nombre, cp.fechaEvaluacion, cp.porcentaje) " +
             "FROM ClienteProgramaBean cp " +
             "JOIN cp.cliente c " +
             "JOIN cp.programa p " +

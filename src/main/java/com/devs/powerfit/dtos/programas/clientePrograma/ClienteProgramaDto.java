@@ -24,13 +24,15 @@ public class ClienteProgramaDto extends BaseClienteProgramDto {
                               String programa,
                               Long clienteId,
                               String nombreCliente,
-                              LocalDate fechaEvaluacion) {
+                              LocalDate fechaEvaluacion,
+                              Double porcentaje) {
         super(id, active);
         this.programaId = programaId;
         this.programa = programa;
         this.clienteId = clienteId;
         this.nombreCliente = nombreCliente;
         this.fechaEvaluacion = fechaEvaluacion;
+        this.porcentaje = porcentaje;
     }
 
 }
