@@ -38,7 +38,7 @@ public class ClienteProgramaItemService implements IProgramaClienteItemService {
         if(clienteProgramaBean.isEmpty()) throw new NotFoundException("Registro de cliente no encontrado");
         var programaItemId = clienteProgramaItemDto.getProgramaItem().getProgramaId();
 
-        if(_programItemService.getItemById(programaId, programaItemId)==null) throw new NotFoundException("Item de programa no encontrado");
+//        if(_programItemService.getItemById(programaId, programaItemId)==null) throw new NotFoundException("Item de programa no encontrado");
 
         clienteProgramaItemDto.setClienteProgramaId(clienteProgramaId);
 
