@@ -5,6 +5,7 @@ import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
+import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.facturas.IFacturaProveedorService;
@@ -13,12 +14,17 @@ import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaProveedorMapper;
 import com.devs.powerfit.utils.mappers.proveedorMapper.ProveedorMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
+import com.devs.powerfit.utils.specifications.FacturaSpecification;
+import org.hibernate.annotations.processing.Find;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -199,6 +205,20 @@ public class FacturaProveedorService implements IFacturaProveedorService {
         }
         throw new NotFoundException("Factura no encontrada");
     }
+
+    @Override
+    public PageResponse<FacturaProveedorDto> filtrarFacturas(Specification<FacturaProveedorBean> spec, int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var facturas = facturaDao.findAll(spec, pageRequest);
+        var facturaDtoPage = facturas.map(mapper::toDto);
+        return new PageResponse<>(facturaDtoPage.getContent(),
+                facturaDtoPage.getTotalPages(),
+                facturaDtoPage.getTotalElements(),
+                facturaDtoPage.getNumber() + 1);
+    }
+
+
+
     private String generarNumeroFactura() {
         Random random = new Random();
 

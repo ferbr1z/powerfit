@@ -110,6 +110,12 @@ public class ClienteController {
         return new ResponseEntity<>(clienteService.searchByRuc(ruc,page), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'CLIENTE')")
+    @GetMapping("/getByEmail/{email}")
+    public ResponseEntity<ClienteDto> getByEmail(@PathVariable String email){
+        return new ResponseEntity<>(clienteService.getByEmail(email), HttpStatus.OK);
+    }
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/crear-cuentas")
     public String createAccounts() {
