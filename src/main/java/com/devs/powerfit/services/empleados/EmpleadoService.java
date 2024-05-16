@@ -191,10 +191,10 @@ public class EmpleadoService implements IEmpleadoService {
 
 
     @Override
-    public PageResponse<EmpleadoDto> getAllEntrenadores(int page) {
+    public PageResponse<EmpleadoDto> getAllEntrenadores(int page, String nombre) {
         var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
         Long rolEntrenador = 4L;
-        Page<EmpleadoBean> empleados = empleadoDao.findAllByRolAndActiveIsTrue(pag, rolEntrenador);
+        Page<EmpleadoBean> empleados = empleadoDao.findAllByRolAndNombreContainingIgnoreCaseAndActiveIsTrue(pag, rolEntrenador, nombre);
         if (empleados.isEmpty()){
             throw new NotFoundException("No hay empleados en la lista");
         }

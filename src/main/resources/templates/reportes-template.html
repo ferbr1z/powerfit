@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Reportes de Negocio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .purpleSquare {
+            background-color: #6941C6;
+            color: white;
+            padding: 5px;
+            max-width: 50rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        table {
+            max-width: 30rem;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #6941C6;
+            color: white;
+            padding: 5px;
+        }
+
+        th {
+            color: white;
+            text-align: left;
+        }
+
+        th,
+        td {
+            border: 1px solid #6941C6;
+            padding: 5px;
+        }
+
+        footer {
+            padding: 5px;
+            max-width: 25rem;
+            width: 100%;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .reportSection {
+            padding: 1rem;
+            margin-bottom: 5px;
+            border: 1px solid #6941C6;
+            border-radius: 8px;
+        }
+
+        .sectionHead {
+            display: flex;
+            gap:10px;
+            margin-bottom: 15px;
+            max-width: 55rem;
+            width: 100%;
+        }
+
+        .sectionHead h3 {
+            padding-right: 5px;
+        }
+
+        .columnSubsection {
+            border: 1px solid #c9c9c9 !important;
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <img src=cid:pwflogo1>
+</header>
+<div class="purpleSquare" style="margin-bottom: 5px;">
+    <h3>Reportes de Negocio: <b th:text="${month}">Este mes</b></h3>
+</div>
+<div>
+    <div class="reportSection ">
+        <h2>Clientes</h2>
+        <div class="reportSection  columnSubsection">
+            <div class="sectionHead">
+                <h3 style="margin:0;">Nuevos Clientes: </h3><p style="margin:0;" th:text="${nuevosClientes}">0</p>
+            </div>
+            <i>Nuevos clientes registrados el mes pasado.</i>
+        </div>
+
+        <div class="reportSection  columnSubsection">
+            <div class="sectionHead">
+                <h3 style="margin:0;">Clientes Morosos: </h3><p style="margin:0;" th:text="${clientesMorosos}">0</p>
+            </div>
+            <i>Cantidad total de clientes morosos.</i>
+        </div>
+    </div>
+
+    <div class="reportSection ">
+        <h2>Ingresos</h2>
+        <div class="reportSection  columnSubsection">
+            <div class="sectionHead">
+                <h3 style="margin:0;">Ganancias actuales: </h3><p style="margin:0;" th:text="${gananciasActuales}">0</p><p style="margin:0;">Gs</p>
+            </div>
+            <i>Ganancias actuales por clientes en regla.</i>
+        </div>
+
+        <div class="reportSection  columnSubsection">
+            <div class="sectionHead">
+                <h3 style="margin:0;">Ganancias potenciales: </h3><p style="margin:0;" th:text="${gananciasPotenciales}">0</p><p style="margin:0;">Gs</p>
+            </div>
+            <i>Ganancias potenciales de clientes por suscripciones.</i>
+        </div>
+
+        <div class="reportSection  columnSubsection">
+            <div class="sectionHead">
+                <h3 style="margin:0;">Perdidas por Morosos: </h3><p style="margin:0;" th:text="${perdidasMorosos}">0</p><p style="margin:0;">Gs</p>
+            </div>
+            <i>Cantidad de ingresos perdidos por morosidad de clientes.</i>
+        </div>
+    </div>
+
+</div>
+<footer>
+    <p>@Powerfit -&nbsp;</p>
+    <p th:text="${year}">2024</p>
+</footer>
+</body>
+
+</html>

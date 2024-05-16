@@ -51,6 +51,8 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.DELETE, "/swagger-ui/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/v3/api-docs").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/password/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/password/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

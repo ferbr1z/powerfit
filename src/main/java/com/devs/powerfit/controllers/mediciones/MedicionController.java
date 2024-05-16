@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -73,4 +74,11 @@ public class MedicionController {
     public ResponseEntity<PageResponse<MedicionDto>> searchById(@PathVariable int page, @PathVariable Long id) {
         return new ResponseEntity<>(medicionService.searchByIdCliente(id,page), HttpStatus.OK);
     }
+
+    @GetMapping("/mis-mediciones/page/{page}")
+    public ResponseEntity<PageResponse<MedicionDto>> getAllMisMediciones(@PathVariable int page, Principal principal){
+        return new ResponseEntity<>(medicionService.searchByClienteEmail(principal.getName(),page), HttpStatus.OK);
+
+    }
+
 }

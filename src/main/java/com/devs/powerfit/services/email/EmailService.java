@@ -1,14 +1,21 @@
 package com.devs.powerfit.services.email;
 
+import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
-import com.devs.powerfit.beans.suscripciones.SuscripcionBean;
 import com.devs.powerfit.daos.clientes.ClienteDao;
+import com.devs.powerfit.daos.email.EmailReportDao;
 import com.devs.powerfit.daos.suscripciones.SuscripcionDao;
+import com.devs.powerfit.dtos.email.EmailReportDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
+import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
 import com.devs.powerfit.enums.EEstado;
+import com.devs.powerfit.services.clientes.ClienteListaService;
+import com.devs.powerfit.services.clientes.ReportesClienteService;
 import com.devs.powerfit.utils.Setting;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
@@ -30,12 +37,25 @@ public class EmailService {
     private final ClienteDao clienteDao;
     private final SuscripcionDao suscripcionDao;
     private final TemplateEngine templateEngine;
+    private final ReportesClienteService reportesClienteService;
+    private final ClienteListaService clienteListaService;
+    private final EmailReportDao emailReportDao;
+    private final EmailReportService emailReportService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
     @Autowired
-    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine) {
+    public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine, ReportesClienteService reportesClienteService, ClienteListaService clienteListaService
+    , EmailReportDao emailReportDao, EmailReportService emailReportService) {
         this.emailSender = emailSender;
         this.templateEngine = templateEngine;
         this.clienteDao = clienteDao;
         this.suscripcionDao = suscripcionDao;
+        this.reportesClienteService = reportesClienteService;
+        this.clienteListaService = clienteListaService;
+        this.emailReportDao = emailReportDao;
+        this.emailReportService = emailReportService;
     }
 
     //validacion de email
@@ -80,7 +100,7 @@ public class EmailService {
     public void sendEmailToMorosos() {
         var morosos = clienteDao.findClientsWithPendingSubscriptions();
         for (ClienteBean moroso : morosos) {
-            //TODO: mostrar todas las páginas
+            //TODO: mostrar todas las páginas de suscripciones
             var pag = PageRequest.of(0, Setting.PAGE_SIZE);
             var suscripcionDetalles = suscripcionDao.findAllByClienteIdAndEstadoAndActiveTrue(pag, moroso.getId(), EEstado.PENDIENTE);
 
@@ -95,4 +115,62 @@ public class EmailService {
         }
     }
 
+    public void sendRecoveryPasswordEmail(UsuarioBean user, String token) {
+        Context context = new Context();
+
+        String year = String.valueOf(java.time.LocalDate.now().getYear());
+        context.setVariable("user", user);
+        context.setVariable("year", year);
+        context.setVariable("token", frontendUrl + "/recuperar-contrasenha/" + token);
+        String subject = "Powerfit: Restablecer contraseña";
+        sendEmailWithHtmlTemplate(user.getEmail(), subject, "forgot-password-template", context);
+    }
+
+    public void sendReportesEmail() {
+        EmailReportDto emailReport = emailReportService.get();
+        if (emailReport == null) {
+            return;
+        }
+        Context context = new Context();
+        String year = String.valueOf(java.time.LocalDate.now().getYear());
+        context.setVariable("year", year);
+        String subject = "Powerfit: Reporte de negocio";
+        Long nuevosClientes = clienteListaService.obtenerClientesNuevos(java.time.LocalDate.now().minusMonths(1), java.time.LocalDate.now()).getCantidadNuevosClientes();
+        SuscripcionGananciasDto ganancias = reportesClienteService.calcularGanancias();
+        SuscripcionesEstadisticasDto estadoclientes = reportesClienteService.cantidadClientesPorEstadoSuscripcion();
+
+        context.setVariable("nuevosClientes", nuevosClientes);
+        context.setVariable("gananciasPotenciales", ganancias.getGananciasPotenciales());
+        context.setVariable("gananciasActuales", ganancias.getGananciaActual());
+        context.setVariable("perdidasMorosos", ganancias.getPerdidasMorosos());
+        context.setVariable("clientesMorosos", estadoclientes.getCantidadClientesMorosos());
+        context.setVariable("month", obtenerMes());
+
+        sendEmailWithHtmlTemplate(emailReport.getReportEmail(), subject, "reportes-template", context);
+    }
+
+    private String obtenerMes() {
+        int mes = java.time.LocalDate.now().getMonthValue();
+        return switch (mes) {
+            case 1 -> "Enero";
+            case 2 -> "Febrero";
+            case 3 -> "Marzo";
+            case 4 -> "Abril";
+            case 5 -> "Mayo";
+            case 6 -> "Junio";
+            case 7 -> "Julio";
+            case 8 -> "Agosto";
+            case 9 -> "Septiembre";
+            case 10 -> "Octubre";
+            case 11 -> "Noviembre";
+            case 12 -> "Diciembre";
+            default -> "Este mes";
+        };
+    }
+
+
+
+
 }
+
+

@@ -2,10 +2,13 @@ package com.devs.powerfit.utils;
 
 
 import com.devs.powerfit.beans.auth.RolBean;
+import com.devs.powerfit.beans.email.EmailReportBean;
 import com.devs.powerfit.beans.tipoDePagos.TipoDePagoBean;
 import com.devs.powerfit.daos.auth.RolDao;
+import com.devs.powerfit.daos.email.EmailReportDao;
 import com.devs.powerfit.daos.empleados.EmpleadoDao;
 import com.devs.powerfit.daos.tiposDePago.TipoDePagoDao;
+import com.devs.powerfit.dtos.email.EmailReportDto;
 import com.devs.powerfit.dtos.empleados.EmpleadoDto;
 import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +23,18 @@ public class DataInitializer implements CommandLineRunner {
     private final TipoDePagoDao tipoDePagoDao;
 
     private final EmpleadoDao empleadoDao;
+    private final EmailReportDao emailReportDao;
 
     private final IEmpleadoService empleadoService;
 
+
     @Autowired
-    public DataInitializer(RolDao rolDao, TipoDePagoDao tipoDePagoDao, EmpleadoDao empleadoDao, IEmpleadoService empleadoService) {
+    public DataInitializer(RolDao rolDao, TipoDePagoDao tipoDePagoDao, EmpleadoDao empleadoDao, IEmpleadoService empleadoService, EmailReportDao emailReportDao) {
         this.rolDao = rolDao;
         this.tipoDePagoDao = tipoDePagoDao;
         this.empleadoDao = empleadoDao;
         this.empleadoService = empleadoService;
+        this.emailReportDao = emailReportDao;
     }
 
     @Override
@@ -79,5 +85,13 @@ public class DataInitializer implements CommandLineRunner {
             pagoTransferencia.setDescripcion("Pago con Transferencia");
             tipoDePagoDao.save(pagoTransferencia);
         }
+
+        if (emailReportDao.count() == 0) {
+            EmailReportBean emailReportBean = new EmailReportBean();
+            emailReportBean.setActive(true);
+            emailReportDao.save(emailReportBean);
+
+        }
     }
+
 }

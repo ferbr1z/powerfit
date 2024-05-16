@@ -1,6 +1,7 @@
 package com.devs.powerfit.daos.clientes;
 
 import com.devs.powerfit.beans.clientes.ClienteBean;
+import com.devs.powerfit.beans.empleados.EmpleadoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,6 +17,7 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Page<ClienteBean> findAllByRucAndActiveTrue(String ruc,Pageable pageable);
     Optional<ClienteBean> findByCedula( String cedula);
     Optional<ClienteBean> findByEmail( String email);
+    Optional<ClienteBean> findByEmailAndActiveTrue(String cedula);
     Long countByFechaRegistroBetweenAndActiveTrue(LocalDate fechaInicio, LocalDate fechaFin);
 
     Page<ClienteBean> findAllByFechaRegistroBetweenAndActiveTrue(Pageable pageable,LocalDate fechaInicio, LocalDate fechaFin);
@@ -26,6 +28,9 @@ public interface ClienteDao extends JpaRepository<ClienteBean, Long> {
     Page<ClienteBean> findAllByActiveTrue(Pageable pageable);
     List<ClienteBean> findAllByActiveTrue();
     Long countClientesByFechaRegistroBetween(LocalDate startOfMonth, LocalDate endOfMonth);
+
+    @Query("SELECT c FROM ClienteBean c")
+    List<ClienteBean> findAllActiveClientsList();
 
     @Query("SELECT c FROM ClienteBean c INNER JOIN SuscripcionBean s ON c.id = s.cliente.id WHERE s.estado = 'PENDIENTE'")
     List<ClienteBean> findClientsWithPendingSubscriptions();

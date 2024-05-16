@@ -1,11 +1,16 @@
 package com.devs.powerfit.services.clientes;
 
+import com.devs.powerfit.beans.auth.RolBean;
+import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
+import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.daos.clientes.ClienteDao;
+import com.devs.powerfit.dtos.auth.UsuarioDto;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.clientes.IClienteService;
+import com.devs.powerfit.services.auth.AuthService;
 import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
@@ -22,10 +27,14 @@ public class ClienteService implements IClienteService {
 
     private ClienteDao clienteDao;
     private ClienteMapper mapper;
+    private AuthService authService;
+    private UsuarioDao usuarioDao;
     @Autowired
-    public ClienteService(ClienteDao clienteDao, ClienteMapper mapper) {
+    public ClienteService(ClienteDao clienteDao, AuthService authService, ClienteMapper mapper, UsuarioDao usuarioDao) {
         this.clienteDao = clienteDao;
         this.mapper = mapper;
+        this.authService = authService;
+        this.usuarioDao = usuarioDao;
     }
 
 
@@ -79,6 +88,16 @@ public class ClienteService implements IClienteService {
         nuevoCliente.setActive(true);
         nuevoCliente.setFechaRegistro(LocalDate.now());
         clienteDao.save(nuevoCliente);
+
+        //crear nuevo usuario
+        UsuarioDto usuarioDto = new UsuarioDto();
+        usuarioDto.setNombre(clienteDto.getNombre());
+        usuarioDto.setEmail(clienteDto.getEmail());
+        usuarioDto.setPassword(clienteDto.getCedula());
+        usuarioDto.setRol_id(2L);
+        // Guardar el nuevo Usuario
+        authService.register(usuarioDto);
+
         return mapper.toDto(nuevoCliente);
     }
 
@@ -203,6 +222,41 @@ public class ClienteService implements IClienteService {
             throw new BadRequestException("La fecha de inicio no puede ser posterior a la fecha de fin");
         }
         return clienteDao.countClientesByFechaRegistroBetween(startOfMonth, endOfMonth);
+    }
+
+    public String createAccountsForClientsWithoutUsuario() {
+        //para cada cliente que este registrado pero no tenga un usuario con el mismo email, crear un usuario
+        var clients = clienteDao.findAllActiveClientsList();
+        int conteo = 0;
+        for (ClienteBean client : clients) {
+            if (client.getEmail() != null) {
+                //System.out.println("Verificando si el cliente " + client.getNombre() + " tiene un usuario registrado");
+                //System.out.println("Email: " + client.getEmail());
+                Optional<UsuarioBean> usuario = usuarioDao.findByEmailAndActiveIsTrue(client.getEmail());
+                if (usuario.isEmpty()) {
+                    System.out.println("Creando usuario para el cliente: " + client.getNombre());
+                    UsuarioDto usuarioDto = new UsuarioDto();
+                    usuarioDto.setNombre(client.getNombre());
+                    usuarioDto.setEmail(client.getEmail());
+                    usuarioDto.setPassword(client.getCedula());
+                    usuarioDto.setRol_id(2L);
+                    // Guardar el nuevo Usuario
+                    authService.register(usuarioDto);
+                    conteo++;
+                //} else {
+                //    System.out.println("El cliente " + client.getNombre() + " ya tiene un usuario registrado\n");
+                }
+            }
+        }
+        return "Se crearon " + conteo + " cuentas de usuario para los clientes sin usuario";
+    }
+
+    public ClienteDto getByEmail(String email){
+        var cliente = clienteDao.findByEmailAndActiveTrue(email);
+        if(cliente.isEmpty()) throw new NotFoundException("No existe un cliente con ese email");
+
+        return mapper.toDto(cliente.get());
+
     }
 
 }

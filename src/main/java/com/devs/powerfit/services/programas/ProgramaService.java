@@ -1,25 +1,16 @@
 package com.devs.powerfit.services.programas;
 
 import com.devs.powerfit.beans.programas.ProgramaBean;
-import com.devs.powerfit.daos.programas.ClienteProgramaDao;
 import com.devs.powerfit.daos.programas.ProgramaDao;
 import com.devs.powerfit.daos.programas.ProgramaItemDao;
-import com.devs.powerfit.dtos.programas.CrearAndUpdateProgramaDto;
-import com.devs.powerfit.dtos.programas.ProgramaDto;
-import com.devs.powerfit.dtos.programas.ProgramaForListDto;
-import com.devs.powerfit.dtos.programas.ProgramaItemDto;
-import com.devs.powerfit.dtos.programas.clientePrograma.ClienteProgramaDto;
+import com.devs.powerfit.dtos.programas.*;
 import com.devs.powerfit.enums.ENivelPrograma;
 import com.devs.powerfit.enums.ESexo;
 import com.devs.powerfit.exceptions.NotFoundException;
-import com.devs.powerfit.interfaces.clientes.IClienteService;
 import com.devs.powerfit.interfaces.actividades.IActividadService;
 import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.interfaces.programas.IProgramaService;
-import com.devs.powerfit.services.empleados.EmpleadoService;
 import com.devs.powerfit.utils.Setting;
-import com.devs.powerfit.utils.mappers.programaMapper.ClienteProgramaMapper;
-import com.devs.powerfit.utils.mappers.programaMapper.ProgramaItemMapper;
 import com.devs.powerfit.utils.mappers.programaMapper.ProgramaMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +131,19 @@ public class ProgramaService implements IProgramaService {
         programa.get().setActive(false);
         _repository.save(programa.get());
         return true;
+    }
+
+    @Override
+    public PageResponse<CantClientesProgramaDto> getCantClientesByEntrenadorPrograma(Long entrenadorId, int page){
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Page<CantClientesProgramaDto> programas = _repository.findAllByEmpleadoId(entrenadorId, pag);
+        var pageResponse = new PageResponse<CantClientesProgramaDto>(
+                programas.getContent(),
+                programas.getTotalPages(),
+                programas.getTotalElements(),
+                programas.getNumber() + 1);
+
+        return pageResponse;
     }
 
 
