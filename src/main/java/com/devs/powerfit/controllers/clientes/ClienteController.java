@@ -84,7 +84,7 @@ public class ClienteController {
     public ResponseEntity<PageResponse<ClienteListaDto>> getAllWithEstado(@PathVariable int page) {
         return new ResponseEntity<>(clienteListaService.obtenerTodosClientesConEstadoGeneral(page), HttpStatus.OK);
     }
-    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO','CLIENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<ClienteDto> update(@PathVariable Long id, @RequestBody ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.update(id, clienteDto), HttpStatus.OK);
