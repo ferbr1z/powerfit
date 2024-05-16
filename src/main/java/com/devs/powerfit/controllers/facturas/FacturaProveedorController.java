@@ -1,15 +1,15 @@
 package com.devs.powerfit.controllers.facturas;
 
-import com.devs.powerfit.dtos.facturas.FacturaConDetallesDto;
-import com.devs.powerfit.dtos.facturas.FacturaDto;
-import com.devs.powerfit.dtos.facturas.FacturaProveedorConDetallesDto;
-import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
+import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
+import com.devs.powerfit.dtos.facturas.*;
 import com.devs.powerfit.interfaces.facturas.*;
 import com.devs.powerfit.services.facturas.FacturaProveedorConDetallesService;
 import com.devs.powerfit.services.facturas.FacturaProveedorDetalleService;
 import com.devs.powerfit.services.facturas.FacturaProveedorService;
 import com.devs.powerfit.utils.responses.PageResponse;
+import com.devs.powerfit.utils.specifications.FacturaSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/facturas-proveedores")
@@ -83,6 +84,13 @@ public class FacturaProveedorController {
     @GetMapping("/numero/{numeroFactura}")
     public ResponseEntity<FacturaProveedorDto> searchByNumeroFactura(@PathVariable String numeroFactura) {
         return new ResponseEntity<>(facturaService.searchByNumeroFactura(numeroFactura), HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','CAJERO')")
+    @PostMapping("/filter/page/{page}")
+    public ResponseEntity<PageResponse<FacturaProveedorDto>> filtrarFacturas(@RequestBody FacturaFilterDTO filtro, @PathVariable int page) {
+        Specification<FacturaProveedorBean> spec = FacturaSpecification.fromFiltro(filtro);
+        return new ResponseEntity<>(facturaService.filtrarFacturas(spec, page), HttpStatus.OK);
     }
 }
 
