@@ -26,6 +26,7 @@ public interface ClienteProgramaDao extends JpaRepository<ClienteProgramaBean, L
             "JOIN cp.cliente c " +
             "JOIN cp.programa p " +
             "WHERE p.id = :programaId " +
+            "AND p.active = true " +
             "AND cp.active = true " +
             "AND c.active = true " +
             "AND (:nombreCliente IS NULL or LOWER(cp.cliente.nombre) LIKE CONCAT('%', LOWER(:nombreCliente), '%')) " +
