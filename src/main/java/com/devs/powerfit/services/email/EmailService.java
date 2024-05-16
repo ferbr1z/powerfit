@@ -15,6 +15,7 @@ import com.devs.powerfit.utils.Setting;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
@@ -40,6 +41,10 @@ public class EmailService {
     private final ClienteListaService clienteListaService;
     private final EmailReportDao emailReportDao;
     private final EmailReportService emailReportService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
     @Autowired
     public EmailService(ClienteDao clienteDao, SuscripcionDao suscripcionDao, JavaMailSender emailSender, TemplateEngine templateEngine, ReportesClienteService reportesClienteService, ClienteListaService clienteListaService
     , EmailReportDao emailReportDao, EmailReportService emailReportService) {
@@ -116,7 +121,7 @@ public class EmailService {
         String year = String.valueOf(java.time.LocalDate.now().getYear());
         context.setVariable("user", user);
         context.setVariable("year", year);
-        context.setVariable("token", token);
+        context.setVariable("token", frontendUrl + "/recuperar-contrasenha/" + token);
         String subject = "Powerfit: Restablecer contraseña";
         sendEmailWithHtmlTemplate(user.getEmail(), subject, "forgot-password-template", context);
     }
