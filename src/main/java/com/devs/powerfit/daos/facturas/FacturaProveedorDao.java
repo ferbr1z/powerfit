@@ -6,17 +6,19 @@ import com.devs.powerfit.beans.facturas.FacturaProveedorDetalleBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface FacturaProveedorDao extends JpaRepository<FacturaProveedorBean,Long> {
+public interface FacturaProveedorDao extends JpaRepository<FacturaProveedorBean, Long>, JpaSpecificationExecutor<FacturaProveedorBean> {
     Page<FacturaProveedorBean> findAllByNombreProveedorContainingIgnoreCaseAndActiveIsTrue(Pageable pageable, String nombre);
-    Page<FacturaProveedorBean>findAllByRucProveedorIgnoreCaseAndActiveTrue(Pageable pageable, String ruc);
-    Optional<FacturaProveedorBean>findByNroFacturaIgnoreCaseAndActiveTrue(String nroFactura);
+    Page<FacturaProveedorBean> findAllByRucProveedorIgnoreCaseAndActiveTrue(Pageable pageable, String ruc);
+    Optional<FacturaProveedorBean> findByNroFacturaIgnoreCaseAndActiveTrue(String nroFactura);
     Optional<FacturaProveedorBean> findByIdAndActiveTrue(Long id);
     Page<FacturaProveedorBean> findAllByActiveTrue(Pageable pageable);
     Page<FacturaProveedorBean> findAllByPagado(Pageable pageable, boolean pagado);
@@ -24,3 +26,4 @@ public interface FacturaProveedorDao extends JpaRepository<FacturaProveedorBean,
 
     Page<FacturaProveedorBean> findAllByFechaBetween(Pageable pageRequest, LocalDate fechaInicio, LocalDate fechaFin);
 }
+
