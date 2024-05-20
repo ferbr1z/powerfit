@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @Repository
-public interface FacturaDao extends JpaRepository<FacturaBean,Long> {
+public interface FacturaDao extends JpaRepository<FacturaBean,Long>, JpaSpecificationExecutor<FacturaBean> {
     Page<FacturaBean> findAllByNombreClienteContainingIgnoreCaseAndActiveIsTrue(Pageable pageable,String nombre);
     Page<FacturaBean>findAllByRucClienteIgnoreCaseAndActiveTrue(Pageable pageable, String ruc);
     Optional<FacturaBean>findByNroFacturaIgnoreCaseAndActiveTrue(String nroFactura);
