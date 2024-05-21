@@ -26,8 +26,6 @@ public class ReporteVentasFilterDto {
     private LocalDate fechaInicio;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaFin;
-    @Min(value = 1, message = "El número de página debe ser por lo menos 1")
-    private int page;
     @AssertTrue(message = "La fecha de fin debe ser posterior o igual a la fecha de inicio")
     public boolean isFechaFinValid() {
         return fechaFin == null || fechaInicio == null || !fechaFin.isBefore(fechaInicio);

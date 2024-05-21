@@ -454,7 +454,8 @@ public class FacturaService implements IFacturaService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
-    public ReporteVentasDto filtrarFacturas(ReporteVentasFilterDto filterDto) {
+    public ReporteVentasDto filtrarFacturas(ReporteVentasFilterDto filterDto,int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
 
         Specification<FacturaBean> spec = Specification.where(ReporteVentaSpecification.isActive());
 
@@ -476,8 +477,6 @@ public class FacturaService implements IFacturaService {
         if (filterDto.getNombreEmpleado() != null && !filterDto.getNombreEmpleado().isEmpty()) {
             spec = spec.and(ReporteVentaSpecification.hasNombreEmpleado(filterDto.getNombreEmpleado()));
         }
-
-        PageRequest pageRequest = PageRequest.of(filterDto.getPage() - 1, Setting.PAGE_SIZE);
         Page<FacturaBean> facturasPage = facturaDao.findAll(spec, pageRequest);
 
         // Calcular los totalizadores
