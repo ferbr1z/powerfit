@@ -21,6 +21,8 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PasswordService {
@@ -56,6 +58,8 @@ public class PasswordService {
         if(!confirmPassword(changeRequest.getPassActual(), user.getPassword())){
             throw new BadRequestException("El valor de passActual es incorrecto");
         }
+
+        validatePassword(changeRequest.getNuevaPass(), user);
 
         user.setPassword(_encoder.encode(changeRequest.getNuevaPass()));
         _userDao.save(user);
@@ -126,6 +130,23 @@ public class PasswordService {
     private Boolean confirmPassword(String password, String hash) {
         return _encoder.matches(password, hash);
     }
+
+    /**
+     * Valida que la contraseña cumpla con los requisitos mínimos
+     * @param password
+     * @param user
+     */
+    private void validatePassword(String password, UsuarioBean user){
+        if(password.length() < 6) throw new BadRequestException("La contraseña debe tener al menos 6 caracteres");
+
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{6,}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
+
+        if(!matcher.matches())
+            throw new BadRequestException("La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial");
+    }
+
 
     private Boolean isTokenValid(PasswordRecoveryTokenBean recoveryToken){
         if(recoveryToken == null) return false;
