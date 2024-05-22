@@ -1,11 +1,14 @@
 package com.devs.powerfit.services.auth;
 
 import com.devs.powerfit.beans.auth.PasswordRecoveryTokenBean;
+import com.devs.powerfit.beans.auth.RolBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.daos.auth.PasswordRecoveryTokenDao;
 import com.devs.powerfit.daos.auth.UsuarioDao;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
+import com.devs.powerfit.interfaces.clientes.IClienteService;
+import com.devs.powerfit.interfaces.empleados.IEmpleadoService;
 import com.devs.powerfit.security.password.PasswordChangeRequest;
 import com.devs.powerfit.services.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +29,20 @@ public class PasswordService {
     private UsuarioDao _userDao;
     private PasswordRecoveryTokenDao _recoveryTokeService;
     private EmailService _mail;
+    private IClienteService _clienteService;
+    private IEmpleadoService _empleadoService;
 
     @Value("${app.password.token.duration}")
     private Integer _tokenDuration;
 
     @Autowired
-    public PasswordService(PasswordEncoder passwordEncoder, UsuarioDao userDao, EmailService mail, PasswordRecoveryTokenDao recoveryTokenDao) {
+    public PasswordService(PasswordEncoder passwordEncoder, UsuarioDao userDao, EmailService mail, PasswordRecoveryTokenDao recoveryTokenDao, IClienteService clienteService, IEmpleadoService empleadoService) {
         this._encoder = passwordEncoder;
         this._userDao = userDao;
         _mail = mail;
         _recoveryTokeService = recoveryTokenDao;
+        _clienteService = clienteService;
+        _empleadoService = empleadoService;
     }
 
     public void changePassword(PasswordChangeRequest changeRequest, Principal principal) {
@@ -96,6 +103,17 @@ public class PasswordService {
         var tokenBean = _recoveryTokeService.findByTokenAndActiveIsTrue(token);
         if(tokenBean.isEmpty()) throw new NotFoundException("Token no encontrado");
         return isTokenValid(tokenBean.get());
+    }
+
+    public Boolean needChange(Principal principal){
+        var user = getUser(principal.getName());
+        if(user.getRol().getId() == 2) {
+            var cliente = _clienteService.getByEmail(principal.getName());
+            return confirmPassword(cliente.getCedula(), user.getPassword());
+        }
+
+        var empleado = _empleadoService.getByEmail(principal.getName());
+        return confirmPassword(empleado.getCedula(), user.getPassword());
     }
 
     private String generateToken(){

@@ -154,10 +154,13 @@ public class AuthService implements IAuthService {
             Optional<EmpleadoBean> empleadoBean = empleadoDao.findByEmailAndActiveIsTrue(request.getEmail());
             Optional<ClienteBean> clienteBean = clienteDao.findByEmail(request.getEmail());
             if (user.getRol().getId() == 2){
-                final AuthResponse responseCliente = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), clienteBean.get().getId());
+                var passChanged = hasPasswordChanged(clienteBean.get().getCedula(), request.getPassword());
+                final AuthResponse responseCliente = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), clienteBean.get().getId(), passChanged);
                 return ResponseEntity.ok().body(responseCliente);
             }
-            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), empleadoBean.get().getId());
+            var passChanged = hasPasswordChanged(empleadoBean.get().getCedula(), request.getPassword());
+            final AuthResponse response = new AuthResponse(user.getEmail(), accessToken, user.getRol().getId(), user.getNombre(), empleadoBean.get().getId(), passChanged);
+
             return ResponseEntity.ok().body(response);
 
         } catch (BadCredentialsException ex) {
@@ -165,4 +168,9 @@ public class AuthService implements IAuthService {
                     .body("Usuario no encontrado o credenciales inválidas");
         }
     }
+
+    private Boolean hasPasswordChanged(String cedula, String password){
+        return !cedula.equals(password);
+    }
+
 }
