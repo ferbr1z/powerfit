@@ -48,5 +48,11 @@ public class PasswordController {
         return ResponseEntity.ok().body(Map.of("message", "Se ha restablecido la contraseña con éxito."));
     }
 
+    @GetMapping("/need-change")
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO', 'CLIENTE')")
+    public ResponseEntity<?> needChange(Principal principal) {
+        return ResponseEntity.ok().body(Map.of("needChange", _passwordService.needChange(principal)));
+    }
+
 
 }
