@@ -13,5 +13,5 @@ public class AuthResponse {
     private Long rol;
     private String nombre;
     private Long usuarioId;
-
+    private Boolean passChanged;
 }

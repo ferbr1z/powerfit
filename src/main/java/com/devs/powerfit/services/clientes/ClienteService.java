@@ -1,6 +1,5 @@
 package com.devs.powerfit.services.clientes;
 
-import com.devs.powerfit.beans.auth.RolBean;
 import com.devs.powerfit.beans.auth.UsuarioBean;
 import com.devs.powerfit.beans.clientes.ClienteBean;
 import com.devs.powerfit.daos.auth.UsuarioDao;
@@ -18,17 +17,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional
 public class ClienteService implements IClienteService {
 
-    private ClienteDao clienteDao;
-    private ClienteMapper mapper;
-    private AuthService authService;
-    private UsuarioDao usuarioDao;
+    private final ClienteDao clienteDao;
+    private final ClienteMapper mapper;
+    private final AuthService authService;
+    private final UsuarioDao usuarioDao;
     @Autowired
     public ClienteService(ClienteDao clienteDao, AuthService authService, ClienteMapper mapper, UsuarioDao usuarioDao) {
         this.clienteDao = clienteDao;
@@ -52,7 +54,7 @@ public class ClienteService implements IClienteService {
             if (clienteByCedula.isActive()) {
                 throw new BadRequestException("Ya existe un cliente activo con la misma cédula");
             } else {
-                // Si el cliente existe pero está inactivo, activarlo
+                // Si el cliente existe, pero está inactivo, activarlo
                 clienteByCedula.setActive(true);
                 clienteDao.save(clienteByCedula);
                 return mapper.toDto(clienteByCedula);
@@ -61,6 +63,9 @@ public class ClienteService implements IClienteService {
 
         // Verificar si se proporciona un correo electrónico
         if (clienteDto.getEmail() != null) {
+            // Validar el email del cliente
+            validateEmail(clienteDto.getEmail());
+
             // Verificar si ya existe un cliente con el mismo email
             Optional<ClienteBean> existingClientByEmail = clienteDao.findByEmail(clienteDto.getEmail());
             if (existingClientByEmail.isPresent()) {
@@ -68,14 +73,14 @@ public class ClienteService implements IClienteService {
                 if (clienteByEmail.isActive()) {
                     throw new BadRequestException("Ya existe un cliente activo con el mismo email");
                 } else if (!clienteByEmail.getCedula().equals(clienteDto.getCedula())) {
-                    // Si el cliente existe pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
+                    // Si el cliente existe, pero está inactivo y tiene una cédula diferente, permitir crear un nuevo cliente
                     ClienteBean nuevoCliente = mapper.toBean(clienteDto);
                     nuevoCliente.setActive(true);
                     nuevoCliente.setFechaRegistro(LocalDate.now());
                     clienteDao.save(nuevoCliente);
                     return mapper.toDto(nuevoCliente);
                 }
-                // Si el cliente existe pero está inactivo y tiene la misma cédula, se comporta como si fuera activo
+                // Si el cliente existe, pero está inactivo y tiene la misma cédula, se comporta como si fuera activo
                 clienteByEmail.setActive(true);
                 clienteByEmail.setNombre(clienteDto.getNombre()); // Actualizar otros campos si es necesario
                 clienteDao.save(clienteByEmail);
@@ -89,7 +94,7 @@ public class ClienteService implements IClienteService {
         nuevoCliente.setFechaRegistro(LocalDate.now());
         clienteDao.save(nuevoCliente);
 
-        //crear nuevo usuario
+        // Crear nuevo usuario
         UsuarioDto usuarioDto = new UsuarioDto();
         usuarioDto.setNombre(clienteDto.getNombre());
         usuarioDto.setEmail(clienteDto.getEmail());
@@ -100,6 +105,7 @@ public class ClienteService implements IClienteService {
 
         return mapper.toDto(nuevoCliente);
     }
+
 
 
 
@@ -122,13 +128,12 @@ public class ClienteService implements IClienteService {
             throw new NotFoundException("No hay clientes en la lista");
         }
 
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
+        var clientesDto = clientes.map(mapper::toDto);
 
-        var pageResponse = new PageResponse<ClienteDto>(clientesDto.getContent(),
+        return new PageResponse<>(clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
                 clientesDto.getNumber() + 1);
-        return pageResponse;
     }
     @Override
     public ClienteDto update(Long id, ClienteDto clienteDto) {
@@ -140,9 +145,12 @@ public class ClienteService implements IClienteService {
             if (clienteDto.getCedula() != null) clienteBean.setCedula(clienteDto.getCedula());
             if (clienteDto.getRuc() != null) clienteBean.setRuc(clienteDto.getRuc());
             if (clienteDto.getTelefono() != null) clienteBean.setTelefono(clienteDto.getTelefono());
-            if (clienteDto.getEmail() != null) clienteBean.setEmail(clienteDto.getEmail());
+            if (clienteDto.getEmail() != null) {
+                // Validar el email del cliente
+                validateEmail(clienteDto.getEmail());
+                clienteBean.setEmail(clienteDto.getEmail());
+            }
             if (clienteDto.getDireccion() != null) clienteBean.setDireccion(clienteDto.getDireccion());
-
 
             clienteDao.save(clienteBean);
 
@@ -172,13 +180,12 @@ public class ClienteService implements IClienteService {
             throw new NotFoundException("No hay clientes en la lista");
         }
 
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        var pageResponse = new PageResponse<ClienteDto>(
+        var clientesDto = clientes.map(mapper::toDto);
+        return new PageResponse<>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
                 clientesDto.getNumber() + 1);
-        return pageResponse;
     }
 
 
@@ -190,14 +197,13 @@ public class ClienteService implements IClienteService {
         if(clientes.isEmpty()){
             throw new NotFoundException("No hay clientes con esa cedula");
         }
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        var pageResponse = new PageResponse<ClienteDto>(
+        var clientesDto = clientes.map(mapper::toDto);
+
+        return new PageResponse<>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
                 clientesDto.getNumber() + 1);
-
-        return pageResponse;
     }
 
     @Override
@@ -208,30 +214,21 @@ public class ClienteService implements IClienteService {
         if(clientes.isEmpty()){
             throw new NotFoundException("No hay clientes con ese ruc");
         }
-        var clientesDto = clientes.map(cliente -> mapper.toDto(cliente));
-        var pageResponse = new PageResponse<ClienteDto>(
+        var clientesDto = clientes.map(mapper::toDto);
+
+        return new PageResponse<>(
                 clientesDto.getContent(),
                 clientesDto.getTotalPages(),
                 clientesDto.getTotalElements(),
                 clientesDto.getNumber() + 1);
-
-        return pageResponse;
-    }
-    public Long countNewClients(LocalDate startOfMonth, LocalDate endOfMonth) {
-        if(startOfMonth.isAfter(startOfMonth)){
-            throw new BadRequestException("La fecha de inicio no puede ser posterior a la fecha de fin");
-        }
-        return clienteDao.countClientesByFechaRegistroBetween(startOfMonth, endOfMonth);
     }
 
     public String createAccountsForClientsWithoutUsuario() {
-        //para cada cliente que este registrado pero no tenga un usuario con el mismo email, crear un usuario
+        //para cada cliente que esté registrado, pero no tenga un usuario con el mismo email, crear un usuario
         var clients = clienteDao.findAllActiveClientsList();
         int conteo = 0;
         for (ClienteBean client : clients) {
             if (client.getEmail() != null) {
-                //System.out.println("Verificando si el cliente " + client.getNombre() + " tiene un usuario registrado");
-                //System.out.println("Email: " + client.getEmail());
                 Optional<UsuarioBean> usuario = usuarioDao.findByEmailAndActiveIsTrue(client.getEmail());
                 if (usuario.isEmpty()) {
                     System.out.println("Creando usuario para el cliente: " + client.getNombre());
@@ -257,6 +254,19 @@ public class ClienteService implements IClienteService {
 
         return mapper.toDto(cliente.get());
 
+    }
+    private void validateEmail(String email) {
+        if (email == null) throw new BadRequestException("El email no puede ser nulo");
+
+        // Expresión regular para validar el email según las especificaciones
+        //El email debe tener al menos 4 letras antes del @, debe tener un
+        String regex = "^[a-zA-Z0-9]{4,}@[a-zA-Z0-9]+\\.(com|net|org|edu|gov|int|mil|arpa|py|ar|[a-zA-Z]{2,})$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+
+        if (!matcher.matches()) {
+            throw new BadRequestException("El email debe tener al menos 4 letras o números antes del arroba, seguido de un dominio conocido y un sufijo opcional");
+        }
     }
 
 }
