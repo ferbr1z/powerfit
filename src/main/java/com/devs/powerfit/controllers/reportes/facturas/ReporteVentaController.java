@@ -1,4 +1,4 @@
-package com.devs.powerfit.controllers.reportes.actividades;
+package com.devs.powerfit.controllers.reportes.facturas;
 
 import com.devs.powerfit.dtos.facturas.filtros.ReporteVentasFilterDto;
 import com.devs.powerfit.dtos.facturas.reportes.ReporteVentasDto;
@@ -23,7 +23,7 @@ public class ReporteVentaController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
     @PostMapping("/page/{page}")
-    ResponseEntity<ReporteVentasDto> getActividades(@RequestBody @Valid ReporteVentasFilterDto filtro,@PathVariable int page){
+    ResponseEntity<ReporteVentasDto> filtrarVentas(@RequestBody @Valid ReporteVentasFilterDto filtro,@PathVariable int page){
         return new ResponseEntity<>(facturaService.filtrarFacturas(filtro,page), HttpStatus.OK);
     }
 }
