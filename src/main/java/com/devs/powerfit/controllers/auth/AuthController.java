@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -32,7 +34,7 @@ public class AuthController {
     @GetMapping("/verify")
     public ResponseEntity<?> verify(HttpServletRequest request){
         var token = request.getHeader("Authorization").substring(7);
-        return ResponseEntity.ok(authService.isTokenValid(token));
+        return ResponseEntity.ok(Map.of("valid", authService.isTokenValid(token)));
     }
 
 }
