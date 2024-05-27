@@ -139,7 +139,7 @@ public class PasswordService {
     private void validatePassword(String password, UsuarioBean user){
         if(password.length() < 6) throw new BadRequestException("La contraseña debe tener al menos 6 caracteres");
 
-        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{6,}$";
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[~!¡@#$%^&*()_\\-+=<>\\{\\}\\[\\]¿?])(?=\\S+$).{6,}$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(password);
 
