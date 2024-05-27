@@ -169,6 +169,10 @@ public class AuthService implements IAuthService {
         }
     }
 
+    public Boolean isTokenValid(String token){
+        return jwtService.isTokenValid(token);
+    }
+
     private Boolean hasPasswordChanged(String cedula, String password){
         return !cedula.equals(password);
     }

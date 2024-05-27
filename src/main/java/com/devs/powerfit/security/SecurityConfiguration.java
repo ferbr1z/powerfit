@@ -45,6 +45,7 @@ public class SecurityConfiguration {
                         authorizeRequests
                                 .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/auth/verify").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/swagger-ui/**").permitAll()
                                 .requestMatchers(HttpMethod.PUT, "/swagger-ui/**").permitAll()

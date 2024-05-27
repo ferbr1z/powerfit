@@ -56,6 +56,10 @@ public class JWTService implements IJWTService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public boolean isTokenValid(String token) {
+        return !isTokenExpired(token);
+    }
+
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
