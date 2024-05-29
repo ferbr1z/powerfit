@@ -51,6 +51,11 @@ public class ActividadController {
         return new ResponseEntity<>(actividadConClientesService.getAllActividadesConClientes(page), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
+    @GetMapping("/count/clientes/nombre/{nombre}/page/{page}")
+    public ResponseEntity<PageResponse<ActividadConClientesDto>> getAllWithClientes(@PathVariable String nombre, @PathVariable int page) {
+        return new ResponseEntity<>(actividadConClientesService.getActividadesConClientesByNombre(nombre,page), HttpStatus.OK);
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR')")
     @GetMapping("/{id}/suscripciones/page/{page}")
     public ResponseEntity<PageResponse<SuscripcionConClienteDto>> getSuscripcionesWithClientesPorActividad(@PathVariable Long id, @PathVariable int page) {
         return new ResponseEntity<>(actividadConClientesService.getSuscripcionesConClientesPorActividad(id,page), HttpStatus.OK);
