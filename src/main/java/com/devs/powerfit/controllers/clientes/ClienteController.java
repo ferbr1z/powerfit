@@ -6,11 +6,12 @@ import com.devs.powerfit.dtos.clientes.NuevosClientesDto;
 import com.devs.powerfit.dtos.clientes.PagoClienteDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionGananciasDto;
 import com.devs.powerfit.dtos.suscripciones.SuscripcionesEstadisticasDto;
+import com.devs.powerfit.interfaces.clientes.IClienteService;
 import com.devs.powerfit.services.clientes.ClienteListaService;
 import com.devs.powerfit.services.clientes.ReportesClienteService;
 import com.devs.powerfit.services.movimientos.MovimientoPorClienteService;
 import com.devs.powerfit.utils.responses.PageResponse;
-import com.devs.powerfit.interfaces.clientes.IClienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/clientes")
@@ -39,7 +39,7 @@ public class ClienteController {
     }
     @PostMapping
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
-    public ResponseEntity<ClienteDto> create(@RequestBody ClienteDto clienteDto) {
+    public ResponseEntity<ClienteDto> create(@RequestBody @Valid ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.create(clienteDto), HttpStatus.CREATED);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")
@@ -86,7 +86,7 @@ public class ClienteController {
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO','CLIENTE')")
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDto> update(@PathVariable Long id, @RequestBody ClienteDto clienteDto) {
+    public ResponseEntity<ClienteDto> update(@PathVariable Long id, @RequestBody @Valid ClienteDto clienteDto) {
         return new ResponseEntity<>(clienteService.update(id, clienteDto), HttpStatus.OK);
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','ENTRENADOR','CAJERO')")

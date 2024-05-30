@@ -93,6 +93,42 @@ public class ActividadConClientesService {
                 .collect(Collectors.toList());
         return new PageResponse<>(suscripcionesConClientes, suscripciones.getTotalPages(), suscripciones.getTotalElements(), page);
     }
+    public PageResponse<ActividadConClientesDto> getActividadesConClientesByNombre(String nombre, int page) {
+        var pag = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        var actividades = actividadDao.findByNombreContainingIgnoreCaseAndActiveIsTrue(pag, nombre);
+
+        if (actividades.isEmpty()) {
+            throw new NotFoundException("No hay actividades con el nombre proporcionado");
+        }
+
+        List<ActividadConClientesDto> actividadesConClientes = actividades.stream()
+                .map(actividad -> {
+                    long clientesMensuales = suscripcionDao.countDistinctByActividadAndModalidadAndActiveTrue(actividad, EModalidad.MENSUAL);
+                    long clientesSemanales = suscripcionDao.countDistinctByActividadAndModalidadAndActiveTrue(actividad, EModalidad.SEMANAL);
+                    long totalClientes = clientesSemanales + clientesMensuales;
+
+                    ActividadDto actividadDto = new ActividadDto();
+                    actividadDto.setId(actividad.getId());
+                    actividadDto.setNombre(actividad.getNombre());
+                    actividadDto.setDescripcion(actividad.getDescripcion());
+                    actividadDto.setCostoMensual(actividad.getCostoMensual());
+                    actividadDto.setCostoSemanal(actividad.getCostoSemanal());
+
+                    List<Long> entrenadoresIds = actividad.getEntrenadores().stream()
+                            .map(entrenador -> entrenador.getId())
+                            .collect(Collectors.toList());
+                    actividadDto.setEntrenadores(entrenadoresIds);
+
+                    return new ActividadConClientesDto(actividadDto, totalClientes);
+                })
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(actividadesConClientes,
+                actividades.getTotalPages(),
+                actividades.getTotalElements(),
+                actividades.getNumber() + 1);
+    }
+
 
 
 }

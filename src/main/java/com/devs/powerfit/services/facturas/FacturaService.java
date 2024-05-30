@@ -13,6 +13,8 @@ import com.devs.powerfit.daos.facturas.FacturaDao;
 import com.devs.powerfit.daos.facturas.FacturaDetalleDao;
 import com.devs.powerfit.dtos.clientes.ClienteDto;
 import com.devs.powerfit.dtos.facturas.FacturaDto;
+import com.devs.powerfit.dtos.facturas.filtros.ReporteVentasFilterDto;
+import com.devs.powerfit.dtos.facturas.reportes.ReporteVentasDto;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.facturas.IFacturaService;
@@ -23,8 +25,12 @@ import com.devs.powerfit.utils.mappers.clienteMappers.ClienteMapper;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaMapper;
 import com.devs.powerfit.utils.mappers.suscipcioneMapper.SuscripcionMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
+import com.devs.powerfit.utils.specifications.FacturaSpecification;
+import com.devs.powerfit.utils.specifications.ReporteVentaSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -447,6 +453,49 @@ public class FacturaService implements IFacturaService {
                 facturaDtoPage.getTotalPages(),
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
+    }
+    public ReporteVentasDto filtrarFacturas(ReporteVentasFilterDto filterDto,int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+
+        Specification<FacturaBean> spec = Specification.where(ReporteVentaSpecification.isActive());
+
+        if (filterDto.getNumeroFactura() != null && !filterDto.getNumeroFactura().isEmpty()) {
+            spec = spec.and(ReporteVentaSpecification.hasNumeroFactura(filterDto.getNumeroFactura()));
+        }
+        if (filterDto.getFechaInicio() != null && filterDto.getFechaFin() != null) {
+            spec = spec.and(ReporteVentaSpecification.hasFechaBetween(filterDto.getFechaInicio(), filterDto.getFechaFin()));
+        }
+        if (filterDto.getNombreCliente() != null && !filterDto.getNombreCliente().isEmpty()) {
+            spec = spec.and(ReporteVentaSpecification.hasNombreCliente(filterDto.getNombreCliente()));
+        }
+        if (filterDto.getRucCliente() != null && !filterDto.getRucCliente().isEmpty()) {
+            spec = spec.and(ReporteVentaSpecification.hasRucCliente(filterDto.getRucCliente()));
+        }
+        if (filterDto.getPagado() != null) {
+            spec = spec.and(ReporteVentaSpecification.isPagado(filterDto.getPagado()));
+        }
+        if (filterDto.getNombreEmpleado() != null && !filterDto.getNombreEmpleado().isEmpty()) {
+            spec = spec.and(ReporteVentaSpecification.hasNombreEmpleado(filterDto.getNombreEmpleado()));
+        }
+        Page<FacturaBean> facturasPage = facturaDao.findAll(spec, pageRequest);
+
+        // Calcular los totalizadores
+        List<FacturaBean> allFacturas = facturaDao.findAll(spec);
+        double total = allFacturas.stream().mapToDouble(FacturaBean::getTotal).sum();
+        double totalPagado = allFacturas.stream().filter(FacturaBean::isPagado).mapToDouble(FacturaBean::getTotal).sum();
+        double totalPendiente = allFacturas.stream().filter(factura -> !factura.isPagado()).mapToDouble(FacturaBean::getTotal).sum();
+
+        List<FacturaDto> facturaDtoList = facturasPage.map(mapper::toDto).getContent();
+
+        return new ReporteVentasDto(
+                total,
+                totalPagado,
+                totalPendiente,
+                facturaDtoList,
+                facturasPage.getTotalPages(),
+                facturasPage.getTotalElements(),
+                facturasPage.getNumber() + 1
+        );
     }
 
 
