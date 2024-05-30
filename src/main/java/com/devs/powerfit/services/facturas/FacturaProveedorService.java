@@ -2,10 +2,10 @@ package com.devs.powerfit.services.facturas;
 
 import com.devs.powerfit.beans.facturas.FacturaProveedorBean;
 import com.devs.powerfit.daos.facturas.FacturaProveedorDao;
-import com.devs.powerfit.dtos.facturas.FacturaDto;
 import com.devs.powerfit.dtos.facturas.FacturaProveedorDto;
+import com.devs.powerfit.dtos.facturas.filtros.ReporteComprasFilterDto;
+import com.devs.powerfit.dtos.facturas.reportes.ReporteComprasDto;
 import com.devs.powerfit.dtos.proveedores.ProveedorDto;
-import com.devs.powerfit.enums.EEstado;
 import com.devs.powerfit.exceptions.BadRequestException;
 import com.devs.powerfit.exceptions.NotFoundException;
 import com.devs.powerfit.interfaces.facturas.IFacturaProveedorService;
@@ -14,11 +14,10 @@ import com.devs.powerfit.utils.Setting;
 import com.devs.powerfit.utils.mappers.facturaMappers.FacturaProveedorMapper;
 import com.devs.powerfit.utils.mappers.proveedorMapper.ProveedorMapper;
 import com.devs.powerfit.utils.responses.PageResponse;
-import com.devs.powerfit.utils.specifications.FacturaSpecification;
-import org.hibernate.annotations.processing.Find;
+import com.devs.powerfit.utils.specifications.ReporteCompraSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -216,23 +215,63 @@ public class FacturaProveedorService implements IFacturaProveedorService {
                 facturaDtoPage.getTotalElements(),
                 facturaDtoPage.getNumber() + 1);
     }
+    public ReporteComprasDto filtrarFacturas(ReporteComprasFilterDto filterDto, int page) {
+        var pageRequest = PageRequest.of(page - 1, Setting.PAGE_SIZE);
+        Specification<FacturaProveedorBean> spec = Specification.where(ReporteCompraSpecification.isActive());
+
+        if (filterDto.getNumeroFactura() != null && !filterDto.getNumeroFactura().isEmpty()) {
+            spec = spec.and(ReporteCompraSpecification.hasNumeroFactura(filterDto.getNumeroFactura()));
+        }
+        if (filterDto.getFechaInicio() != null && filterDto.getFechaFin() != null) {
+            spec = spec.and(ReporteCompraSpecification.hasFechaBetween(filterDto.getFechaInicio(), filterDto.getFechaFin()));
+        }
+        if (filterDto.getNombreProveedor() != null && !filterDto.getNombreProveedor().isEmpty()) {
+            spec = spec.and(ReporteCompraSpecification.hasNombreProveedor(filterDto.getNombreProveedor()));
+        }
+        if (filterDto.getRucProveedor() != null && !filterDto.getRucProveedor().isEmpty()) {
+            spec = spec.and(ReporteCompraSpecification.hasRucProveedor(filterDto.getRucProveedor()));
+        }
+        if (filterDto.getPagado() != null) {
+            spec = spec.and(ReporteCompraSpecification.isPagado(filterDto.getPagado()));
+        }
+
+        Page<FacturaProveedorBean> facturasPage = facturaDao.findAll(spec, pageRequest);
+
+        // Calcular los totalizadores
+        List<FacturaProveedorBean> allFacturas = facturaDao.findAll(spec);
+        double total = allFacturas.stream().mapToDouble(FacturaProveedorBean::getTotal).sum();
+        double totalPagado = allFacturas.stream().filter(FacturaProveedorBean::isPagado).mapToDouble(FacturaProveedorBean::getTotal).sum();
+        double totalPendiente = allFacturas.stream().filter(factura -> !factura.isPagado()).mapToDouble(FacturaProveedorBean::getTotal).sum();
+
+        List<FacturaProveedorDto> facturaDtoList = facturasPage.map(mapper::toDto).getContent();
+
+        return new ReporteComprasDto(
+                total,
+                totalPagado,
+                totalPendiente,
+                facturaDtoList,
+                facturasPage.getTotalPages(),
+                facturasPage.getTotalElements(),
+                facturasPage.getNumber() + 1
+        );
+    }
 
 
 
     private String generarNumeroFactura() {
         Random random = new Random();
 
-        // Generar el primer trío de dígitos aleatorios (limitado hasta 10)
-        int primerTrio = random.nextInt(10) + 1; // Aseguramos que el número no sea cero
+        // Generar el primer trío de dígitos aleatorios (entre 0 y 999)
+        int primerTrio = random.nextInt(1000); // 0 a 999
         String primerTrioStr = String.format("%03d", primerTrio);
 
-        // Generar los dos siguientes tríos de dígitos aleatorios
-        int segundoTrio = random.nextInt(999) + 1; // Aseguramos que el número no sea cero
+        // Generar el segundo trío de dígitos aleatorios (entre 0 y 999)
+        int segundoTrio = random.nextInt(1000); // 0 a 999
         String segundoTrioStr = String.format("%03d", segundoTrio);
 
-        // Generar el número octal aleatorio
-        int octal = random.nextInt(99999999) + 1; // Aseguramos que el número no sea cero
-        String octalStr = String.format("%08o", octal);
+        // Generar el número decimal aleatorio de 8 dígitos
+        int octal = random.nextInt(100000000); // 0 a 99999999
+        String octalStr = String.format("%08d", octal);
 
         // Construir el número de factura con el formato especificado
         return primerTrioStr + "-" + segundoTrioStr + "-" + octalStr;
