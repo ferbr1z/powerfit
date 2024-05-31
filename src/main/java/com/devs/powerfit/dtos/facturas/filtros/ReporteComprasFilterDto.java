@@ -19,8 +19,6 @@ public class ReporteComprasFilterDto {
     @Pattern(regexp = "^[0-9-]+$", message = "El RUC del proveedor solo puede contener números y guiones")
     @Size(max = 20, message = "El RUC del proveedor no puede exceder los 20 caracteres")
     private String rucProveedor;
-    @FacturaNumeroFormat(message = "El número de factura debe tener el formato 001-001-00000001")
-    @Size(max=16,message = "El número de factura no puede exceder los 16 caracteres")
     private String numeroFactura;
     private Boolean pagado;
     @JsonFormat(pattern = "yyyy-MM-dd")
